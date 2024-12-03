@@ -2,13 +2,16 @@
 import { computed } from 'vue'
 import type { Invoice } from '@/types/invoice'
 import { useCustomersStore } from '@/stores/customers'
+import { useCompanyStore } from '@/stores/company'
 
 const props = defineProps<{
   invoice: Invoice
 }>()
 
 const customersStore = useCustomersStore()
+const companyStore = useCompanyStore()
 const customer = computed(() => customersStore.getCustomerById(props.invoice.customerId))
+const company = computed(() => companyStore.companyInfo)
 
 const printInvoice = () => {
   window.print()
@@ -17,21 +20,36 @@ const printInvoice = () => {
 
 <template>
   <div class="max-w-4xl mx-auto bg-white p-8 print:p-4">
+    <!-- Header with Company Logo and Info -->
     <div class="flex justify-between items-start mb-8">
+      <div class="flex items-start space-x-4">
+        <div v-if="company.logoUrl" class="w-24 h-24">
+          <img :src="company.logoUrl" alt="Company logo" class="w-full h-full object-contain" />
+        </div>
+        <div>
+          <h2 class="font-bold text-xl">{{ company.name }}</h2>
+          <p class="whitespace-pre-line">{{ company.address }}</p>
+          <p>VAT ID: {{ company.vatId }}</p>
+          <p>IBAN: {{ company.iban }}</p>
+        </div>
+      </div>
       <div>
         <h1 class="text-2xl font-bold mb-2">INVOICE</h1>
         <p class="text-gray-600">Invoice #: {{ invoice.number }}</p>
         <p class="text-gray-600">Date: {{ new Date(invoice.date).toLocaleDateString() }}</p>
       </div>
-      <div class="text-right">
-        <h2 class="font-bold mb-2">Bill To:</h2>
-        <p>{{ customer?.name }}</p>
-        <p>{{ customer?.address }}</p>
-        <p>{{ customer?.city }}</p>
-        <p>VAT ID: {{ customer?.vatId }}</p>
-      </div>
     </div>
 
+    <!-- Customer Info -->
+    <div class="mb-8">
+      <h2 class="font-bold mb-2">Bill To:</h2>
+      <p>{{ customer?.name }}</p>
+      <p>{{ customer?.address }}</p>
+      <p>{{ customer?.city }}</p>
+      <p>VAT ID: {{ customer?.vatId }}</p>
+    </div>
+
+    <!-- Invoice Items -->
     <table class="w-full mb-8">
       <thead>
         <tr class="border-b-2 border-gray-300">
@@ -59,8 +77,21 @@ const printInvoice = () => {
       </tfoot>
     </table>
 
-    <div class="print:hidden">
-      <BaseButton @click="printInvoice">Print Invoice</BaseButton>
+    <!-- Payment Info -->
+    <div class="border-t pt-4 text-sm text-gray-600">
+      <p class="font-bold mb-1">Payment Information:</p>
+      <p>IBAN: {{ company.iban }}</p>
+      <p>Invoice #{{ invoice.number }} as payment reference</p>
+    </div>
+
+    <!-- Print Button -->
+    <div class="mt-8 print:hidden">
+      <button
+        @click="printInvoice"
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Print Invoice
+      </button>
     </div>
   </div>
 </template>

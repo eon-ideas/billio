@@ -59,6 +59,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/company-settings',
+      name: 'company-settings',
+      component: () => import('@/views/CompanySettingsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/',
       redirect: '/dashboard'
     }
