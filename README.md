@@ -51,8 +51,21 @@ npm run build
 
 ### Building Docker Image
 
+#### Single Architecture Build
 ```bash
 docker build -t invoice-master:latest .
+```
+
+#### Multi-Architecture Build
+Build for multiple architectures (AMD64, ARM64, ARMv7):
+```bash
+# Create and use a new builder instance
+docker buildx create --use
+
+# Build and push multi-arch image
+docker buildx build --platform linux/amd64,linux/arm64,linux/arm/v7 \
+  -t yourusername/invoice-master:latest \
+  --push .
 ```
 
 ### Running Docker Container
@@ -65,7 +78,7 @@ The application will be available at `http://localhost:8080`
 
 ### Publishing to Docker Hub
 
-1. Tag the image:
+1. Tag the image (for single architecture):
 ```bash
 docker tag invoice-master:latest yourusername/invoice-master:latest
 ```
@@ -77,8 +90,32 @@ docker login
 
 3. Push the image:
 ```bash
+# For single architecture
 docker push yourusername/invoice-master:latest
+
+# For multi-architecture (use buildx command from above)
 ```
+
+### Using Docker Compose
+
+1. Start the application:
+```bash
+docker-compose up -d
+```
+
+2. Stop the application:
+```bash
+docker-compose down
+```
+
+The application will be available at `http://localhost:8080`
+
+### Supported Architectures
+
+The Docker image supports the following architectures:
+- linux/amd64 (x86_64) - For most desktop computers and servers
+- linux/arm64 (aarch64) - For newer ARM devices (e.g., Apple M1/M2, newer Raspberry Pi)
+- linux/arm/v7 - For older ARM devices (e.g., older Raspberry Pi, some NAS devices)
 
 ## Project Structure
 
