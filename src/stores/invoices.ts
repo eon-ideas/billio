@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { Invoice, InvoiceFormData } from '@/types/invoice'
-import { useCustomersStore } from './customers'
 
 export const useInvoicesStore = defineStore('invoices', () => {
   const invoices = ref<Invoice[]>([
@@ -28,8 +27,6 @@ export const useInvoicesStore = defineStore('invoices', () => {
       paid: false
     }
   ])
-
-  const customersStore = useCustomersStore()
 
   const addInvoice = (invoiceData: InvoiceFormData) => {
     const total = calculateTotal(invoiceData.items)

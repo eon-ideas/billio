@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import type { InvoiceItemFormData } from '@/types/invoice'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
 
 const props = defineProps<{
   initialData?: InvoiceItemFormData
@@ -20,37 +19,53 @@ const item = ref<InvoiceItemFormData>(props.initialData ?? {
   price: 0
 })
 
+const total = computed(() => {
+  return item.value.quantity * item.value.price
+})
+
+const updateField = (field: keyof InvoiceItemFormData, value: string | number) => {
+  item.value = {
+    ...item.value,
+    [field]: field === 'description' ? value : Number(value)
+  }
+  emit('update', item.value, props.index)
+}
+
 watch(item, (newValue) => {
   emit('update', newValue, props.index)
 }, { deep: true })
 </script>
 
 <template>
-  <div class="flex gap-4 items-end">
-    <BaseInput
-      v-model="item.description"
-      label="Description"
-      required
-    />
-    <BaseInput
-      v-model.number="item.quantity"
-      type="number"
-      label="Quantity"
-      required
-      class="w-32"
-    />
-    <BaseInput
-      v-model.number="item.price"
-      type="number"
-      label="Price"
-      required
-      class="w-32"
-    />
-    <BaseButton
-      @click="emit('remove', index)"
-      class="bg-red-600 hover:bg-red-700"
-    >
-      Remove
-    </BaseButton>
+  <div class="grid grid-cols-1 gap-4 sm:grid-cols-4">
+    <div class="sm:col-span-2">
+      <BaseInput
+        v-model="item.description"
+        label="Description"
+        @update:modelValue="updateField('description', $event)"
+        required
+      />
+    </div>
+    <div>
+      <BaseInput
+        v-model="item.quantity"
+        type="number"
+        label="Quantity"
+        @update:modelValue="updateField('quantity', $event)"
+        required
+      />
+    </div>
+    <div>
+      <BaseInput
+        v-model="item.price"
+        type="number"
+        label="Price"
+        @update:modelValue="updateField('price', $event)"
+        required
+      />
+    </div>
+    <div class="sm:col-span-4">
+      <p class="text-sm text-gray-500">Total: {{ total }}</p>
+    </div>
   </div>
 </template>

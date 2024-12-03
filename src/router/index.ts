@@ -71,11 +71,11 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
   
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next('/login')
+    next({ name: 'login' })
   } else if (to.meta.requiresGuest && auth.isAuthenticated) {
     next('/dashboard')
   } else {
