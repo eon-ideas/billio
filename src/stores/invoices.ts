@@ -24,7 +24,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
           price: 750
         }
       ],
-      total: 3000
+      total: 3000,
+      paid: false
     }
   ])
 
@@ -35,7 +36,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
     const invoice: Invoice = {
       id: crypto.randomUUID(),
       ...invoiceData,
-      total
+      total,
+      paid: false
     }
     invoices.value.push(invoice)
     return invoice
@@ -45,8 +47,23 @@ export const useInvoicesStore = defineStore('invoices', () => {
     const index = invoices.value.findIndex(i => i.id === id)
     if (index !== -1) {
       const total = calculateTotal(invoiceData.items)
-      invoices.value[index] = { id, ...invoiceData, total }
+      const currentInvoice = invoices.value[index]
+      invoices.value[index] = { 
+        id, 
+        ...invoiceData, 
+        total,
+        paid: currentInvoice.paid 
+      }
       return invoices.value[index]
+    }
+    return null
+  }
+
+  const toggleInvoicePaid = (id: string) => {
+    const invoice = invoices.value.find(i => i.id === id)
+    if (invoice) {
+      invoice.paid = !invoice.paid
+      return invoice
     }
     return null
   }
@@ -68,6 +85,7 @@ export const useInvoicesStore = defineStore('invoices', () => {
     addInvoice,
     updateInvoice,
     getInvoiceById,
-    getInvoicesByCustomerId
+    getInvoicesByCustomerId,
+    toggleInvoicePaid
   }
 })

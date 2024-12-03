@@ -12,7 +12,8 @@ export interface Invoice {
   date: string
   items: InvoiceItem[]
   total: number
+  paid: boolean
 }
 
-export type InvoiceFormData = Omit<Invoice, 'id' | 'total'>
+export type InvoiceFormData = Omit<Invoice, 'id' | 'total' | 'paid'>
 export type InvoiceItemFormData = Omit<InvoiceItem, 'id'>
