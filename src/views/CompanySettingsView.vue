@@ -2,10 +2,17 @@
 import { ref } from 'vue'
 import Navigation from '@/components/layout/Navigation.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import { useCompanyStore } from '@/stores/company'
 
 const companyStore = useCompanyStore()
 const logoInput = ref<HTMLInputElement | null>(null)
+
+const breadcrumbItems = [
+  {
+    name: 'Company Information',
+  }
+]
 
 const handleLogoUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -26,6 +33,7 @@ const handleSubmit = () => {
     <Navigation />
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 sm:px-0">
+        <Breadcrumb :items="breadcrumbItems" />
         <h1 class="text-2xl font-bold text-gray-900 mb-6">Company Settings</h1>
         
         <div class="bg-white shadow rounded-lg p-6">

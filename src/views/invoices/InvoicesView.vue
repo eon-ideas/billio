@@ -1,29 +1,17 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useCustomersStore } from '@/stores/customers'
-import CustomerList from '@/components/customers/CustomerList.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 
 const router = useRouter()
-const customersStore = useCustomersStore()
 const searchQuery = ref('')
 
 const breadcrumbItems = [
-  { name: 'Customers' }
+  { name: 'Invoices' }
 ]
 
-const filteredCustomers = computed(() => {
-  const query = searchQuery.value.toLowerCase()
-  return customersStore.customers.filter(customer => 
-    customer.name.toLowerCase().includes(query) ||
-    customer.city.toLowerCase().includes(query) ||
-    customer.vatId.toLowerCase().includes(query)
-  )
-})
-
 const handleAddNew = () => {
-  router.push('/customers/new')
+  router.push('/invoices/new')
 }
 </script>
 
@@ -37,9 +25,9 @@ const handleAddNew = () => {
       <div class="mb-8">
         <div class="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 class="text-2xl font-bold text-gray-900">Customers</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Invoices</h1>
             <p class="mt-1 text-sm text-gray-500">
-              Manage your customer profiles and their information
+              Manage your invoices and billing information
             </p>
           </div>
           <div class="mt-4 sm:mt-0">
@@ -50,7 +38,7 @@ const handleAddNew = () => {
               <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
-              Add Customer
+              Create Invoice
             </button>
           </div>
         </div>
@@ -67,15 +55,18 @@ const handleAddNew = () => {
               v-model="searchQuery"
               type="search"
               class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="Search customers..."
+              placeholder="Search invoices..."
             >
           </div>
         </div>
       </div>
 
-      <!-- Customer List -->
+      <!-- Invoice List Placeholder -->
       <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-        <CustomerList :customers="filteredCustomers" :search-query="searchQuery" />
+        <div class="p-6">
+          <!-- Invoice list component will be implemented later -->
+          <p class="text-gray-500 text-center">Invoice list coming soon</p>
+        </div>
       </div>
     </main>
   </div>

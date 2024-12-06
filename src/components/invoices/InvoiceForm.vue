@@ -3,7 +3,6 @@ import { ref, computed } from 'vue'
 import type { InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
 import { useCustomersStore } from '@/stores/customers'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
 import InvoiceItemForm from './InvoiceItemForm.vue'
 
 const props = defineProps<{
@@ -31,7 +30,7 @@ const addItem = () => {
     quantity: 0,
     price: 0
   }
-  formData.value.items.push(newItem as any) // Type assertion needed here due to the form data structure
+  formData.value.items.push(newItem as any)
 }
 
 const updateItem = (index: number, item: InvoiceItemFormData) => {
@@ -49,14 +48,22 @@ const total = computed(() => {
   return formData.value.items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
 })
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: customer.value?.currency || 'USD'
+  }).format(amount)
+}
+
 const handleSubmit = () => {
   emit('submit', formData.value)
 }
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="space-y-6">
-    <div class="grid grid-cols-2 gap-6">
+  <form @submit.prevent="handleSubmit" class="space-y-8">
+    <!-- Basic Information -->
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
       <BaseInput
         v-model="formData.number"
         label="Invoice Number"
@@ -70,25 +77,36 @@ const handleSubmit = () => {
       />
     </div>
 
-    <div class="border-t pt-6">
-      <div class="flex justify-between items-center mb-4">
-        <h3 class="text-lg font-medium">Items</h3>
-        <BaseButton @click="addItem" type="button">
+    <!-- Items Section -->
+    <div class="border-t border-gray-200 pt-6">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h3 class="text-lg font-medium text-gray-900">Invoice Items</h3>
+          <p class="mt-1 text-sm text-gray-500">Add or remove items from this invoice</p>
+        </div>
+        <button
+          type="button"
+          @click="addItem"
+          class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
           Add Item
-        </BaseButton>
+        </button>
       </div>
 
-      <div class="space-y-4">
-        <div v-for="(item, index) in formData.items" :key="index" class="space-y-4">
-          <div class="flex items-start gap-4">
-            <div class="flex-grow">
-              <InvoiceItemForm
-                :item="item"
-                :index="index"
-                @update="updateItem(index, $event)"
-              />
-            </div>
-            <div class="pt-8">
+      <div class="space-y-6">
+        <template v-if="formData.items.length > 0">
+          <div v-for="(item, index) in formData.items" :key="index" class="relative bg-gray-50 rounded-lg p-4">
+            <div class="flex items-start gap-4">
+              <div class="flex-grow">
+                <InvoiceItemForm
+                  :item="item"
+                  :index="index"
+                  @update="updateItem(index, $event)"
+                />
+              </div>
               <button
                 type="button"
                 @click="removeItem(index)"
@@ -101,20 +119,34 @@ const handleSubmit = () => {
               </button>
             </div>
           </div>
+        </template>
+        <div v-else class="text-center py-6 bg-gray-50 rounded-lg">
+          <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">No items</h3>
+          <p class="mt-1 text-sm text-gray-500">Get started by adding a new item to this invoice.</p>
         </div>
       </div>
     </div>
 
-    <div class="border-t pt-6">
-      <div class="text-right">
-        <p class="text-lg font-medium">
-          Total ({{ customer?.currency }}): {{ total.toFixed(2) }}
-        </p>
+    <!-- Total and Submit -->
+    <div class="border-t border-gray-200 pt-6">
+      <div class="flex justify-between items-center mb-6">
+        <div class="text-lg font-medium text-gray-900">
+          Total Amount
+          <span class="ml-2 text-2xl font-bold text-blue-600">{{ formatCurrency(total) }}</span>
+        </div>
+        <button
+          type="submit"
+          class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          Save Invoice
+        </button>
       </div>
     </div>
-
-    <BaseButton type="submit" class="w-full">
-      {{ initialData ? 'Update' : 'Create' }} Invoice
-    </BaseButton>
   </form>
 </template>

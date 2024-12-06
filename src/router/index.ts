@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { routeMeta } from './meta'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -8,61 +9,67 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
-      meta: { requiresGuest: true }
+      meta: routeMeta.login
     },
     {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/DashboardView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta.dashboard
     },
     {
       path: '/customers',
       name: 'customers',
       component: () => import('@/views/customers/CustomersView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta.customers
     },
     {
       path: '/customers/new',
       name: 'customers-new',
       component: () => import('@/views/customers/CustomerNewView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['customers-new']
+    },
+    {
+      path: '/customers/:id',
+      name: 'customer-view',
+      component: () => import('@/views/customers/CustomerView.vue'),
+      meta: routeMeta['customer-view']
     },
     {
       path: '/customers/:id/edit',
       name: 'customers-edit',
       component: () => import('@/views/customers/CustomerEditView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['customers-edit']
     },
     {
       path: '/customers/:customerId/invoices',
       name: 'customer-invoices',
       component: () => import('@/views/invoices/CustomerInvoicesView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['customer-invoices']
     },
     {
       path: '/customers/:customerId/invoices/new',
       name: 'invoice-new',
       component: () => import('@/views/invoices/InvoiceNewView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['invoice-new']
     },
     {
       path: '/customers/:customerId/invoices/:id/edit',
       name: 'invoice-edit',
       component: () => import('@/views/invoices/InvoiceEditView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['invoice-edit']
     },
     {
       path: '/customers/:customerId/invoices/:id/preview',
       name: 'invoice-preview',
       component: () => import('@/views/invoices/InvoicePreviewView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['invoice-preview']
     },
     {
       path: '/company-settings',
       name: 'company-settings',
       component: () => import('@/views/CompanySettingsView.vue'),
-      meta: { requiresAuth: true }
+      meta: routeMeta['company-settings']
     },
     {
       path: '/',
@@ -81,6 +88,11 @@ router.beforeEach((to, _from, next) => {
   } else {
     next()
   }
+})
+
+// Update document title on route change
+router.afterEach((to) => {
+  document.title = to.meta.title as string || 'Invoice Master'
 })
 
 export default router

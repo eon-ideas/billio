@@ -13,83 +13,113 @@ const companyStore = useCompanyStore()
 const customer = computed(() => customersStore.getCustomerById(props.invoice.customerId))
 const company = computed(() => companyStore.companyInfo)
 
+const formatCurrency = (amount: number) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: customer.value?.currency || 'USD',
+    minimumFractionDigits: 2
+  }).format(amount)
+}
+
+const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
 const printInvoice = () => {
   window.print()
 }
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-8 print:p-4">
+  <div class="max-w-4xl mx-auto bg-white p-8 print:p-6 print-area rounded-lg shadow-lg print:shadow-none">
     <!-- Header with Company Logo and Info -->
-    <div class="flex justify-between items-start mb-8">
+    <div class="grid grid-cols-2 gap-8 mb-12">
       <div class="flex items-start space-x-4">
-        <div v-if="company.logoUrl" class="w-24 h-24">
+        <div v-if="company.logoUrl" class="w-32 h-32 print:w-24 print:h-24">
           <img :src="company.logoUrl" alt="Company logo" class="w-full h-full object-contain" />
         </div>
-        <div>
-          <h2 class="font-bold text-xl">{{ company.name }}</h2>
-          <p class="whitespace-pre-line">{{ company.address }}</p>
-          <p>VAT ID: {{ company.vatId }}</p>
+        <div class="text-gray-600">
+          <h2 class="font-bold text-xl text-gray-900 mb-2">{{ company.name }}</h2>
+          <p class="whitespace-pre-line mb-1">{{ company.address }}</p>
+          <p class="mb-1">VAT ID: {{ company.vatId }}</p>
           <p>IBAN: {{ company.iban }}</p>
         </div>
       </div>
-      <div>
-        <h1 class="text-2xl font-bold mb-2">INVOICE</h1>
-        <p class="text-gray-600">Invoice #: {{ invoice.number }}</p>
-        <p class="text-gray-600">Date: {{ new Date(invoice.date).toLocaleDateString() }}</p>
+      <div class="text-right">
+        <div class="inline-block bg-blue-50 print:bg-transparent px-6 py-4 rounded-lg">
+          <h1 class="text-3xl font-bold text-blue-600 print:text-gray-900 mb-3">INVOICE</h1>
+          <p class="text-gray-600 mb-1">Invoice #: <span class="font-medium">{{ invoice.number }}</span></p>
+          <p class="text-gray-600">Date: <span class="font-medium">{{ formatDate(invoice.date) }}</span></p>
+        </div>
       </div>
     </div>
 
     <!-- Customer Info -->
-    <div class="mb-8">
-      <h2 class="font-bold mb-2">Bill To:</h2>
-      <p>{{ customer?.name }}</p>
-      <p>{{ customer?.address }}</p>
-      <p>{{ customer?.city }}</p>
-      <p>VAT ID: {{ customer?.vatId }}</p>
+    <div class="mb-12 bg-gray-50 print:bg-transparent p-6 rounded-lg">
+      <h2 class="font-bold text-gray-900 mb-3">Bill To:</h2>
+      <div class="text-gray-600">
+        <p class="text-lg font-medium text-gray-900 mb-2">{{ customer?.name }}</p>
+        <p class="mb-1">{{ customer?.address }}</p>
+        <p class="mb-1">{{ customer?.city }}</p>
+        <p>VAT ID: {{ customer?.vatId }}</p>
+      </div>
     </div>
 
     <!-- Invoice Items -->
-    <table class="w-full mb-8">
-      <thead>
-        <tr class="border-b-2 border-gray-300">
-          <th class="py-2 text-left">Description</th>
-          <th class="py-2 text-right">Quantity</th>
-          <th class="py-2 text-right">Price</th>
-          <th class="py-2 text-right">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="item in invoice.items" :key="item.id" class="border-b border-gray-200">
-          <td class="py-2">{{ item.description }}</td>
-          <td class="py-2 text-right">{{ item.quantity }}</td>
-          <td class="py-2 text-right">{{ item.price.toFixed(2) }}</td>
-          <td class="py-2 text-right">{{ (item.quantity * item.price).toFixed(2) }}</td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" class="py-4 text-right font-bold">Total:</td>
-          <td class="py-4 text-right font-bold">
-            {{ invoice.total.toFixed(2) }} {{ customer?.currency }}
-          </td>
-        </tr>
-      </tfoot>
-    </table>
+    <div class="mb-12 overflow-x-auto">
+      <table class="w-full">
+        <thead>
+          <tr class="bg-gray-50 print:bg-transparent">
+            <th class="py-3 px-4 text-left font-semibold text-gray-900">Description</th>
+            <th class="py-3 px-4 text-right font-semibold text-gray-900">Quantity</th>
+            <th class="py-3 px-4 text-right font-semibold text-gray-900">Price</th>
+            <th class="py-3 px-4 text-right font-semibold text-gray-900">Total</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          <tr v-for="item in invoice.items" :key="item.id">
+            <td class="py-4 px-4 text-gray-600">{{ item.description }}</td>
+            <td class="py-4 px-4 text-right text-gray-600">{{ item.quantity }}</td>
+            <td class="py-4 px-4 text-right text-gray-600">{{ formatCurrency(item.price) }}</td>
+            <td class="py-4 px-4 text-right text-gray-900 font-medium">
+              {{ formatCurrency(item.quantity * item.price) }}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr class="border-t-2 border-gray-300">
+            <td colspan="3" class="py-6 px-4 text-right font-bold text-gray-900">Total:</td>
+            <td class="py-6 px-4 text-right font-bold text-gray-900 text-lg">
+              {{ formatCurrency(invoice.total) }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
 
     <!-- Payment Info -->
-    <div class="border-t pt-4 text-sm text-gray-600">
-      <p class="font-bold mb-1">Payment Information:</p>
-      <p>IBAN: {{ company.iban }}</p>
-      <p>Invoice #{{ invoice.number }} as payment reference</p>
+    <div class="bg-blue-50 print:bg-transparent p-6 rounded-lg text-gray-600">
+      <h3 class="font-bold text-gray-900 mb-3">Payment Information</h3>
+      <div class="space-y-1">
+        <p><span class="font-medium">Bank Account:</span> {{ company.iban }}</p>
+        <p><span class="font-medium">Payment Reference:</span> Invoice #{{ invoice.number }}</p>
+        <p class="text-sm mt-4">Please include the invoice number as payment reference</p>
+      </div>
     </div>
 
     <!-- Print Button -->
-    <div class="mt-8 print:hidden">
+    <div class="mt-8 text-center print:hidden">
       <button
         @click="printInvoice"
-        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200 inline-flex items-center"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+        </svg>
         Print Invoice
       </button>
     </div>
@@ -99,7 +129,13 @@ const printInvoice = () => {
 <style>
 @media print {
   @page {
-    margin: 1cm;
+    size: A4;
+    margin: 1.5cm;
+  }
+  
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
   
   body * {
@@ -114,6 +150,42 @@ const printInvoice = () => {
     position: absolute;
     left: 0;
     top: 0;
+    width: 100%;
+  }
+  
+  /* Ensure background colors print */
+  * {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  /* Improve text contrast for printing */
+  .text-gray-600 {
+    color: #374151 !important;
+  }
+  
+  /* Remove shadows and borders for cleaner print */
+  .shadow-lg, .rounded-lg {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  
+  /* Ensure proper page breaks */
+  table {
+    page-break-inside: auto;
+  }
+  
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
+  }
+  
+  thead {
+    display: table-header-group;
+  }
+  
+  tfoot {
+    display: table-footer-group;
   }
 }
 </style>
