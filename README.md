@@ -63,19 +63,39 @@ npm run build
    - Go to your Supabase project dashboard
    - Navigate to Storage
    - Create a new bucket called "static"
-   - Upload the contents of your `dist` folder to this bucket
-   - Enable public access to the bucket
+   - Set the bucket's public access policy to allow read access
+   - Create a folder called "app" in the bucket
+   - Upload all files from your `dist` folder to the "app" folder
    - Your app will be available at:
      ```
-     https://[project-ref].supabase.co/storage/v1/object/public/static/index.html
+     https://[project-ref].supabase.co/storage/v1/object/public/static/app/index.html
      ```
      Replace [project-ref] with your project reference found in your project URL
 
-3. Optional: Set up a custom domain
-   - Go to Project Settings > Custom Domains
-   - Follow the instructions to configure your domain
-   - Update DNS settings with your provider
-   - Wait for DNS propagation (up to 48 hours)
+3. Optional: Set up Hosting with Vercel or Netlify
+   For better performance and routing support, consider using a hosting service:
+   
+   #### Vercel
+   ```bash
+   # Install Vercel CLI
+   npm i -g vercel
+   
+   # Deploy
+   vercel
+   ```
+   
+   #### Netlify
+   ```bash
+   # Install Netlify CLI
+   npm i -g netlify-cli
+   
+   # Deploy
+   netlify deploy
+   ```
+
+4. Optional: Set up a custom domain
+   - If using Vercel/Netlify: Configure through their dashboard
+   - If using Supabase Storage: Set up a CDN like Cloudflare in front
 
 ## Local Development
 
