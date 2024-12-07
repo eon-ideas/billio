@@ -62,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   // Listen to auth changes
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabase.auth.onAuthStateChange((_event, session) => {
     if (session) {
       isAuthenticated.value = true
       user.value = session.user
