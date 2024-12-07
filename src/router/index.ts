@@ -9,7 +9,13 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/LoginView.vue'),
-      meta: routeMeta.login
+      meta: { requiresAuth: false }
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('@/views/SignUpView.vue'),
+      meta: { requiresAuth: false }
     },
     {
       path: '/dashboard',
@@ -78,16 +84,23 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, _from, next) => {
+// Navigation guard
+router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  const isAuthRoute = to.path === '/login' || to.path === '/signup'
   
-  if (to.meta.requiresAuth && !auth.isAuthenticated) {
-    next({ name: 'login' })
-  } else if (to.meta.requiresGuest && auth.isAuthenticated) {
-    next('/dashboard')
-  } else {
-    next()
+  // If going to auth route while authenticated, redirect to dashboard
+  if (isAuthRoute && auth.isAuthenticated) {
+    return '/dashboard'
   }
+  
+  // If going to protected route while not authenticated, redirect to login
+  if (!isAuthRoute && to.meta.requiresAuth !== false && !auth.isAuthenticated) {
+    return '/login'
+  }
+  
+  // Otherwise, allow navigation
+  return true
 })
 
 // Update document title on route change

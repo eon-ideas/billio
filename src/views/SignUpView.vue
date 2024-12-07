@@ -8,28 +8,39 @@ const router = useRouter()
 
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const error = ref('')
 const loading = ref(false)
+const successMessage = ref('')
 
-const handleLogin = async () => {
-  if (!email.value || !password.value) {
+const handleSignup = async () => {
+  if (!email.value || !password.value || !confirmPassword.value) {
     error.value = 'Please fill in all fields'
+    return
+  }
+
+  if (password.value !== confirmPassword.value) {
+    error.value = 'Passwords do not match'
     return
   }
 
   try {
     loading.value = true
     error.value = ''
-    await auth.login(email.value, password.value)
+    await auth.signup(email.value, password.value)
+    successMessage.value = 'Please check your email to confirm your account'
+    email.value = ''
+    password.value = ''
+    confirmPassword.value = ''
   } catch (e: any) {
-    error.value = e.message || 'An error occurred during login'
+    error.value = e.message || 'An error occurred during signup'
   } finally {
     loading.value = false
   }
 }
 
-const goToSignup = () => {
-  router.push('/signup')
+const goToLogin = () => {
+  router.push('/login')
 }
 </script>
 
@@ -38,10 +49,10 @@ const goToSignup = () => {
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Sign in to your account
+          Create your account
         </h2>
       </div>
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
+      <form class="mt-8 space-y-6" @submit.prevent="handleSignup">
         <div class="rounded-md shadow-sm -space-y-px">
           <div>
             <label for="email-address" class="sr-only">Email address</label>
@@ -63,14 +74,30 @@ const goToSignup = () => {
               type="password"
               required
               v-model="password"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
               placeholder="Password"
+            />
+          </div>
+          <div>
+            <label for="confirm-password" class="sr-only">Confirm Password</label>
+            <input
+              id="confirm-password"
+              name="confirm-password"
+              type="password"
+              required
+              v-model="confirmPassword"
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+              placeholder="Confirm Password"
             />
           </div>
         </div>
 
         <div v-if="error" class="text-red-500 text-sm text-center">
           {{ error }}
+        </div>
+
+        <div v-if="successMessage" class="text-green-500 text-sm text-center">
+          {{ successMessage }}
         </div>
 
         <div>
@@ -80,17 +107,17 @@ const goToSignup = () => {
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
           >
             <span v-if="loading">Loading...</span>
-            <span v-else>Sign in</span>
+            <span v-else>Sign up</span>
           </button>
         </div>
 
         <div class="text-sm text-center">
           <button
             type="button"
-            @click="goToSignup"
+            @click="goToLogin"
             class="font-medium text-indigo-600 hover:text-indigo-500"
           >
-            Don't have an account? Sign up
+            Already have an account? Sign in
           </button>
         </div>
       </form>
