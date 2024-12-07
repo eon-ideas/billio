@@ -10,6 +10,8 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Invoice status tracking (paid/unpaid)
 - Print-friendly invoice previews
 - Dashboard with yearly invoice summary
+- User authentication with Supabase
+- Secure data storage
 
 ## Technology Stack
 
@@ -19,12 +21,61 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Tailwind CSS
 - Pinia (State Management)
 - Vue Router
+- Supabase (Authentication & Backend)
 - Docker
 
 ## Prerequisites
 
 - Node.js 20 or higher
 - npm or yarn
+- Supabase account
+
+## Supabase Setup
+
+### Development Setup
+
+1. Create a new Supabase project:
+   - Go to [https://app.supabase.com](https://app.supabase.com)
+   - Sign in or create an account
+   - Click "New Project"
+   - Fill in your project details
+
+2. Get your project credentials:
+   - In your project dashboard, go to Project Settings > API
+   - Copy your project URL and anon key
+
+3. Configure environment variables:
+   - Copy `.env.example` to `.env`
+   - Update the following variables:
+     ```
+     VITE_SUPABASE_URL=your_project_url
+     VITE_SUPABASE_ANON_KEY=your_anon_key
+     ```
+
+### Deployment
+
+1. Build your application:
+```bash
+npm run build
+```
+
+2. Deploy to Supabase:
+   - Go to your Supabase project dashboard
+   - Navigate to Storage
+   - Create a new bucket called "static"
+   - Upload the contents of your `dist` folder to this bucket
+   - Enable public access to the bucket
+   - Your app will be available at:
+     ```
+     https://[project-ref].supabase.co/storage/v1/object/public/static/index.html
+     ```
+     Replace [project-ref] with your project reference found in your project URL
+
+3. Optional: Set up a custom domain
+   - Go to Project Settings > Custom Domains
+   - Follow the instructions to configure your domain
+   - Update DNS settings with your provider
+   - Wait for DNS propagation (up to 48 hours)
 
 ## Local Development
 
@@ -117,6 +168,17 @@ The Docker image supports the following architectures:
 - linux/arm64 (aarch64) - For newer ARM devices (e.g., Apple M1/M2, newer Raspberry Pi)
 - linux/arm/v7 - For older ARM devices (e.g., older Raspberry Pi, some NAS devices)
 
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+Note: Never commit your `.env` file to version control. The `.env.example` file is provided as a template.
+
 ## Project Structure
 
 ```
@@ -136,3 +198,7 @@ src/
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
