@@ -87,6 +87,12 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
+  
+  // Wait for auth to be initialized
+  if (!auth.isInitialized) {
+    await auth.initAuth()
+  }
+  
   const isAuthRoute = to.path === '/login' || to.path === '/signup'
   
   // If going to auth route while authenticated, redirect to dashboard

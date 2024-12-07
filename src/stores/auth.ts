@@ -8,13 +8,21 @@ export const useAuthStore = defineStore('auth', () => {
   const router = useRouter()
   const isAuthenticated = ref(false)
   const user = ref<User | null>(null)
+  const isInitialized = ref(false)
 
   // Initialize the auth state
   const initAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
-    if (session) {
-      isAuthenticated.value = true
-      user.value = session.user
+    try {
+      // Get the current session
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        isAuthenticated.value = true
+        user.value = session.user
+      }
+    } catch (error) {
+      console.error('Error initializing auth:', error)
+    } finally {
+      isInitialized.value = true
     }
   }
 
@@ -66,6 +74,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     isAuthenticated,
+    isInitialized,
     user,
     login,
     signup,
