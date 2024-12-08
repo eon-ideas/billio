@@ -53,12 +53,32 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const logout = async () => {
-    const { error } = await supabase.auth.signOut()
-    if (error) throw error
-    
-    isAuthenticated.value = false
-    user.value = null
-    await router.push('/login')
+    try {
+      // Check if we have a session first
+      const { data: { session } } = await supabase.auth.getSession()
+      
+      // If no session, just clean up the local state
+      if (!session) {
+        isAuthenticated.value = false
+        user.value = null
+        await router.push('/login')
+        return
+      }
+      
+      // Attempt to sign out
+      const { error } = await supabase.auth.signOut()
+      if (error) throw error
+      
+      isAuthenticated.value = false
+      user.value = null
+      await router.push('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Still cleanup local state and redirect even if there's an error
+      isAuthenticated.value = false
+      user.value = null
+      await router.push('/login')
+    }
   }
 
   // Listen to auth changes
