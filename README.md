@@ -54,6 +54,49 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
      VITE_SUPABASE_ANON_KEY=your_anon_key
      ```
 
+### Local Development with Supabase
+
+1. Install Supabase CLI:
+```bash
+brew install supabase/tap/supabase
+```
+
+2. Login to Supabase CLI:
+```bash
+supabase login
+```
+
+3. Initialize Supabase locally:
+```bash
+supabase init
+```
+
+4. Start the local Supabase stack:
+```bash
+supabase start
+```
+This will start a local PostgreSQL database and other Supabase services.
+
+5. Get your local credentials:
+```bash
+supabase status
+```
+Copy the API URL and anon key to your `.env` file:
+```
+VITE_SUPABASE_URL=http://localhost:54321
+VITE_SUPABASE_ANON_KEY=your_local_anon_key
+```
+
+6. Apply database migrations:
+```bash
+supabase db reset
+```
+
+7. When you're done, stop the local stack:
+```bash
+supabase stop
+```
+
 ### Deployment
 
 The application is deployed on Netlify. You can find the live version at: [https://invoice-master.netlify.app](https://invoice-master.netlify.app)
