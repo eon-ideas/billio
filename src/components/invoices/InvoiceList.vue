@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
 import { useRouter } from 'vue-router'
@@ -12,6 +12,8 @@ const props = defineProps<{
 const router = useRouter()
 const invoicesStore = useInvoicesStore()
 const customersStore = useCustomersStore()
+const showDeleteModal = ref(false)
+const invoiceToDelete = ref<string | null>(null)
 
 const customer = computed(() => customersStore.getCustomerById(props.customerId))
 const invoices = computed(() => {
@@ -39,6 +41,19 @@ const handlePreview = (id: string) => {
 
 const handleTogglePaid = (id: string) => {
   invoicesStore.toggleInvoicePaid(id)
+}
+
+const handleDelete = (id: string) => {
+  invoiceToDelete.value = id
+  showDeleteModal.value = true
+}
+
+const confirmDelete = async () => {
+  if (invoiceToDelete.value) {
+    await invoicesStore.deleteInvoice(invoiceToDelete.value)
+    showDeleteModal.value = false
+    invoiceToDelete.value = null
+  }
 }
 
 const formatCurrency = (amount: number, currency: string) => {
@@ -108,36 +123,57 @@ const formatCurrency = (amount: number, currency: string) => {
             <div class="flex items-center space-x-3">
               <button
                 @click="handlePreview(invoice.id)"
-                class="text-gray-400 hover:text-blue-600 transition-colors"
-                title="Preview invoice"
+                class="text-blue-600 hover:text-blue-900"
               >
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                View
               </button>
               <button
                 @click="handleEdit(invoice.id)"
-                class="text-gray-400 hover:text-blue-600 transition-colors"
-                title="Edit invoice"
+                class="text-gray-600 hover:text-gray-900"
               >
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
+                Edit
               </button>
               <button
-                @click="handleTogglePaid(invoice.id)"
-                class="text-gray-400 hover:text-blue-600 transition-colors"
-                :title="invoice.paid ? 'Mark as unpaid' : 'Mark as paid'"
+                @click="handleDelete(invoice.id)"
+                class="text-red-600 hover:text-red-900"
               >
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                Delete
               </button>
             </div>
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div v-if="showDeleteModal" class="fixed z-10 inset-0 overflow-y-auto">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+      <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div>
+          <div class="mt-3 text-center sm:mt-5">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Delete Invoice</h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500">Are you sure you want to delete this invoice? This action cannot be undone.</p>
+            </div>
+          </div>
+        </div>
+        <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+          <button
+            @click="confirmDelete"
+            class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:col-start-2 sm:text-sm"
+          >
+            Delete
+          </button>
+          <button
+            @click="showDeleteModal = false"
+            class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:col-start-1 sm:text-sm"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
