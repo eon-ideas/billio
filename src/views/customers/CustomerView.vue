@@ -1,19 +1,23 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import type { Customer } from '@/types/customer'
 
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
+const customer = ref<Customer | null>(null)
 
 const customerId = route.params.id as string
-const customer = computed(() => customersStore.getCustomerById(customerId))
 
-if (!customer.value) {
-  router.push('/customers')
-}
+onMounted(async () => {
+  customer.value = await customersStore.getCustomerById(customerId)
+  if (!customer.value) {
+    router.push('/customers')
+  }
+})
 
 const breadcrumbItems = computed(() => [
   { name: 'Customers', to: '/customers' },

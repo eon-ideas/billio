@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import InvoiceForm from '@/components/invoices/InvoiceForm.vue'
-import type { InvoiceFormData } from '@/types/invoice'
+import type { InvoiceFormData, Invoice } from '@/types/invoice'
+import type { Customer } from '@/types/customer'
 
 const router = useRouter()
 const route = useRoute()
@@ -14,25 +15,57 @@ const invoicesStore = useInvoicesStore()
 
 const customerId = route.params.customerId as string
 const invoiceId = route.params.id as string
+const customer = ref<Customer | null>(null)
+const invoice = ref<Invoice | null>(null)
 
-const customer = computed(() => customersStore.getCustomerById(customerId))
-const invoice = computed(() => invoicesStore.getInvoiceById(invoiceId))
+onMounted(async () => {
+  customer.value = await customersStore.getCustomerById(customerId)
+  if (!customer.value) {
+    router.push('/customers')
+    return
+  }
+  
+  invoice.value = await invoicesStore.getInvoiceById(invoiceId)
+  if (!invoice.value) {
+    router.push(`/customers/${customerId}/invoices`)
+    return
+  }
+})
 
-if (!customer.value || !invoice.value) {
-  router.push('/customers')
-}
-
-const breadcrumbItems = computed(() => [
+const breadcrumbItems = ref([
   { name: 'Customers', to: '/customers' },
-  { name: customer.value?.name || '', to: `/customers/${customerId}` },
+  { name: '', to: `/customers/${customerId}` },
   { name: 'Invoices', to: `/customers/${customerId}/invoices` },
-  { name: `Edit Invoice #${invoice.value?.number}` }
+  { name: 'Edit Invoice' }
 ])
 
-const handleSubmit = (data: InvoiceFormData) => {
-  invoicesStore.updateInvoice(invoiceId, data)
+const handleSubmit = async (data: InvoiceFormData) => {
+  await invoicesStore.updateInvoice(invoiceId, {
+    ...data,
+    customer_id: customerId
+  })
   router.push(`/customers/${customerId}/invoices`)
 }
+
+// Update breadcrumb when data is loaded
+onMounted(() => {
+  const updateBreadcrumb = () => {
+    if (customer.value && invoice.value) {
+      breadcrumbItems.value[1].name = customer.value.name
+      breadcrumbItems.value[3].name = `Edit Invoice #${invoice.value.number}`
+    }
+  }
+  
+  const interval = setInterval(() => {
+    if (customer.value && invoice.value) {
+      updateBreadcrumb()
+      clearInterval(interval)
+    }
+  }, 100)
+
+  // Cleanup
+  setTimeout(() => clearInterval(interval), 5000)
+})
 </script>
 
 <template>

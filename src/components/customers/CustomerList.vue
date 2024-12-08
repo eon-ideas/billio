@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted } from 'vue'
 import { useCustomersStore } from '@/stores/customers'
 import { useRouter } from 'vue-router'
 
@@ -16,7 +16,8 @@ const filteredCustomers = computed(() => {
   const query = props.searchQuery.toLowerCase()
   return customersStore.customers.filter(customer => 
     customer.name.toLowerCase().includes(query) ||
-    customer.email.toLowerCase().includes(query)
+    (customer.email?.toLowerCase().includes(query) ?? false) ||
+    (customer.company?.toLowerCase().includes(query) ?? false)
   )
 })
 
@@ -31,11 +32,27 @@ const handleView = (id: string) => {
 const handleViewInvoices = (id: string) => {
   router.push(`/customers/${id}/invoices`)
 }
+
+onMounted(async () => {
+  await customersStore.fetchCustomers()
+})
 </script>
 
 <template>
   <div class="overflow-hidden">
-    <div class="overflow-x-auto">
+    <div v-if="customersStore.loading" class="flex justify-center items-center py-12">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+
+    <div v-else-if="customersStore.error" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-sm text-red-600">{{ customersStore.error }}</p>
+    </div>
+
+    <div v-else-if="filteredCustomers.length === 0" class="p-8 text-center">
+      <p class="text-gray-500">No customers found</p>
+    </div>
+
+    <div v-else class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead>
           <tr>
@@ -101,8 +118,7 @@ const handleViewInvoices = (id: string) => {
                   title="Edit"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" />
-                    <path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" />
+                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                   </svg>
                 </button>
                 <button
@@ -114,17 +130,6 @@ const handleViewInvoices = (id: string) => {
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
                   </svg>
                 </button>
-              </div>
-            </td>
-          </tr>
-          <tr v-if="filteredCustomers.length === 0">
-            <td colspan="4" class="px-6 py-16 text-center">
-              <div class="flex flex-col items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <p class="text-gray-500 text-base">No customers found</p>
-                <p class="text-gray-400 text-sm mt-1">Try adjusting your search or add a new customer</p>
               </div>
             </td>
           </tr>

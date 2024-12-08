@@ -1,21 +1,29 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
+import { useInvoicesStore } from '@/stores/invoices'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import type { Customer } from '@/types/customer'
 
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
+const invoicesStore = useInvoicesStore()
 const searchQuery = ref('')
+const customer = ref<Customer | null>(null)
 
 const customerId = route.params.customerId as string
-const customer = computed(() => customersStore.getCustomerById(customerId))
 
-if (!customer.value) {
-  router.push('/customers')
-}
+onMounted(async () => {
+  customer.value = await customersStore.getCustomerById(customerId)
+  if (!customer.value) {
+    router.push('/customers')
+    return
+  }
+  await invoicesStore.fetchInvoices(customerId)
+})
 
 const breadcrumbItems = computed(() => [
   { name: 'Customers', to: '/customers' },

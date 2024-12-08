@@ -1,28 +1,32 @@
 <script setup lang="ts">
+import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import CustomerForm from '@/components/customers/CustomerForm.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
-import type { CustomerFormData } from '@/types/customer'
+import type { CustomerFormData, Customer } from '@/types/customer'
 
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
+const customer = ref<Customer | null>(null)
 
 const customerId = route.params.id as string
-const customer = customersStore.getCustomerById(customerId)
 
-if (!customer) {
-  router.push('/customers')
-}
+onMounted(async () => {
+  customer.value = await customersStore.getCustomerById(customerId)
+  if (!customer.value) {
+    router.push('/customers')
+  }
+})
 
 const breadcrumbItems = [
   { name: 'Customers', to: '/customers' },
-  { name: customer?.name || 'Edit Customer' }
+  { name: customer.value?.name || 'Edit Customer' }
 ]
 
-const handleSubmit = (data: CustomerFormData) => {
-  customersStore.updateCustomer(customerId, data)
+const handleSubmit = async (data: CustomerFormData) => {
+  await customersStore.updateCustomer(customerId, data)
   router.push('/customers')
 }
 </script>

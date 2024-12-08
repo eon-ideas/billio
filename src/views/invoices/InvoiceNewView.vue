@@ -26,7 +26,10 @@ const breadcrumbItems = computed(() => [
 ])
 
 const handleSubmit = (data: InvoiceFormData) => {
-  invoicesStore.addInvoice(data)
+  invoicesStore.addInvoice({
+    ...data,
+    customer_id: customerId
+  })
   router.push(`/customers/${customerId}/invoices`)
 }
 </script>

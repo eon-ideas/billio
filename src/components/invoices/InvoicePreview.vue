@@ -10,8 +10,14 @@ const props = defineProps<{
 
 const customersStore = useCustomersStore()
 const companyStore = useCompanyStore()
-const customer = computed(() => customersStore.getCustomerById(props.invoice.customerId))
+const customer = computed(() => customersStore.getCustomerById(props.invoice.customer_id))
 const company = computed(() => companyStore.companyInfo)
+
+// Ensure we have an array of items, even if empty
+const items = computed(() => {
+  console.log('Invoice items in preview:', props.invoice.items)
+  return props.invoice.items || []
+})
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -28,6 +34,14 @@ const formatDate = (date: string) => {
     day: 'numeric'
   })
 }
+
+const calculateItemTotal = (item: any) => {
+  return (item.quantity || 0) * (item.price || 0)
+}
+
+const calculateInvoiceTotal = computed(() => {
+  return items.value.reduce((total, item) => total + calculateItemTotal(item), 0)
+})
 
 const printInvoice = () => {
   window.print()
@@ -81,12 +95,12 @@ const printInvoice = () => {
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200">
-          <tr v-for="item in invoice.items" :key="item.id">
+          <tr v-for="item in items" :key="item.id">
             <td class="py-4 px-4 text-gray-600">{{ item.description }}</td>
             <td class="py-4 px-4 text-right text-gray-600">{{ item.quantity }}</td>
             <td class="py-4 px-4 text-right text-gray-600">{{ formatCurrency(item.price) }}</td>
             <td class="py-4 px-4 text-right text-gray-900 font-medium">
-              {{ formatCurrency(item.quantity * item.price) }}
+              {{ formatCurrency(calculateItemTotal(item)) }}
             </td>
           </tr>
         </tbody>
@@ -94,7 +108,7 @@ const printInvoice = () => {
           <tr class="border-t-2 border-gray-300">
             <td colspan="3" class="py-6 px-4 text-right font-bold text-gray-900">Total:</td>
             <td class="py-6 px-4 text-right font-bold text-gray-900 text-lg">
-              {{ formatCurrency(invoice.total) }}
+              {{ formatCurrency(calculateInvoiceTotal) }}
             </td>
           </tr>
         </tfoot>

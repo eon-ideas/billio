@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import CustomerForm from '@/components/customers/CustomerForm.vue'
@@ -7,15 +8,23 @@ import type { CustomerFormData } from '@/types/customer'
 
 const router = useRouter()
 const customersStore = useCustomersStore()
+const error = ref<string | null>(null)
 
 const breadcrumbItems = [
   { name: 'Customers', to: '/customers' },
   { name: 'New Customer' }
 ]
 
-const handleSubmit = (data: CustomerFormData) => {
-  customersStore.addCustomer(data)
-  router.push('/customers')
+const handleSubmit = async (data: CustomerFormData) => {
+  try {
+    error.value = null
+    const customer = await customersStore.addCustomer(data)
+    if (customer) {
+      router.push('/customers')
+    }
+  } catch (err: any) {
+    error.value = err.message
+  }
 }
 </script>
 
@@ -32,6 +41,13 @@ const handleSubmit = (data: CustomerFormData) => {
           <p class="mt-1 text-sm text-gray-500">
             Create a new customer profile with their business information
           </p>
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div v-if="error" class="mb-6">
+        <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
+          <p class="text-sm text-red-600">{{ error }}</p>
         </div>
       </div>
 

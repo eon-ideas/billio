@@ -15,7 +15,8 @@ const customersStore = useCustomersStore()
 
 const customer = computed(() => customersStore.getCustomerById(props.customerId))
 const invoices = computed(() => {
-  let filteredInvoices = invoicesStore.getInvoicesByCustomerId(props.customerId).value
+  const allInvoices = invoicesStore.invoices
+  let filteredInvoices = allInvoices.filter(i => i.customer_id === props.customerId)
   
   if (props.searchQuery) {
     const query = props.searchQuery.toLowerCase()
