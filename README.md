@@ -23,12 +23,14 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Vue Router
 - Supabase (Authentication & Backend)
 - Docker
+- Netlify (Hosting & Deployment)
 
 ## Prerequisites
 
 - Node.js 20 or higher
 - npm or yarn
 - Supabase account
+- Netlify account
 
 ## Supabase Setup
 
@@ -54,48 +56,64 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 
 ### Deployment
 
-1. Build your application:
+The application is deployed on Netlify. You can find the live version at: [https://invoice-master.netlify.app](https://invoice-master.netlify.app)
+
+#### Deploying to Netlify
+
+1. Install Netlify CLI:
 ```bash
-npm run build
+npm install -g netlify-cli
 ```
 
-2. Deploy to Supabase:
-   - Go to your Supabase project dashboard
-   - Navigate to Storage
-   - Create a new bucket called "static"
-   - Set the bucket's public access policy to allow read access
-   - Create a folder called "app" in the bucket
-   - Upload all files from your `dist` folder to the "app" folder
-   - Your app will be available at:
-     ```
-     https://[project-ref].supabase.co/storage/v1/object/public/static/app/index.html
-     ```
-     Replace [project-ref] with your project reference found in your project URL
+2. Login to Netlify:
+```bash
+netlify login
+```
 
-3. Optional: Set up Hosting with Vercel or Netlify
-   For better performance and routing support, consider using a hosting service:
-   
-   #### Vercel
+3. Initialize Netlify in your project:
+```bash
+netlify init
+```
+   - Choose "Create & configure a new site"
+   - Select your team
+   - Set a custom site name or let Netlify generate one
+
+4. Configure environment variables:
+   - Go to Site Settings > Build & Deploy > Environment Variables
+   - Add the following variables:
+     ```
+     VITE_SUPABASE_URL=your_project_url
+     VITE_SUPABASE_ANON_KEY=your_anon_key
+     ```
+   - Or use Netlify CLI:
+     ```bash
+     netlify env:set VITE_SUPABASE_URL your_project_url
+     netlify env:set VITE_SUPABASE_ANON_KEY your_anon_key
+     ```
+
+5. Deploy your site:
    ```bash
-   # Install Vercel CLI
-   npm i -g vercel
-   
-   # Deploy
-   vercel
-   ```
-   
-   #### Netlify
-   ```bash
-   # Install Netlify CLI
-   npm i -g netlify-cli
-   
-   # Deploy
+   # Test deployment (preview URL)
    netlify deploy
+
+   # Production deployment
+   netlify deploy --prod
    ```
 
-4. Optional: Set up a custom domain
-   - If using Vercel/Netlify: Configure through their dashboard
-   - If using Supabase Storage: Set up a CDN like Cloudflare in front
+#### Continuous Deployment
+
+The repository is set up for continuous deployment:
+- Every push to `main` triggers a production deployment
+- Pull requests create preview deployments
+- Branch deployments are available for testing
+
+#### Custom Domains
+
+To set up a custom domain:
+1. Go to Site Settings > Domain Management
+2. Click "Add custom domain"
+3. Follow the DNS configuration instructions
+4. Wait for SSL certificate provisioning (usually 5-10 minutes)
 
 ## Local Development
 
