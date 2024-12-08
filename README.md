@@ -54,6 +54,38 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
      VITE_SUPABASE_ANON_KEY=your_anon_key
      ```
 
+### Database Migrations
+
+There are two ways to apply database migrations to your Supabase project:
+
+#### Option 1: Using Supabase Dashboard (Recommended for Production)
+
+1. Go to your Supabase project dashboard
+2. Navigate to the SQL Editor
+3. Open and run the following migration files in order:
+   - `supabase/migrations/20241208_create_company_info.sql`
+   - `supabase/migrations/20241208_setup_storage.sql`
+
+#### Option 2: Using Supabase CLI (Recommended for Development)
+
+1. Make sure you're logged in to Supabase CLI:
+   ```bash
+   supabase login
+   ```
+
+2. Link your project (first time only):
+   ```bash
+   supabase link --project-ref your-project-ref
+   ```
+   You can find your project ref in your Supabase project settings.
+
+3. Push the migrations:
+   ```bash
+   supabase db push
+   ```
+
+This will apply all migrations in the `supabase/migrations` directory to your database.
+
 ### Local Development with Supabase
 
 1. Install Supabase CLI:

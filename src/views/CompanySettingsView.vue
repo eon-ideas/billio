@@ -18,14 +18,25 @@ const handleLogoUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement
   if (input.files && input.files[0]) {
     const file = input.files[0]
-    await companyStore.updateLogo(file)
+    try {
+      await companyStore.updateLogo(file)
+    } catch (error) {
+      console.error('Error uploading logo:', error)
+      // Here you might want to show an error notification
+    }
   }
 }
 
-const handleSubmit = () => {
-  // Form submission is handled automatically by v-model
-  // You might want to add success notification here
+const handleSubmit = async () => {
+  try {
+    await companyStore.updateCompanyInfo(companyStore.companyInfo)
+    // Here you might want to show a success notification
+  } catch (error) {
+    console.error('Error saving company info:', error)
+    // Here you might want to show an error notification
+  }
 }
+
 </script>
 
 <template>
