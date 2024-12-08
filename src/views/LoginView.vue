@@ -27,10 +27,6 @@ const handleLogin = async () => {
     loading.value = false
   }
 }
-
-const goToSignup = () => {
-  router.push('/signup')
-}
 </script>
 
 <template>
@@ -166,16 +162,6 @@ const goToSignup = () => {
                 ></path>
               </svg>
               {{ loading ? 'Signing in...' : 'Sign in' }}
-            </button>
-          </div>
-
-          <div class="text-center">
-            <button
-              type="button"
-              @click="goToSignup"
-              class="text-sm font-medium text-indigo-600 hover:text-indigo-500 transition duration-150 ease-in-out"
-            >
-              Don't have an account? Sign up
             </button>
           </div>
         </form>

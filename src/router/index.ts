@@ -12,12 +12,6 @@ const router = createRouter({
       meta: { requiresAuth: false }
     },
     {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('@/views/SignUpView.vue'),
-      meta: { requiresAuth: false }
-    },
-    {
       path: '/dashboard',
       name: 'dashboard',
       component: () => import('@/views/DashboardView.vue'),
@@ -93,15 +87,13 @@ router.beforeEach(async (to) => {
     await auth.initAuth()
   }
   
-  const isAuthRoute = to.path === '/login' || to.path === '/signup'
-  
-  // If going to auth route while authenticated, redirect to dashboard
-  if (isAuthRoute && auth.isAuthenticated) {
+  // If going to login while authenticated, redirect to dashboard
+  if (to.path === '/login' && auth.isAuthenticated) {
     return '/dashboard'
   }
   
   // If going to protected route while not authenticated, redirect to login
-  if (!isAuthRoute && to.meta.requiresAuth !== false && !auth.isAuthenticated) {
+  if (to.meta.requiresAuth !== false && !auth.isAuthenticated) {
     return '/login'
   }
   

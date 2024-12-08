@@ -41,17 +41,6 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  const signup = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password
-    })
-    
-    if (error) throw error
-    
-    return data
-  }
-
   const logout = async () => {
     try {
       // Check if we have a session first
@@ -97,7 +86,6 @@ export const useAuthStore = defineStore('auth', () => {
     isInitialized,
     user,
     login,
-    signup,
     logout,
     initAuth
   }
