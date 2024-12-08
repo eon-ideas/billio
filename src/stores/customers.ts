@@ -6,37 +6,45 @@ export const useCustomersStore = defineStore('customers', () => {
   const customers = ref<Customer[]>([
     {
       id: '1',
-      name: 'Acme Corporation',
-      city: 'New York',
-      address: '123 Business Street',
+      name: 'Acme Corp',
+      email: 'contact@acme.com',
+      phone: '+1 234 567 890',
+      company: 'Acme Corporation',
+      city: 'San Francisco',
+      address: '123 Market St',
       vatId: 'US123456789',
       currency: 'USD'
     }
   ])
 
-  const addCustomer = (customerData: CustomerFormData) => {
-    const customer: Customer = {
+  const addCustomer = (customer: CustomerFormData) => {
+    const newCustomer: Customer = {
       id: crypto.randomUUID(),
-      ...customerData
+      ...customer
     }
-    customers.value.push(customer)
+    customers.value.push(newCustomer)
   }
 
-  const updateCustomer = (id: string, customerData: CustomerFormData) => {
+  const updateCustomer = (id: string, customer: CustomerFormData) => {
     const index = customers.value.findIndex(c => c.id === id)
     if (index !== -1) {
-      customers.value[index] = { id, ...customerData }
+      customers.value[index] = { ...customers.value[index], ...customer }
     }
+  }
+
+  const deleteCustomer = (id: string) => {
+    customers.value = customers.value.filter(customer => customer.id !== id)
   }
 
   const getCustomerById = (id: string) => {
-    return customers.value.find(c => c.id === id)
+    return customers.value.find(customer => customer.id === id)
   }
 
   return {
     customers,
     addCustomer,
     updateCustomer,
+    deleteCustomer,
     getCustomerById
   }
 })

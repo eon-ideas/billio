@@ -10,6 +10,8 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Invoice status tracking (paid/unpaid)
 - Print-friendly invoice previews
 - Dashboard with yearly invoice summary
+- User authentication with Supabase
+- Secure data storage
 
 ## Technology Stack
 
@@ -19,12 +21,99 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Tailwind CSS
 - Pinia (State Management)
 - Vue Router
+- Supabase (Authentication & Backend)
 - Docker
+- Netlify (Hosting & Deployment)
 
 ## Prerequisites
 
 - Node.js 20 or higher
 - npm or yarn
+- Supabase account
+- Netlify account
+
+## Supabase Setup
+
+### Development Setup
+
+1. Create a new Supabase project:
+   - Go to [https://app.supabase.com](https://app.supabase.com)
+   - Sign in or create an account
+   - Click "New Project"
+   - Fill in your project details
+
+2. Get your project credentials:
+   - In your project dashboard, go to Project Settings > API
+   - Copy your project URL and anon key
+
+3. Configure environment variables:
+   - Copy `.env.example` to `.env`
+   - Update the following variables:
+     ```
+     VITE_SUPABASE_URL=your_project_url
+     VITE_SUPABASE_ANON_KEY=your_anon_key
+     ```
+
+### Deployment
+
+The application is deployed on Netlify. You can find the live version at: [https://invoice-master.netlify.app](https://invoice-master.netlify.app)
+
+#### Deploying to Netlify
+
+1. Install Netlify CLI:
+```bash
+npm install -g netlify-cli
+```
+
+2. Login to Netlify:
+```bash
+netlify login
+```
+
+3. Initialize Netlify in your project:
+```bash
+netlify init
+```
+   - Choose "Create & configure a new site"
+   - Select your team
+   - Set a custom site name or let Netlify generate one
+
+4. Configure environment variables:
+   - Go to Site Settings > Build & Deploy > Environment Variables
+   - Add the following variables:
+     ```
+     VITE_SUPABASE_URL=your_project_url
+     VITE_SUPABASE_ANON_KEY=your_anon_key
+     ```
+   - Or use Netlify CLI:
+     ```bash
+     netlify env:set VITE_SUPABASE_URL your_project_url
+     netlify env:set VITE_SUPABASE_ANON_KEY your_anon_key
+     ```
+
+5. Deploy your site:
+   ```bash
+   # Test deployment (preview URL)
+   netlify deploy
+
+   # Production deployment
+   netlify deploy --prod
+   ```
+
+#### Continuous Deployment
+
+The repository is set up for continuous deployment:
+- Every push to `main` triggers a production deployment
+- Pull requests create preview deployments
+- Branch deployments are available for testing
+
+#### Custom Domains
+
+To set up a custom domain:
+1. Go to Site Settings > Domain Management
+2. Click "Add custom domain"
+3. Follow the DNS configuration instructions
+4. Wait for SSL certificate provisioning (usually 5-10 minutes)
 
 ## Local Development
 
@@ -117,6 +206,17 @@ The Docker image supports the following architectures:
 - linux/arm64 (aarch64) - For newer ARM devices (e.g., Apple M1/M2, newer Raspberry Pi)
 - linux/arm/v7 - For older ARM devices (e.g., older Raspberry Pi, some NAS devices)
 
+## Environment Variables
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+VITE_SUPABASE_URL=your_project_url
+VITE_SUPABASE_ANON_KEY=your_anon_key
+```
+
+Note: Never commit your `.env` file to version control. The `.env.example` file is provided as a template.
+
 ## Project Structure
 
 ```
@@ -136,3 +236,7 @@ src/
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
