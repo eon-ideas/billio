@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import type { Invoice } from '@/types/invoice'
+import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
 import { useCompanyStore } from '@/stores/company'
 
@@ -10,7 +11,7 @@ const props = defineProps<{
 
 const customersStore = useCustomersStore()
 const companyStore = useCompanyStore()
-const customer = computed(() => customersStore.getCustomerById(props.invoice.customer_id))
+const customer = ref<Customer | null>(null)
 const company = computed(() => companyStore.companyInfo)
 
 // Ensure we have an array of items, even if empty
@@ -46,95 +47,129 @@ const calculateInvoiceTotal = computed(() => {
 const printInvoice = () => {
   window.print()
 }
+
+// Load customer data when component mounts
+onMounted(async () => {
+  if (props.invoice.customer_id) {
+    customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
+  }
+})
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-8 print:p-6 print-area rounded-lg shadow-lg print:shadow-none">
-    <!-- Header with Company Logo and Info -->
-    <div class="grid grid-cols-2 gap-8 mb-12">
-      <div class="flex items-start space-x-4">
-        <div v-if="company.logoUrl" class="w-32 h-32 print:w-24 print:h-24">
-          <img :src="company.logoUrl" alt="Company logo" class="w-full h-full object-contain" />
-        </div>
-        <div class="text-gray-600">
-          <h2 class="font-bold text-xl text-gray-900 mb-2">{{ company.name }}</h2>
-          <p class="whitespace-pre-line mb-1">{{ company.address }}</p>
-          <p class="mb-1">VAT ID: {{ company.vatId }}</p>
-          <p>IBAN: {{ company.iban }}</p>
+  <div class="max-w-4xl mx-auto bg-white p-8 print:p-6 print-area">
+    <!-- Header -->
+    <div class="flex justify-between items-start mb-12">
+      <div>
+        <h1 class="text-2xl font-bold mb-4">Invoice</h1>
+        <div class="space-y-1 text-sm">
+          <p><span class="inline-block w-32">Invoice number</span> {{ invoice.number }}</p>
+          <p><span class="inline-block w-32">Invoice date</span> {{ formatDate(invoice.date) }}</p>
         </div>
       </div>
       <div class="text-right">
-        <div class="inline-block bg-blue-50 print:bg-transparent px-6 py-4 rounded-lg">
-          <h1 class="text-3xl font-bold text-blue-600 print:text-gray-900 mb-3">INVOICE</h1>
-          <p class="text-gray-600 mb-1">Invoice #: <span class="font-medium">{{ invoice.number }}</span></p>
-          <p class="text-gray-600">Date: <span class="font-medium">{{ formatDate(invoice.date) }}</span></p>
-        </div>
+        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-8 ml-auto mb-4" />
       </div>
     </div>
 
-    <!-- Customer Info -->
-    <div class="mb-12 bg-gray-50 print:bg-transparent p-6 rounded-lg">
-      <h2 class="font-bold text-gray-900 mb-3">Bill To:</h2>
-      <div class="text-gray-600">
-        <p class="text-lg font-medium text-gray-900 mb-2">{{ customer?.name }}</p>
-        <p class="mb-1">{{ customer?.address }}</p>
-        <p class="mb-1">{{ customer?.city }}</p>
-        <p>VAT ID: {{ customer?.vatId }}</p>
+    <!-- Company and Customer Info -->
+    <div class="grid grid-cols-2 gap-12 mb-12">
+      <!-- Company Info -->
+      <div class="text-sm">
+        <h2 class="font-medium mb-2">{{ company.name }}</h2>
+        <p class="whitespace-pre-line">{{ company.address }}</p>
+        <p v-if="company.vatId">VAT ID {{ company.vatId }}</p>
+        <p v-if="company.iban">IBAN {{ company.iban }}</p>
+        <p>{{ company.country }}</p>
+        <p>{{ company.phone }}</p>
+        <p>{{ company.email }}</p>
       </div>
+      
+      <!-- Customer Info -->
+      <div class="text-sm">
+        <h2 class="font-medium mb-2">Bill to</h2>
+        <p class="font-medium">{{ customer?.name }}</p>
+        <p>{{ customer?.address }}</p>
+        <p>{{ customer?.postal_code }} {{ customer?.city }}</p>
+        <p>{{ customer?.country }}</p>
+        <p>{{ customer?.email }}</p>
+      </div>
+    </div>
+
+    <!-- Amount Summary -->
+    <div class="mb-8">
+      <h2 class="text-xl font-bold mb-2">{{ formatCurrency(calculateInvoiceTotal) }} paid on {{ formatDate(invoice.paid_date || invoice.date) }}</h2>
     </div>
 
     <!-- Invoice Items -->
-    <div class="mb-12 overflow-x-auto">
-      <table class="w-full">
+    <div class="mb-12">
+      <table class="w-full text-sm">
         <thead>
-          <tr class="bg-gray-50 print:bg-transparent">
-            <th class="py-3 px-4 text-left font-semibold text-gray-900">Description</th>
-            <th class="py-3 px-4 text-right font-semibold text-gray-900">Quantity</th>
-            <th class="py-3 px-4 text-right font-semibold text-gray-900">Price</th>
-            <th class="py-3 px-4 text-right font-semibold text-gray-900">Total</th>
+          <tr class="border-b">
+            <th class="py-2 text-left font-medium">Description</th>
+            <th class="py-2 text-center font-medium">Qty</th>
+            <th class="py-2 text-right font-medium">Unit price</th>
+            <th class="py-2 text-right font-medium">Tax</th>
+            <th class="py-2 text-right font-medium">Amount</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-200">
-          <tr v-for="item in items" :key="item.id">
-            <td class="py-4 px-4 text-gray-600">{{ item.description }}</td>
-            <td class="py-4 px-4 text-right text-gray-600">{{ item.quantity }}</td>
-            <td class="py-4 px-4 text-right text-gray-600">{{ formatCurrency(item.price) }}</td>
-            <td class="py-4 px-4 text-right text-gray-900 font-medium">
-              {{ formatCurrency(calculateItemTotal(item)) }}
+        <tbody>
+          <tr v-for="item in items" :key="item.id" class="border-b">
+            <td class="py-4">
+              {{ item.description }}
+              <div class="text-sm text-gray-600" v-if="item.period_start && item.period_end">
+                {{ formatDate(item.period_start) }} – {{ formatDate(item.period_end) }}
+              </div>
             </td>
+            <td class="py-4 text-center">{{ item.quantity }}</td>
+            <td class="py-4 text-right">{{ formatCurrency(item.price) }}</td>
+            <td class="py-4 text-right">{{ item.tax_rate }}%<br>incl. (on {{ formatCurrency(item.price) }})</td>
+            <td class="py-4 text-right">{{ formatCurrency(calculateItemTotal(item)) }}</td>
           </tr>
         </tbody>
-        <tfoot>
-          <tr class="border-t-2 border-gray-300">
-            <td colspan="3" class="py-6 px-4 text-right font-bold text-gray-900">Total:</td>
-            <td class="py-6 px-4 text-right font-bold text-gray-900 text-lg">
-              {{ formatCurrency(calculateInvoiceTotal) }}
-            </td>
-          </tr>
-        </tfoot>
       </table>
     </div>
 
-    <!-- Payment Info -->
-    <div class="bg-blue-50 print:bg-transparent p-6 rounded-lg text-gray-600">
-      <h3 class="font-bold text-gray-900 mb-3">Payment Information</h3>
-      <div class="space-y-1">
-        <p><span class="font-medium">Bank Account:</span> {{ company.iban }}</p>
-        <p><span class="font-medium">Payment Reference:</span> Invoice #{{ invoice.number }}</p>
-        <p class="text-sm mt-4">Please include the invoice number as payment reference</p>
+    <!-- Totals -->
+    <div class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <span>Subtotal</span>
+        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
       </div>
+      <div class="flex justify-between">
+        <span>Total excluding tax</span>
+        <span>{{ formatCurrency(calculateInvoiceTotal / (1 + invoice.tax_rate / 100)) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span>VAT - {{ customer?.country }} ({{ invoice.tax_rate }}% incl.)</span>
+        <span>{{ formatCurrency(calculateInvoiceTotal - (calculateInvoiceTotal / (1 + invoice.tax_rate / 100))) }}</span>
+      </div>
+      <div class="flex justify-between font-bold">
+        <span>Total</span>
+        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
+      </div>
+      <div class="flex justify-between">
+        <span>Amount paid</span>
+        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-12 text-sm">
+      <p v-if="invoice.tax_note" class="text-gray-600">{{ invoice.tax_note }}</p>
+      <p class="text-gray-600">----</p>
     </div>
 
     <!-- Print Button -->
     <div class="mt-8 text-center print:hidden">
       <button
         @click="printInvoice"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg transition-colors duration-200 inline-flex items-center"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded inline-flex items-center"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
         </svg>
-        Print Invoice
+        Print Receipt
       </button>
     </div>
   </div>
@@ -144,7 +179,7 @@ const printInvoice = () => {
 @media print {
   @page {
     size: A4;
-    margin: 1.5cm;
+    margin: 2cm;
   }
   
   body {
@@ -171,11 +206,6 @@ const printInvoice = () => {
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
-  }
-  
-  /* Improve text contrast for printing */
-  .text-gray-600 {
-    color: #374151 !important;
   }
   
   /* Remove shadows and borders for cleaner print */
