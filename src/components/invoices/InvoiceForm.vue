@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
 import type { InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
+import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import InvoiceItemForm from './InvoiceItemForm.vue'
@@ -15,18 +16,21 @@ const emit = defineEmits<{
 }>()
 
 const customersStore = useCustomersStore()
-const customer = ref(null)
+const customer = ref<Customer | null>(null)
 
 onMounted(async () => {
   customer.value = await customersStore.getCustomerById(props.customerId)
 })
 
 const formData = ref<InvoiceFormData>({
+  customer_id: props.customerId,
   number: '',
   date: new Date().toISOString().split('T')[0],
-  delivery_date: new Date().toISOString().split('T')[0],
-  due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
-  items: []
+  delivery_date: null,
+  due_date: null,
+  items: [],
+  subtotal: 0,
+  vat: 0
 })
 
 // Initialize form data when initialData is provided
@@ -44,6 +48,8 @@ const addItem = () => {
     formData.value.items = []
   }
   formData.value.items.push({
+    id: crypto.randomUUID(),
+    invoice_id: '',
     description: '',
     quantity: 1,
     price: 0
@@ -54,17 +60,28 @@ const updateItem = (item: InvoiceItemFormData, index: number) => {
   if (!formData.value.items) {
     formData.value.items = []
   }
-  // Preserve the id if it exists
-  const existingId = formData.value.items[index]?.id
   formData.value.items[index] = {
-    ...(existingId ? { id: existingId } : {}),
+    ...formData.value.items[index],
     ...item
+  }
+  // Update subtotal when items change
+  formData.value.subtotal = subtotal.value
+  // Update VAT if customer includes VAT
+  if (customer.value && customer.value.include_vat) {
+    formData.value.vat = formData.value.subtotal * 0.21
+  } else {
+    formData.value.vat = 0
   }
 }
 
 const removeItem = (index: number) => {
-  if (formData.value.items) {
-    formData.value.items.splice(index, 1)
+  formData.value.items?.splice(index, 1)
+  // Update totals after removing item
+  formData.value.subtotal = subtotal.value
+  if (customer.value && customer.value.include_vat) {
+    formData.value.vat = formData.value.subtotal * 0.21
+  } else {
+    formData.value.vat = 0
   }
 }
 
@@ -81,13 +98,14 @@ const vatAmount = computed(() => {
 })
 
 const total = computed(() => {
-  return subtotal.value + vatAmount.value
+  return formData.value.subtotal + formData.value.vat
 })
 
 const formatCurrency = (amount: number) => {
+  const currency = customer.value?.currency || 'EUR'
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: customer.value?.currency || 'USD'
+    currency
   }).format(amount)
 }
 
