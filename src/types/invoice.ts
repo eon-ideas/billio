@@ -17,6 +17,8 @@ export interface Invoice {
   number: string
   date: string
   items?: InvoiceItem[]
+  subtotal: number
+  vat: number
   total: number
   paid: boolean
 }

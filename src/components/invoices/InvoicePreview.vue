@@ -40,8 +40,19 @@ const calculateItemTotal = (item: any) => {
   return (item.quantity || 0) * (item.price || 0)
 }
 
-const calculateInvoiceTotal = computed(() => {
+const subtotal = computed(() => {
   return items.value.reduce((total, item) => total + calculateItemTotal(item), 0)
+})
+
+const vatAmount = computed(() => {
+  if (customer.value?.include_vat) {
+    return subtotal.value * 0.25 // 25% VAT
+  }
+  return 0
+})
+
+const calculateInvoiceTotal = computed(() => {
+  return subtotal.value + vatAmount.value
 })
 
 const printInvoice = () => {
@@ -111,7 +122,6 @@ onMounted(async () => {
             <th class="py-2 text-left font-medium">Description</th>
             <th class="py-2 text-center font-medium">Qty</th>
             <th class="py-2 text-right font-medium">Unit price</th>
-            <th class="py-2 text-right font-medium">Tax</th>
             <th class="py-2 text-right font-medium">Amount</th>
           </tr>
         </thead>
@@ -125,7 +135,6 @@ onMounted(async () => {
             </td>
             <td class="py-4 text-center">{{ item.quantity }}</td>
             <td class="py-4 text-right">{{ formatCurrency(item.price) }}</td>
-            <td class="py-4 text-right">{{ item.tax_rate }}%<br>incl. (on {{ formatCurrency(item.price) }})</td>
             <td class="py-4 text-right">{{ formatCurrency(calculateItemTotal(item)) }}</td>
           </tr>
         </tbody>
@@ -136,24 +145,26 @@ onMounted(async () => {
     <div class="space-y-2 text-sm">
       <div class="flex justify-between">
         <span>Subtotal</span>
-        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
+        <span>{{ formatCurrency(invoice.subtotal) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span>Total excluding tax</span>
-        <span>{{ formatCurrency(calculateInvoiceTotal / (1 + invoice.tax_rate / 100)) }}</span>
-      </div>
-      <div class="flex justify-between">
-        <span>VAT - {{ customer?.country }} ({{ invoice.tax_rate }}% incl.)</span>
-        <span>{{ formatCurrency(calculateInvoiceTotal - (calculateInvoiceTotal / (1 + invoice.tax_rate / 100))) }}</span>
+      <div v-if="customer?.include_vat" class="flex justify-between">
+        <span>VAT (25%)</span>
+        <span>{{ formatCurrency(invoice.vat) }}</span>
       </div>
       <div class="flex justify-between font-bold">
-        <span>Total</span>
-        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
+        <span>Total{{ customer?.include_vat ? ' (including VAT)' : '' }}</span>
+        <span>{{ formatCurrency(invoice.total) }}</span>
       </div>
-      <div class="flex justify-between">
-        <span>Amount paid</span>
-        <span>{{ formatCurrency(calculateInvoiceTotal) }}</span>
-      </div>
+    </div>
+
+      <!-- VAT Exemption Info -->
+      <div v-if="!customer?.include_vat" class="mt-4">
+      <p class="text-xs text-gray-600">PDV nije obračunat temeljem čl.17, stavak 1 Zakona o PDV-u</p>
+     </div>
+
+     <!-- Operator Info -->
+     <div class="mt-4 mb-8">
+      <p class="text-xs text-gray-600">Operator: Teodor Hirš</p>
     </div>
 
     <!-- Footer -->

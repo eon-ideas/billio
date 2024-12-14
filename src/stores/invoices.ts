@@ -55,6 +55,18 @@ export const useInvoicesStore = defineStore('invoices', () => {
       loading.value = true
       error.value = null
 
+      // Get customer to check VAT setting
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('include_vat')
+        .eq('id', invoiceData.customer_id)
+        .single()
+
+      // Calculate total with VAT if needed
+      const subtotal = calculateTotal(invoiceData.items || [])
+      const vat = customer?.include_vat ? subtotal * 0.25 : 0 // 25% VAT if include_vat is true
+      const total = subtotal + vat
+
       // Start a Supabase transaction
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
@@ -63,7 +75,9 @@ export const useInvoicesStore = defineStore('invoices', () => {
           customer_id: invoiceData.customer_id,
           number: invoiceData.number,
           date: invoiceData.date,
-          total: calculateTotal(invoiceData.items || []),
+          subtotal: subtotal,
+          vat: vat,
+          total: total,
           paid: false
         }])
         .select()
@@ -122,6 +136,18 @@ export const useInvoicesStore = defineStore('invoices', () => {
       loading.value = true
       error.value = null
 
+      // Get customer to check VAT setting
+      const { data: customer } = await supabase
+        .from('customers')
+        .select('include_vat')
+        .eq('id', invoiceData.customer_id)
+        .single()
+
+      // Calculate total with VAT if needed
+      const subtotal = calculateTotal(invoiceData.items || [])
+      const vat = customer?.include_vat ? subtotal * 0.25 : 0 // 25% VAT if include_vat is true
+      const total = subtotal + vat
+
       // Update invoice
       const { data: invoice, error: invoiceError } = await supabase
         .from('invoices')
@@ -129,7 +155,9 @@ export const useInvoicesStore = defineStore('invoices', () => {
           customer_id: invoiceData.customer_id,
           number: invoiceData.number,
           date: invoiceData.date,
-          total: calculateTotal(invoiceData.items || [])
+          subtotal: subtotal,
+          vat: vat,
+          total: total
         })
         .eq('id', id)
         .eq('user_id', auth.user.id)

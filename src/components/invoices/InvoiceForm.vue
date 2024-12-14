@@ -66,9 +66,20 @@ const removeItem = (index: number) => {
   }
 }
 
-const total = computed(() => {
+const subtotal = computed(() => {
   if (!formData.value.items) return 0
   return formData.value.items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
+})
+
+const vatAmount = computed(() => {
+  if (customer.value?.include_vat) {
+    return subtotal.value * 0.25 // 25% VAT
+  }
+  return 0
+})
+
+const total = computed(() => {
+  return subtotal.value + vatAmount.value
 })
 
 const formatCurrency = (amount: number) => {
@@ -150,9 +161,19 @@ const handleSubmit = () => {
 
       <!-- Total -->
       <div class="mt-6 flex justify-end">
-        <div class="text-right">
-          <p class="text-sm text-gray-500">Total Amount</p>
-          <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(total) }}</p>
+        <div class="text-right space-y-2">
+          <div>
+            <p class="text-sm text-gray-500">Subtotal</p>
+            <p class="text-lg font-medium text-gray-900">{{ formatCurrency(subtotal) }}</p>
+          </div>
+          <div v-if="customer?.include_vat">
+            <p class="text-sm text-gray-500">VAT (25%)</p>
+            <p class="text-lg font-medium text-gray-900">{{ formatCurrency(vatAmount) }}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500">Total{{ customer?.include_vat ? ' (including VAT)' : '' }}</p>
+            <p class="text-2xl font-bold text-gray-900">{{ formatCurrency(total) }}</p>
+          </div>
         </div>
       </div>
     </div>

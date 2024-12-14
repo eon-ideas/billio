@@ -23,7 +23,8 @@ const formData = ref<CustomerFormData>(props.initialData || {
   city: '',
   address: '',
   vat_id: '',
-  currency: 'EUR'
+  currency: 'EUR',
+  include_vat: false
 })
 
 const handleSubmit = async () => {
@@ -145,6 +146,23 @@ const handleSubmit = async () => {
         <option value="USD">USD</option>
         <option value="GBP">GBP</option>
       </select>
+    </div>
+
+    <!-- Include VAT -->
+    <div class="flex items-start">
+      <div class="flex h-5 items-center">
+        <input
+          id="include_vat"
+          type="checkbox"
+          v-model="formData.include_vat"
+          :disabled="loading"
+          class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:cursor-not-allowed"
+        />
+      </div>
+      <div class="ml-3 text-sm">
+        <label for="include_vat" class="font-medium text-gray-700">Include VAT</label>
+        <p class="text-gray-500">Check this if VAT should be included in invoices for this customer</p>
+      </div>
     </div>
 
     <!-- Submit Button -->
