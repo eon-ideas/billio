@@ -58,7 +58,31 @@ onMounted(async () => {
 
 <template>
   <div class="max-w-4xl mx-auto bg-white p-8 print:p-6 print-area">
-    <!-- Header -->
+    <!-- Company Info at Top -->
+    <div class="flex justify-between items-start mb-4">
+      <div class="text-xs space-y-0.5">
+        <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
+        <div class="grid grid-cols-2 gap-x-4">
+          <div>
+            <p class="whitespace-pre-line">{{ company.address }}</p>
+            <p>{{ company.country }}</p>
+          </div>
+          <div>
+            <p v-if="company.vatId">VAT ID: {{ company.vatId }}</p>
+            <p v-if="company.iban">IBAN: {{ company.iban }}</p>
+            <p>{{ company.phone }}</p>
+            <p>{{ company.email }}</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-right ml-4">
+        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-10 ml-auto" />
+      </div>
+    </div>
+
+    <hr class="my-4 border-gray-200">
+
+    <!-- Invoice Details and Customer Info -->
     <div class="flex justify-between items-start mb-12">
       <div>
         <h1 class="text-2xl font-bold mb-4">Invoice</h1>
@@ -67,26 +91,9 @@ onMounted(async () => {
           <p><span class="inline-block w-32">Invoice date</span> {{ formatDate(invoice.date) }}</p>
         </div>
       </div>
-      <div class="text-right">
-        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-8 ml-auto mb-4" />
-      </div>
-    </div>
 
-    <!-- Company and Customer Info -->
-    <div class="grid grid-cols-2 gap-12 mb-12">
-      <!-- Company Info -->
-      <div class="text-sm">
-        <h2 class="font-medium mb-2">{{ company.name }}</h2>
-        <p class="whitespace-pre-line">{{ company.address }}</p>
-        <p v-if="company.vatId">VAT ID {{ company.vatId }}</p>
-        <p v-if="company.iban">IBAN {{ company.iban }}</p>
-        <p>{{ company.country }}</p>
-        <p>{{ company.phone }}</p>
-        <p>{{ company.email }}</p>
-      </div>
-      
       <!-- Customer Info -->
-      <div class="text-sm">
+      <div class="text-sm text-right">
         <h2 class="font-medium mb-2">Bill to</h2>
         <p class="font-medium">{{ customer?.name }}</p>
         <p>{{ customer?.address }}</p>
@@ -94,11 +101,6 @@ onMounted(async () => {
         <p>{{ customer?.country }}</p>
         <p>{{ customer?.email }}</p>
       </div>
-    </div>
-
-    <!-- Amount Summary -->
-    <div class="mb-8">
-      <h2 class="text-xl font-bold mb-2">{{ formatCurrency(calculateInvoiceTotal) }} paid on {{ formatDate(invoice.paid_date || invoice.date) }}</h2>
     </div>
 
     <!-- Invoice Items -->
@@ -158,6 +160,13 @@ onMounted(async () => {
     <div class="mt-12 text-sm">
       <p v-if="invoice.tax_note" class="text-gray-600">{{ invoice.tax_note }}</p>
       <p class="text-gray-600">----</p>
+    </div>
+
+    <!-- Company Details Footer -->
+    <div class="mt-8 text-center text-xs text-gray-600 space-y-1 max-w-3xl mx-auto">
+      <p>EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089</p>
+      <p>Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:</p>
+      <p>RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti</p>
     </div>
 
     <!-- Print Button -->
