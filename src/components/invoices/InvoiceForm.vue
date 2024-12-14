@@ -24,6 +24,8 @@ onMounted(async () => {
 const formData = ref<InvoiceFormData>({
   number: '',
   date: new Date().toISOString().split('T')[0],
+  delivery_date: new Date().toISOString().split('T')[0],
+  due_date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 14 days from now
   items: []
 })
 
@@ -111,6 +113,18 @@ const handleSubmit = () => {
         v-model="formData.date"
         type="date"
         label="Invoice Date"
+        required
+      />
+      <BaseInput
+        v-model="formData.delivery_date"
+        type="date"
+        label="Delivery Date"
+        required
+      />
+      <BaseInput
+        v-model="formData.due_date"
+        type="date"
+        label="Due Date"
         required
       />
     </div>

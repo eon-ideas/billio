@@ -75,6 +75,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
           customer_id: invoiceData.customer_id,
           number: invoiceData.number,
           date: invoiceData.date,
+          delivery_date: invoiceData.delivery_date,
+          due_date: invoiceData.due_date,
           subtotal: subtotal,
           vat: vat,
           total: total,
@@ -155,6 +157,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
           customer_id: invoiceData.customer_id,
           number: invoiceData.number,
           date: invoiceData.date,
+          delivery_date: invoiceData.delivery_date,
+          due_date: invoiceData.due_date,
           subtotal: subtotal,
           vat: vat,
           total: total

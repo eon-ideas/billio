@@ -100,6 +100,8 @@ onMounted(async () => {
         <div class="space-y-1 text-sm">
           <p><span class="inline-block w-32">Invoice number</span> {{ invoice.number }}</p>
           <p><span class="inline-block w-32">Invoice date</span> {{ formatDate(invoice.date) }}</p>
+          <p><span class="inline-block w-32">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
+          <p><span class="inline-block w-32">Due date</span> {{ formatDate(invoice.due_date) }}</p>
         </div>
       </div>
 
@@ -110,7 +112,7 @@ onMounted(async () => {
         <p>{{ customer?.address }}</p>
         <p>{{ customer?.postal_code }} {{ customer?.city }}</p>
         <p>{{ customer?.country }}</p>
-        <p>{{ customer?.email }}</p>
+        <p>VAT ID: {{ customer?.vat_id }}</p>
       </div>
     </div>
 

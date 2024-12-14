@@ -16,6 +16,8 @@ export interface Invoice {
   customer_id: string
   number: string
   date: string
+  delivery_date: string | null
+  due_date: string | null
   items?: InvoiceItem[]
   subtotal: number
   vat: number
