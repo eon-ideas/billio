@@ -30,11 +30,8 @@ const formatCurrency = (amount: number) => {
 
 const formatDate = (date: string | null) => {
   if(!date) return undefined
-  return new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
+  const d = new Date(date)
+  return `${d.getDate().toString().padStart(2, '0')}.${(d.getMonth() + 1).toString().padStart(2, '0')}.${d.getFullYear()}.`
 }
 
 const calculateItemTotal = (item: any) => {
