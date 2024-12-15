@@ -79,6 +79,7 @@ onMounted(async () => {
           <p><span class="inline-block w-32">Invoice date</span> {{ formatDate(invoice.date) }}</p>
           <p><span class="inline-block w-32">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
           <p><span class="inline-block w-32">Due date</span> {{ formatDate(invoice.due_date) }}</p>
+          <p><span class="inline-block w-32">Payment method</span>Bank Transfer</p>
         </div>
       </div>
 
@@ -123,7 +124,7 @@ onMounted(async () => {
         <span>{{ formatCurrency(invoice.subtotal) }}</span>
       </div>
       <div v-if="customer?.include_vat" class="flex justify-between">
-        <span>VAT (25%)</span>
+        <span>VAT</span>
         <span>{{ formatCurrency(invoice.vat) }}</span>
       </div>
       <div class="flex justify-between font-bold">
@@ -134,7 +135,7 @@ onMounted(async () => {
 
       <!-- VAT Exemption Info -->
       <div v-if="!customer?.include_vat" class="mt-4">
-      <p class="text-xs text-gray-600">PDV nije obračunat temeljem čl.17, stavak 1 Zakona o PDV-u</p>
+      <p class="text-xs text-gray-600">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
      </div>
 
      <!-- Operator Info -->
@@ -144,9 +145,11 @@ onMounted(async () => {
 
     <!-- Company Details Footer -->
     <div class="mt-8 text-center text-xs text-gray-600 space-y-1 max-w-3xl mx-auto">
-      <p>EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089</p>
-      <p>Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:</p>
-      <p>RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti</p>
+      <p>
+        EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
+        Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:
+        RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti
+      </p>
     </div>
 
     <!-- Print Button -->
