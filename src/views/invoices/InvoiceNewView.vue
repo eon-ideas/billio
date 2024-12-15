@@ -1,23 +1,42 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import InvoiceForm from '@/components/invoices/InvoiceForm.vue'
 import type { InvoiceFormData } from '@/types/invoice'
+import type {Customer} from "@/types/customer.ts";
 
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
 const invoicesStore = useInvoicesStore()
 
+const customer = ref<Customer | null>(null)
 const customerId = route.params.customerId as string
-const customer = computed(() => customersStore.getCustomerById(customerId))
+const loading = ref(true)
 
-if (!customer.value) {
-  router.push('/customers')
-}
+onMounted(async () => {
+  try {
+    loading.value = true
+    console.log('Fetching customer:', route.params.customerId)
+    const fetchedCustomer = await customersStore.getCustomerById(route.params.customerId[0])
+
+    if (!fetchedCustomer) {
+      console.error('Customer not found')
+      router.push('/customers')
+      return
+    }
+    customer.value = {
+      ...fetchedCustomer,
+    }
+  } catch (error) {
+    console.error('Error loading customer:', error)
+  } finally {
+    loading.value = false
+  }
+})
 
 const breadcrumbItems = computed(() => [
   { name: 'Customers', to: '/customers' },

@@ -2,11 +2,10 @@
 import { computed, ref } from 'vue'
 import Navigation from '@/components/layout/Navigation.vue'
 import { useInvoicesStore } from '@/stores/invoices'
-import { useCustomersStore } from '@/stores/customers'
 import { RouterLink } from 'vue-router'
 
 const invoicesStore = useInvoicesStore()
-const customersStore = useCustomersStore()
+//const customersStore = useCustomersStore()
 
 // Time period selection
 const periods = [
@@ -36,25 +35,6 @@ const totalAmount = computed(() =>
 const averageInvoiceAmount = computed(() => 
   totalInvoices.value ? totalAmount.value / totalInvoices.value : 0
 )
-
-const invoiceSumByCustomer = computed(() => {
-  const customerSums = new Map()
-  
-  filteredInvoices.value.forEach(invoice => {
-    const customer = customersStore.getCustomerById(invoice.customerId)
-    if (!customer) return
-
-    const currentSum = customerSums.get(customer.id) || 0
-    customerSums.set(customer.id, currentSum + invoice.total)
-  })
-
-  return Array.from(customerSums.entries())
-    .map(([customerId, total]) => ({
-      customer: customersStore.getCustomerById(customerId),
-      total
-    }))
-    .sort((a, b) => b.total - a.total) // Sort by total amount descending
-})
 
 const recentInvoices = computed(() => {
   return [...filteredInvoices.value]
@@ -211,46 +191,6 @@ const formatDate = (date: string) => {
                         </RouterLink>
                       </div>
                     </div>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          <!-- Customer Summary -->
-          <div class="bg-white shadow rounded-lg">
-            <div class="p-6">
-              <h2 class="text-lg font-medium text-gray-900 mb-4">Top Customers</h2>
-              <div class="flow-root">
-                <ul role="list" class="-my-5 divide-y divide-gray-200">
-                  <li v-for="summary in invoiceSumByCustomer" :key="summary.customer?.id" class="py-4">
-                    <div class="flex items-center space-x-4">
-                      <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">
-                          {{ summary.customer?.name || 'Unknown Customer' }}
-                        </p>
-                        <p class="text-sm text-gray-500">
-                          {{ summary.customer?.city }}
-                        </p>
-                      </div>
-                      <div class="text-right">
-                        <p class="text-sm font-medium text-gray-900">
-                          {{ formatCurrency(summary.total) }}
-                        </p>
-                        <RouterLink
-                          :to="`/customers/${summary.customer?.id}`"
-                          class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          View
-                          <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </RouterLink>
-                      </div>
-                    </div>
-                  </li>
-                  <li v-if="invoiceSumByCustomer.length === 0" class="py-4">
-                    <p class="text-sm text-gray-500 text-center">No invoices found in the selected period</p>
                   </li>
                 </ul>
               </div>

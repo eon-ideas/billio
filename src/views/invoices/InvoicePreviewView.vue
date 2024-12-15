@@ -38,14 +38,14 @@ onMounted(async () => {
     }
     
     console.log('Fetched invoice:', fetchedInvoice)
-    console.log('Invoice items:', fetchedInvoice.items)
+    console.log('Invoice items:', fetchedInvoice.invoice_items)
     
     invoice.value = {
       ...fetchedInvoice,
-      items: fetchedInvoice.invoice_items || [] // Handle both items and invoice_items
+      invoice_items: fetchedInvoice.invoice_items || [] // Handle both items and invoice_items
     }
 
-    customer.value = await customersStore.getCustomerById(invoice.value.customer_id)
+    customer.value = await customersStore.getCustomerById(fetchedInvoice.customer_id)
     if (!customer.value) {
       console.error('Customer not found')
       router.push('/customers')

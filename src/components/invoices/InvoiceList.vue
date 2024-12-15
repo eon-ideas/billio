@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
 import { useRouter } from 'vue-router'
+import type {Customer} from "@/types/customer.ts";
 
 const props = defineProps<{
   customerId: string
@@ -14,8 +15,30 @@ const invoicesStore = useInvoicesStore()
 const customersStore = useCustomersStore()
 const showDeleteModal = ref(false)
 const invoiceToDelete = ref<string | null>(null)
+const customer = ref<Customer | null>(null)
+const loading = ref(true)
 
-const customer = computed(() => customersStore.getCustomerById(props.customerId))
+onMounted(async () => {
+  try {
+    loading.value = true
+    console.log('Fetching customer:', props.customerId)
+    const fetchedCustomer = await customersStore.getCustomerById(props.customerId)
+
+    if (!fetchedCustomer) {
+      console.error('Customer not found')
+      router.push('/customers')
+      return
+    }
+    customer.value = {
+      ...fetchedCustomer,
+    }
+  } catch (error) {
+    console.error('Error loading customer:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
 const invoices = computed(() => {
   const allInvoices = invoicesStore.invoices
   let filteredInvoices = allInvoices.filter(i => i.customer_id === props.customerId)
@@ -95,7 +118,7 @@ const formatCurrency = (amount: number, currency: string) => {
           </td>
           <td class="px-6 py-4 whitespace-nowrap">
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-              {{ invoice.items.length }}
+              {{ invoice.invoice_items?.length }}
             </span>
           </td>
           <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">

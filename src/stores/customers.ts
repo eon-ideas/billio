@@ -119,7 +119,7 @@ export const useCustomersStore = defineStore('customers', () => {
     }
   }
 
-  const getCustomerById = async (id: string) => {
+  const getCustomerById = async (id: string) : Promise<Customer | null> => {
     const auth = useAuthStore()
     if (!auth.user) return null
 

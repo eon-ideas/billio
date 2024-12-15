@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  modelValue: string | number
+  modelValue: string | number | null
   label?: string
   type?: string
   placeholder?: string
@@ -8,7 +8,7 @@ defineProps<{
 }>()
 
 defineEmits<{
-  (e: 'update:modelValue', value: string | number): void
+  (e: 'update:modelValue', value: string | number | null): void
 }>()
 </script>
 

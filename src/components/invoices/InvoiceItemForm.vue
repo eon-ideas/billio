@@ -27,7 +27,7 @@ watch(() => props.initialData, (newData) => {
   }
 }, { deep: true })
 
-const updateField = (field: keyof InvoiceItemFormData, value: string | number) => {
+const updateField = (field: keyof InvoiceItemFormData, value: string | number | null) => {
   const newValue = field === 'description' ? value : Number(value)
   item.value = {
     ...item.value,

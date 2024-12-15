@@ -28,7 +28,7 @@ const formData = ref<InvoiceFormData>({
   date: new Date().toISOString().split('T')[0],
   delivery_date: null,
   due_date: null,
-  items: [],
+  invoice_items: [],
   subtotal: 0,
   vat: 0
 })
@@ -38,16 +38,16 @@ watch(() => props.initialData, (newData) => {
   if (newData) {
     formData.value = {
       ...newData,
-      items: Array.isArray(newData.items) ? [...newData.items] : []
+      invoice_items: Array.isArray(newData.invoice_items) ? [...newData.invoice_items] : []
     }
   }
 }, { immediate: true })
 
 const addItem = () => {
-  if (!formData.value.items) {
-    formData.value.items = []
+  if (!formData.value.invoice_items) {
+    formData.value.invoice_items = []
   }
-  formData.value.items.push({
+  formData.value.invoice_items.push({
     id: crypto.randomUUID(),
     invoice_id: '',
     description: '',
@@ -57,11 +57,11 @@ const addItem = () => {
 }
 
 const updateItem = (item: InvoiceItemFormData, index: number) => {
-  if (!formData.value.items) {
-    formData.value.items = []
+  if (!formData.value.invoice_items) {
+    formData.value.invoice_items = []
   }
-  formData.value.items[index] = {
-    ...formData.value.items[index],
+  formData.value.invoice_items[index] = {
+    ...formData.value.invoice_items[index],
     ...item
   }
   // Update subtotal when items change
@@ -75,7 +75,7 @@ const updateItem = (item: InvoiceItemFormData, index: number) => {
 }
 
 const removeItem = (index: number) => {
-  formData.value.items?.splice(index, 1)
+  formData.value.invoice_items?.splice(index, 1)
   // Update totals after removing item
   formData.value.subtotal = subtotal.value
   if (customer.value && customer.value.include_vat) {
@@ -86,8 +86,8 @@ const removeItem = (index: number) => {
 }
 
 const subtotal = computed(() => {
-  if (!formData.value.items) return 0
-  return formData.value.items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
+  if (!formData.value.invoice_items) return 0
+  return formData.value.invoice_items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
 })
 
 const vatAmount = computed(() => {
@@ -113,7 +113,7 @@ const handleSubmit = () => {
   emit('submit', { 
     ...formData.value,
     customer_id: props.customerId,
-    items: formData.value.items || []
+    invoice_items: formData.value.invoice_items || []
   })
 }
 </script>
@@ -167,8 +167,8 @@ const handleSubmit = () => {
       </div>
 
       <div class="space-y-6">
-        <template v-if="formData.items && formData.items.length > 0">
-          <div v-for="(item, index) in formData.items" :key="index" class="relative bg-gray-50 rounded-lg p-4">
+        <template v-if="formData.invoice_items && formData.invoice_items.length > 0">
+          <div v-for="(item, index) in formData.invoice_items" :key="index" class="relative bg-gray-50 rounded-lg p-4">
             <button
               type="button"
               @click="removeItem(index)"

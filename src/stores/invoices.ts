@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { Invoice, InvoiceFormData, InvoiceItem, InvoiceItemFormData } from '@/types/invoice'
+import type { Invoice, InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from './auth'
 
@@ -63,7 +63,7 @@ export const useInvoicesStore = defineStore('invoices', () => {
         .single()
 
       // Calculate total with VAT if needed
-      const subtotal = calculateTotal(invoiceData.items || [])
+      const subtotal = calculateTotal(invoiceData.invoice_items || [])
       const vat = customer?.include_vat ? subtotal * 0.25 : 0 // 25% VAT if include_vat is true
       const total = subtotal + vat
 
@@ -87,11 +87,11 @@ export const useInvoicesStore = defineStore('invoices', () => {
 
       if (invoiceError) throw invoiceError
 
-      if (invoiceData.items && invoiceData.items.length > 0) {
+      if (invoiceData.invoice_items && invoiceData.invoice_items.length > 0) {
         const { error: itemsError } = await supabase
           .from('invoice_items')
           .insert(
-            invoiceData.items.map(item => ({
+            invoiceData.invoice_items.map(item => ({
               invoice_id: invoice.id,
               description: item.description,
               quantity: item.quantity,
@@ -146,12 +146,12 @@ export const useInvoicesStore = defineStore('invoices', () => {
         .single()
 
       // Calculate total with VAT if needed
-      const subtotal = calculateTotal(invoiceData.items || [])
+      const subtotal = calculateTotal(invoiceData.invoice_items || [])
       const vat = customer?.include_vat ? subtotal * 0.25 : 0 // 25% VAT if include_vat is true
       const total = subtotal + vat
 
       // Update invoice
-      const { data: invoice, error: invoiceError } = await supabase
+      const { error: invoiceError } = await supabase
         .from('invoices')
         .update({
           customer_id: invoiceData.customer_id,
@@ -179,11 +179,11 @@ export const useInvoicesStore = defineStore('invoices', () => {
       if (deleteError) throw deleteError
 
       // Insert new items
-      if (invoiceData.items && invoiceData.items.length > 0) {
+      if (invoiceData.invoice_items && invoiceData.invoice_items.length > 0) {
         const { error: itemsError } = await supabase
           .from('invoice_items')
           .insert(
-            invoiceData.items.map(item => ({
+            invoiceData.invoice_items.map(item => ({
               invoice_id: id,
               description: item.description,
               quantity: item.quantity,
@@ -289,7 +289,7 @@ export const useInvoicesStore = defineStore('invoices', () => {
     }
   }
 
-  const getInvoiceById = async (id: string) => {
+  const getInvoiceById = async (id: string): Promise<Invoice | null> => {
     const auth = useAuthStore()
     if (!auth.user) return null
 

@@ -16,8 +16,8 @@ const company = computed(() => companyStore.companyInfo)
 
 // Ensure we have an array of items, even if empty
 const items = computed(() => {
-  console.log('Invoice items in preview:', props.invoice.items)
-  return props.invoice.items || []
+  console.log('Invoice items in preview:', props.invoice.invoice_items)
+  return props.invoice.invoice_items || []
 })
 
 const formatCurrency = (amount: number) => {
@@ -28,7 +28,8 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
-const formatDate = (date: string) => {
+const formatDate = (date: string | null) => {
+  if(!date) return undefined
   return new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -39,21 +40,6 @@ const formatDate = (date: string) => {
 const calculateItemTotal = (item: any) => {
   return (item.quantity || 0) * (item.price || 0)
 }
-
-const subtotal = computed(() => {
-  return items.value.reduce((total, item) => total + calculateItemTotal(item), 0)
-})
-
-const vatAmount = computed(() => {
-  if (customer.value?.include_vat) {
-    return subtotal.value * 0.25 // 25% VAT
-  }
-  return 0
-})
-
-const calculateInvoiceTotal = computed(() => {
-  return subtotal.value + vatAmount.value
-})
 
 const printInvoice = () => {
   window.print()
@@ -75,14 +61,8 @@ onMounted(async () => {
         <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
         <div class="grid grid-cols-2 gap-x-4">
           <div>
-            <p class="whitespace-pre-line">{{ company.address }}</p>
-            <p>{{ company.country }}</p>
-          </div>
-          <div>
             <p v-if="company.vatId">VAT ID: {{ company.vatId }}</p>
             <p v-if="company.iban">IBAN: {{ company.iban }}</p>
-            <p>{{ company.phone }}</p>
-            <p>{{ company.email }}</p>
           </div>
         </div>
       </div>
@@ -110,8 +90,7 @@ onMounted(async () => {
         <h2 class="font-medium mb-2">Bill to</h2>
         <p class="font-medium">{{ customer?.name }}</p>
         <p>{{ customer?.address }}</p>
-        <p>{{ customer?.postal_code }} {{ customer?.city }}</p>
-        <p>{{ customer?.country }}</p>
+        <p>{{ customer?.city }}</p>
         <p>VAT ID: {{ customer?.vat_id }}</p>
       </div>
     </div>
@@ -131,9 +110,6 @@ onMounted(async () => {
           <tr v-for="item in items" :key="item.id" class="border-b">
             <td class="py-4">
               {{ item.description }}
-              <div class="text-sm text-gray-600" v-if="item.period_start && item.period_end">
-                {{ formatDate(item.period_start) }} – {{ formatDate(item.period_end) }}
-              </div>
             </td>
             <td class="py-4 text-center">{{ item.quantity }}</td>
             <td class="py-4 text-right">{{ formatCurrency(item.price) }}</td>
@@ -167,12 +143,6 @@ onMounted(async () => {
      <!-- Operator Info -->
      <div class="mt-4 mb-8">
       <p class="text-xs text-gray-600">Operator: Teodor Hirš</p>
-    </div>
-
-    <!-- Footer -->
-    <div class="mt-12 text-sm">
-      <p v-if="invoice.tax_note" class="text-gray-600">{{ invoice.tax_note }}</p>
-      <p class="text-gray-600">----</p>
     </div>
 
     <!-- Company Details Footer -->
