@@ -79,10 +79,10 @@ const handleSubmit = async () => {
       <span>{{ errorMessage }}</span>
     </div>
 
-    <main class="max-w-5xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      <div class="mb-8">
-        <Breadcrumb :items="breadcrumbItems" />
-        <h1 class="text-3xl font-bold text-gray-900 mt-2">Company Settings</h1>
+    <main class="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
+      <div class="mb-6 sm:mb-8">
+        <Breadcrumb :items="breadcrumbItems" class="hidden sm:block" />
+        <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">Company Settings</h1>
         <p class="mt-2 text-sm text-gray-600">
           Manage your company's information and branding.
         </p>
@@ -91,14 +91,14 @@ const handleSubmit = async () => {
       <div class="bg-white shadow-sm rounded-lg overflow-hidden">
         <form @submit.prevent="handleSubmit" class="divide-y divide-gray-200">
           <!-- Logo Section -->
-          <div class="p-6 space-y-4">
+          <div class="p-4 sm:p-6 space-y-4">
             <h2 class="text-lg font-medium text-gray-900">Company Logo</h2>
             <p class="text-sm text-gray-500">
               This will be displayed on your invoices and customer portal.
             </p>
-            <div class="flex items-start space-x-6">
+            <div class="flex flex-col sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-6">
               <div 
-                class="w-40 h-40 border-2 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50"
+                class="w-32 h-32 sm:w-40 sm:h-40 border-2 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50 mx-auto sm:mx-0"
                 :class="{ 'border-dashed border-gray-300': !companyStore.companyInfo.logoUrl, 'border-transparent': companyStore.companyInfo.logoUrl }"
               >
                 <img 
@@ -108,13 +108,13 @@ const handleSubmit = async () => {
                   class="w-full h-full object-contain"
                 />
                 <div v-else class="text-center px-4">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-10 w-10 sm:h-12 sm:w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   <p class="mt-2 text-sm text-gray-500">No logo uploaded</p>
                 </div>
               </div>
-              <div class="space-y-2">
+              <div class="space-y-2 w-full sm:w-auto">
                 <input
                   type="file"
                   ref="logoInput"
@@ -125,7 +125,7 @@ const handleSubmit = async () => {
                 <BaseButton
                   type="button"
                   @click="logoInput?.click()"
-                  class="w-full"
+                  class="w-full sm:w-auto"
                   :disabled="companyStore.isLoading"
                 >
                   <template v-if="companyStore.isLoading">
@@ -147,7 +147,7 @@ const handleSubmit = async () => {
           </div>
 
           <!-- Company Information Section -->
-          <div class="p-6 space-y-6">
+          <div class="p-4 sm:p-6 space-y-6">
             <h2 class="text-lg font-medium text-gray-900">Company Information</h2>
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <!-- Company Name -->
@@ -216,7 +216,7 @@ const handleSubmit = async () => {
           </div>
 
           <!-- Submit Button -->
-          <div class="px-6 py-4 bg-gray-50 flex justify-end">
+          <div class="px-4 py-4 bg-gray-50 flex justify-end">
             <BaseButton 
               type="submit"
               :disabled="companyStore.isLoading"

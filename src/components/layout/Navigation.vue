@@ -2,7 +2,7 @@
 import { useAuthStore } from '@/stores/auth'
 import BaseButton from '@/components/ui/BaseButton.vue'
 
-const props = defineProps<{
+defineProps<{
   isMobileOpen: boolean
 }>()
 
