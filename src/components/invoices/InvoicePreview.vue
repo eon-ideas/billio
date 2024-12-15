@@ -123,23 +123,23 @@ onMounted(async () => {
         <span>Subtotal</span>
         <span>{{ formatCurrency(invoice.subtotal) }}</span>
       </div>
-      <div v-if="customer?.include_vat" class="flex justify-between">
+      <div class="flex justify-between">
         <span>VAT</span>
         <span>{{ formatCurrency(invoice.vat) }}</span>
       </div>
       <div class="flex justify-between font-bold">
-        <span>Total{{ customer?.include_vat ? ' (including VAT)' : '' }}</span>
+        <span>Total</span>
         <span>{{ formatCurrency(invoice.total) }}</span>
       </div>
-    </div>
 
       <!-- VAT Exemption Info -->
       <div v-if="!customer?.include_vat" class="mt-4">
-      <p class="text-xs text-gray-600">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
-     </div>
+        <p class="text-xs text-gray-600">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
+      </div>
+    </div>
 
-     <!-- Operator Info -->
-     <div class="mt-4 mb-8">
+    <!-- Operator Info -->
+    <div class="mt-4 mb-8">
       <p class="text-xs text-gray-600">Operator: Teodor Hirš</p>
     </div>
 
