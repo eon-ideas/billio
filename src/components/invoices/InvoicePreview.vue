@@ -53,30 +53,27 @@ onMounted(async () => {
 <template>
   <div class="max-w-4xl mx-auto bg-white p-8 print:p-6 print-area">
     <!-- Company Info at Top -->
-    <div class="flex justify-between items-start mb-4">
-      <div class="text-xs space-y-0.5">
-        <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
-        <div class="grid grid-cols-2 gap-x-4">
-          <div>
-            <p v-if="company.vatId">VAT ID: {{ company.vatId }}</p>
-            <p v-if="company.iban">IBAN: {{ company.iban }}</p>
-          </div>
+    <div class="flex justify-between items-start mb-8">
+      <div class="text-sm space-y-1">
+        <h2 class="text-xl font-bold mb-2">{{ company.name }}</h2>
+        <div>
+          <p v-if="company.vatId" class="text-gray-600">VAT ID: {{ company.vatId }}</p>
+          <p v-if="company.iban" class="text-gray-600">IBAN: {{ company.iban }}</p>
         </div>
       </div>
       <div class="text-right ml-4">
-        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-10 ml-auto" />
+        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-12 ml-auto" />
       </div>
     </div>
 
-    <hr class="my-4 border-gray-200">
-
     <!-- Invoice Details and Customer Info -->
-    <div class="flex justify-between items-start mb-12">
+    <div class="grid grid-cols-2 gap-12 mb-12">
       <div>
-        <h1 class="text-2xl font-bold mb-4">Invoice</h1>
-        <div class="space-y-1 text-sm">
-          <p><span class="inline-block w-32">Invoice number</span> {{ invoice.number }}</p>
-          <p><span class="inline-block w-32">Invoice date</span> {{ formatDate(invoice.date) }}</p>
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-gray-900">Invoice #{{ invoice.number }}</h1>
+          <p class="mt-2 text-lg text-gray-600">{{ formatDate(invoice.date) }}</p>
+        </div>
+        <div class="space-y-2 text-sm text-gray-600">
           <p><span class="inline-block w-32">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
           <p><span class="inline-block w-32">Due date</span> {{ formatDate(invoice.due_date) }}</p>
           <p><span class="inline-block w-32">Payment method</span>Bank Transfer</p>
@@ -84,68 +81,70 @@ onMounted(async () => {
       </div>
 
       <!-- Customer Info -->
-      <div class="text-sm text-right">
-        <h2 class="font-medium mb-2">Bill to</h2>
-        <p class="font-medium">{{ customer?.name }}</p>
-        <p>{{ customer?.address }}</p>
-        <p>{{ customer?.city }}</p>
-        <p>VAT ID: {{ customer?.vat_id }}</p>
+      <div class="bg-gray-50 p-6 rounded-lg">
+        <h2 class="text-sm font-medium text-gray-500 mb-3">BILL TO</h2>
+        <div class="space-y-1">
+          <p class="text-lg font-medium text-gray-900">{{ customer?.name }}</p>
+          <p class="text-gray-600">{{ customer?.address }}</p>
+          <p class="text-gray-600">{{ customer?.city }}</p>
+          <p class="text-gray-600">VAT ID: {{ customer?.vat_id }}</p>
+        </div>
       </div>
     </div>
 
     <!-- Invoice Items -->
-    <div class="mb-12">
+    <div class="mb-12 overflow-x-auto">
       <table class="w-full text-sm">
         <thead>
-          <tr class="border-b">
-            <th class="py-2 text-left font-medium">Description</th>
-            <th class="py-2 text-center font-medium">Qty</th>
-            <th class="py-2 text-right font-medium">Unit price</th>
-            <th class="py-2 text-right font-medium">Amount</th>
+          <tr>
+            <th class="py-3 text-left font-medium text-gray-500 border-b">Description</th>
+            <th class="py-3 text-center font-medium text-gray-500 border-b w-24">Qty</th>
+            <th class="py-3 text-right font-medium text-gray-500 border-b w-32">Unit price</th>
+            <th class="py-3 text-right font-medium text-gray-500 border-b w-32">Amount</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="item in items" :key="item.id" class="border-b">
-            <td class="py-4">
+        <tbody class="divide-y divide-gray-100">
+          <tr v-for="item in items" :key="item.id">
+            <td class="py-4 align-top">
               {{ item.description }}
             </td>
-            <td class="py-4 text-center">{{ item.quantity }}</td>
-            <td class="py-4 text-right">{{ formatCurrency(item.price) }}</td>
-            <td class="py-4 text-right">{{ formatCurrency(calculateItemTotal(item)) }}</td>
+            <td class="py-4 text-center align-top">{{ item.quantity }}</td>
+            <td class="py-4 text-right align-top">{{ formatCurrency(item.price) }}</td>
+            <td class="py-4 text-right align-top">{{ formatCurrency(calculateItemTotal(item)) }}</td>
           </tr>
         </tbody>
       </table>
     </div>
 
     <!-- Totals -->
-    <div class="space-y-2 text-sm">
-      <div class="flex justify-between">
+    <div class="ml-auto w-72 space-y-3">
+      <div class="flex justify-between text-sm text-gray-600">
         <span>Subtotal</span>
         <span>{{ formatCurrency(invoice.subtotal) }}</span>
       </div>
-      <div class="flex justify-between">
+      <div class="flex justify-between text-sm text-gray-600">
         <span>VAT</span>
         <span>{{ formatCurrency(invoice.vat) }}</span>
       </div>
-      <div class="flex justify-between font-bold">
+      <div class="flex justify-between text-lg font-bold text-gray-900 pt-3 border-t">
         <span>Total</span>
         <span>{{ formatCurrency(invoice.total) }}</span>
       </div>
 
       <!-- VAT Exemption Info -->
       <div v-if="!customer?.include_vat" class="mt-4">
-        <p class="text-xs text-gray-600">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
+        <p class="text-xs text-gray-500">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
       </div>
     </div>
 
     <!-- Operator Info -->
-    <div class="mt-4 mb-8">
-      <p class="text-xs text-gray-600">Operator: Teodor Hirš</p>
+    <div class="mt-12 pt-8 border-t text-sm text-gray-500">
+      <p>Operator: Teodor Hirš</p>
     </div>
 
     <!-- Company Details Footer -->
-    <div class="mt-8 text-center text-xs text-gray-600 space-y-1 max-w-3xl mx-auto">
-      <p>
+    <div class="mt-8 text-xs text-gray-500 max-w-3xl mx-auto">
+      <p class="leading-relaxed">
         EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
         Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:
         RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti
@@ -156,7 +155,7 @@ onMounted(async () => {
     <div class="mt-8 text-center print:hidden">
       <button
         @click="printInvoice"
-        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded inline-flex items-center"
+        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 px-6 rounded-lg inline-flex items-center transition-colors"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
