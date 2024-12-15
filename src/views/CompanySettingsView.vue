@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import Navigation from '@/components/layout/Navigation.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import { useCompanyStore } from '@/stores/company'
@@ -55,8 +54,6 @@ const handleSubmit = async () => {
 
 <template>
   <div class="min-h-screen bg-gray-50">
-    <Navigation />
-    
     <!-- Success Message -->
     <div
       v-if="showSuccessMessage"

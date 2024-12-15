@@ -3,7 +3,6 @@ import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
-import Navigation from '@/components/layout/Navigation.vue'
 import InvoicePreview from '@/components/invoices/InvoicePreview.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import type { Invoice } from '@/types/invoice'
@@ -69,7 +68,6 @@ onMounted(async () => {
 
 <template>
   <div class="min-h-screen bg-gray-100">
-    <Navigation />
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 sm:px-0">
         <Breadcrumb :items="breadcrumbItems" class="print:hidden" />
