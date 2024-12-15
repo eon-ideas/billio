@@ -21,7 +21,7 @@ onMounted(async () => {
   try {
     loading.value = true
     console.log('Fetching customer:', route.params.customerId)
-    const fetchedCustomer = await customersStore.getCustomerById(route.params.customerId[0])
+    const fetchedCustomer = await customersStore.getCustomerById(route.params.customerId as string)
 
     if (!fetchedCustomer) {
       console.error('Customer not found')
