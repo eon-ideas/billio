@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useCustomersStore } from '@/stores/customers'
 import { useRouter } from 'vue-router'
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 
 const props = defineProps<{
   searchQuery: string
@@ -9,6 +10,8 @@ const props = defineProps<{
 
 const customersStore = useCustomersStore()
 const router = useRouter()
+const showDeleteDialog = ref(false)
+const customerToDelete = ref<{ id: string, name: string } | null>(null)
 
 const filteredCustomers = computed(() => {
   if (!props.searchQuery) return customersStore.customers
@@ -33,6 +36,20 @@ const handleViewInvoices = (id: string) => {
   router.push(`/customers/${id}/invoices`)
 }
 
+const handleDelete = async () => {
+  if (!customerToDelete.value) return
+  
+  const success = await customersStore.deleteCustomer(customerToDelete.value.id)
+  if (success) {
+    customerToDelete.value = null
+  }
+}
+
+const handleDeleteClick = (customer: { id: string, name: string }) => {
+  customerToDelete.value = customer
+  showDeleteDialog.value = true
+}
+
 onMounted(async () => {
   await customersStore.fetchCustomers()
 })
@@ -40,6 +57,13 @@ onMounted(async () => {
 
 <template>
   <div class="overflow-hidden">
+    <ConfirmDialog
+      v-model:show="showDeleteDialog"
+      title="Delete Customer"
+      :message="customerToDelete ? `Are you sure you want to delete ${customerToDelete.name}? This will also delete all related invoices.` : ''"
+      confirm-label="Delete"
+      @confirm="handleDelete"
+    />
     <div v-if="customersStore.loading" class="flex justify-center items-center py-12">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
@@ -128,6 +152,15 @@ onMounted(async () => {
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
+                  </svg>
+                </button>
+                <button
+                  @click="handleDeleteClick({ id: customer.id, name: customer.name })"
+                  class="text-gray-400 hover:text-red-600 transition-colors duration-200"
+                  title="Delete"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
                   </svg>
                 </button>
               </div>

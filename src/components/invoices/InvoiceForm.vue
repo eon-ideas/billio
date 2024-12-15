@@ -98,7 +98,7 @@ const vatAmount = computed(() => {
 })
 
 const total = computed(() => {
-  return formData.value.subtotal + formData.value.vat
+  return subtotal.value + vatAmount.value
 })
 
 const formatCurrency = (amount: number) => {
