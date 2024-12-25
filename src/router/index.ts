@@ -66,6 +66,12 @@ const router = createRouter({
       meta: routeMeta['invoice-preview']
     },
     {
+      path: '/customers/:customerId/email-template',
+      name: 'customer-email-template',
+      component: () => import('@/views/email/EmailTemplateView.vue'),
+      meta: routeMeta['customer-view']
+    },
+    {
       path: '/company-settings',
       name: 'company-settings',
       component: () => import('@/views/CompanySettingsView.vue'),
