@@ -2,15 +2,18 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useEmailTemplatesStore } from '@/stores/emailTemplates'
+import { useAuthStore } from '@/stores/auth'
 import type { NewEmailTemplate } from '@/types/emailTemplate'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 
 const route = useRoute()
 const customerId = route.params.customerId as string
 const emailTemplatesStore = useEmailTemplatesStore()
+const authStore = useAuthStore()
 
 const emailTemplate = ref<NewEmailTemplate>({
   customer_id: customerId,
+  user_id: authStore.user?.id ?? '',
   subject: '',
   body: '',
   recipients: []
@@ -25,6 +28,7 @@ onMounted(async () => {
   if (template) {
     emailTemplate.value = {
       customer_id: template.customer_id,
+      user_id: template.user_id,
       subject: template.subject,
       body: template.body,
       recipients: template.recipients
@@ -81,32 +85,6 @@ const breadcrumbItems = [
       <div class="bg-white shadow-sm rounded-lg border border-gray-200">
         <div class="px-4 py-5 sm:p-6">
           <form @submit.prevent="saveTemplate" class="space-y-6">
-            <!-- Subject -->
-            <div>
-              <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
-              <input
-                type="text"
-                id="subject"
-                v-model="emailTemplate.subject"
-                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Invoice for [Invoice Number]"
-                required
-              >
-            </div>
-
-            <!-- Body -->
-            <div>
-              <label for="body" class="block text-sm font-medium text-gray-700">Body</label>
-              <textarea
-                id="body"
-                v-model="emailTemplate.body"
-                rows="6"
-                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                placeholder="Dear [Customer Name],&#10;&#10;Please find attached the invoice [Invoice Number].&#10;&#10;Best regards,"
-                required
-              ></textarea>
-            </div>
-
             <!-- Recipients -->
             <div>
               <label class="block text-sm font-medium text-gray-700">Recipients</label>
@@ -144,6 +122,32 @@ const breadcrumbItems = [
                   </button>
                 </div>
               </div>
+            </div>
+
+            <!-- Subject -->
+            <div>
+              <label for="subject" class="block text-sm font-medium text-gray-700">Subject</label>
+              <input
+                type="text"
+                id="subject"
+                v-model="emailTemplate.subject"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Invoice for [Invoice Number]"
+                required
+              >
+            </div>
+
+            <!-- Body -->
+            <div>
+              <label for="body" class="block text-sm font-medium text-gray-700">Body</label>
+              <textarea
+                id="body"
+                v-model="emailTemplate.body"
+                rows="6"
+                class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                placeholder="Dear [Customer Name],&#10;&#10;Please find attached the invoice [Invoice Number].&#10;&#10;Best regards,"
+                required
+              ></textarea>
             </div>
 
             <!-- Error Message -->

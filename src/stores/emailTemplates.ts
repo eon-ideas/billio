@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '@/lib/supabase'
 import type { EmailTemplate, NewEmailTemplate } from '@/types/emailTemplate'
 
 export const useEmailTemplatesStore = defineStore('emailTemplates', {
