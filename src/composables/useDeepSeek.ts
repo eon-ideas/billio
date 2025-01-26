@@ -1,6 +1,7 @@
 import {ref} from 'vue'
 import {useCustomersStore} from '@/stores/customers'
 import {useInvoicesStore} from '@/stores/invoices'
+import {useContextRetrieval} from './useContextRetrieval'
 
 interface Message {
     role: 'user' | 'assistant' | 'system'
@@ -19,8 +20,9 @@ export function useDeepSeek() {
     const isLoading = ref(false)
     const error = ref<string | null>(null)
     const apiKey = ref<string>(import.meta.env.VITE_DEEPSEEK_API_KEY || '')
-    const { customers, fetchCustomers } = useCustomersStore()
-    const { invoices, fetchInvoices } = useInvoicesStore()
+    const {customers, fetchCustomers} = useCustomersStore()
+    const {invoices, fetchInvoices} = useInvoicesStore()
+    const contextRetrieval = useContextRetrieval()
 
     const getSystemContext = async (): Promise<string> => {
         try {
@@ -47,7 +49,7 @@ Current system status:
 ${customerSummary}
 ${invoiceSummary}
 
-Please provide clear, concise answers about invoice management, customer information, and payment status. If asked about specific customers or invoices, you can access the data through the system.`
+Please provide clear, concise answers about invoice management, customer information, and payment status. When responding about specific customers or invoices, use the provided context to give accurate information.`
         } catch (e) {
             console.error('Failed to fetch context data:', e)
             return 'You are an AI assistant for an Invoice Management System. You can help with questions about customers and their invoices, including invoice creation, payment tracking, and VAT calculations.'
@@ -63,10 +65,31 @@ Please provide clear, concise answers about invoice management, customer informa
         error.value = null
 
         try {
-            // Add system context as the first message if not present
+            // Get the user's latest message
+            const userMessage = messages[messages.length - 1]
+            if (userMessage.role !== 'user') {
+                throw new Error('Last message must be from user')
+            }
+
+            // Retrieve relevant context based on the user's query
+            const relevantContext = await contextRetrieval.retrieveRelevantContext(userMessage.content)
+
+            // Add system context and relevant data as the first messages if not present
             if (!messages.some(m => m.role === 'system')) {
                 const systemContext = await getSystemContext()
-                messages.unshift({role: 'system', content: systemContext})
+                messages.unshift(
+                    {role: 'system', content: systemContext},
+                    {
+                        role: 'system',
+                        content: `Here is the relevant information from the database for the user's query:\n\n${relevantContext.summary}`
+                    }
+                )
+            } else {
+                // Add the relevant context for this specific query
+                messages.splice(messages.length - 1, 0, {
+                    role: 'system',
+                    content: `Here is the relevant information from the database for the user's query:\n\n${relevantContext.summary}`
+                })
             }
 
             const response = await fetch('https://api.deepseek.com/v1/chat/completions', {
