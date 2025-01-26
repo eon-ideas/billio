@@ -10,7 +10,11 @@
     </button>
 
     <!-- Chat Window -->
-    <div v-if="isOpen" class="chat-window">
+    <div v-if="isOpen" class="chat-window" ref="chatWindow">
+      <div class="resize-handle top-left" @mousedown="startResize('top-left')"></div>
+      <div class="resize-handle top-right" @mousedown="startResize('top-right')"></div>
+      <div class="resize-handle bottom-left" @mousedown="startResize('bottom-left')"></div>
+      <div class="resize-handle bottom-right" @mousedown="startResize('bottom-right')"></div>
       <div class="chat-header">
         <h3>Support Chat</h3>
         <button @click="toggleChat" class="close-button" aria-label="Close chat">×</button>
@@ -49,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useDeepSeek } from '@/composables/useDeepSeek'
 
 const isOpen = ref(false)
@@ -57,8 +61,107 @@ const newMessage = ref('')
 const messages = ref<{ role: 'user' | 'assistant'; content: string }[]>([
   { role: 'assistant', content: 'Hello! How can I help you today?' }
 ])
+const chatWindow = ref<HTMLElement | null>(null)
 
 const { sendMessage: sendToDeepSeek, isLoading, error } = useDeepSeek()
+
+// Resizing functionality
+const isResizing = ref(false)
+const currentHandle = ref<string>('')
+const initialSize = ref({ width: 0, height: 0 })
+const initialPosition = ref({ x: 0, y: 0 })
+const initialMousePosition = ref({ x: 0, y: 0 })
+
+const startResize = (handle: string) => {
+  if (!chatWindow.value) return
+  
+  isResizing.value = true
+  currentHandle.value = handle
+  
+  const rect = chatWindow.value.getBoundingClientRect()
+  initialSize.value = {
+    width: rect.width,
+    height: rect.height
+  }
+  initialPosition.value = {
+    x: rect.left,
+    y: rect.top
+  }
+}
+
+const handleResize = (e: MouseEvent) => {
+  if (!isResizing.value || !chatWindow.value) return
+
+  const deltaX = e.clientX - initialMousePosition.value.x
+  const deltaY = e.clientY - initialMousePosition.value.y
+  const rect = chatWindow.value.getBoundingClientRect()
+
+  let newWidth = initialSize.value.width
+  let newHeight = initialSize.value.height
+  let newLeft = rect.left
+  let newTop = rect.top
+
+  switch (currentHandle.value) {
+    case 'top-left':
+      newWidth = initialSize.value.width - deltaX
+      newHeight = initialSize.value.height - deltaY
+      newLeft = initialPosition.value.x + deltaX
+      newTop = initialPosition.value.y + deltaY
+      break
+    case 'top-right':
+      newWidth = initialSize.value.width + deltaX
+      newHeight = initialSize.value.height - deltaY
+      newTop = initialPosition.value.y + deltaY
+      break
+    case 'bottom-left':
+      newWidth = initialSize.value.width - deltaX
+      newHeight = initialSize.value.height + deltaY
+      newLeft = initialPosition.value.x + deltaX
+      break
+    case 'bottom-right':
+      newWidth = initialSize.value.width + deltaX
+      newHeight = initialSize.value.height + deltaY
+      break
+  }
+
+  // Apply minimum size constraints
+  const minWidth = 300
+  const minHeight = 400
+  newWidth = Math.max(newWidth, minWidth)
+  newHeight = Math.max(newHeight, minHeight)
+
+  chatWindow.value.style.width = `${newWidth}px`
+  chatWindow.value.style.height = `${newHeight}px`
+  chatWindow.value.style.left = `${newLeft}px`
+  chatWindow.value.style.top = `${newTop}px`
+}
+
+const stopResize = () => {
+  isResizing.value = false
+}
+
+const handleMouseDown = (e: MouseEvent) => {
+  initialMousePosition.value = {
+    x: e.clientX,
+    y: e.clientY
+  }
+  document.addEventListener('mousemove', handleResize)
+  document.addEventListener('mouseup', stopResize)
+}
+
+const cleanup = () => {
+  document.removeEventListener('mousemove', handleResize)
+  document.removeEventListener('mouseup', stopResize)
+}
+
+onMounted(() => {
+  document.addEventListener('mousedown', handleMouseDown)
+})
+
+onUnmounted(() => {
+  cleanup()
+  document.removeEventListener('mousedown', handleMouseDown)
+})
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -123,6 +226,48 @@ const sendMessage = async () => {
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
   display: flex;
   flex-direction: column;
+  resize: both;
+  overflow: hidden;
+}
+
+.resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: transparent;
+  z-index: 1000;
+}
+
+.resize-handle.top-left {
+  top: 0;
+  left: 0;
+  cursor: nw-resize;
+}
+
+.resize-handle.top-right {
+  top: 0;
+  right: 0;
+  cursor: ne-resize;
+}
+
+.resize-handle.bottom-left {
+  bottom: 0;
+  left: 0;
+  cursor: sw-resize;
+}
+
+.resize-handle.bottom-right {
+  bottom: 0;
+  right: 0;
+  cursor: se-resize;
+}
+
+.resize-handle:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.chat-window * {
+  user-select: none;
 }
 
 .chat-header {
