@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import Navigation from '@/components/layout/Navigation.vue'
+import SupportChat from '@/components/SupportChat.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
@@ -48,4 +49,5 @@ onMounted(async () => {
   <div v-else class="min-h-screen flex items-center justify-center">
     <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
   </div>
+  <SupportChat v-if="auth.isAuthenticated" />
 </template>
