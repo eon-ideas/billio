@@ -18,8 +18,11 @@
       <div class="chat-messages" ref="messagesContainer">
         <div v-for="(message, index) in messages" 
              :key="index" 
-             :class="['message', message.type]">
-          {{ message.text }}
+             :class="['message', message.role === 'user' ? 'user' : 'support']">
+          {{ message.content }}
+        </div>
+        <div v-if="isLoading" class="message support">
+          <span class="typing-indicator">...</span>
         </div>
       </div>
       <div class="chat-input">
@@ -28,37 +31,52 @@
           @keyup.enter="sendMessage"
           placeholder="Type your message..."
           type="text"
+          :disabled="isLoading"
         />
-        <button @click="sendMessage" aria-label="Send message">Send</button>
+        <button 
+          @click="sendMessage" 
+          aria-label="Send message"
+          :disabled="isLoading"
+        >
+          Send
+        </button>
+      </div>
+      <div v-if="error" class="error-message">
+        {{ error }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useDeepSeek } from '@/composables/useDeepSeek'
 
 const isOpen = ref(false)
 const newMessage = ref('')
-const messages = ref([
-  { text: 'Hello! How can we help you today?', type: 'support' }
+const messages = ref<{ role: 'user' | 'assistant'; content: string }[]>([
+  { role: 'assistant', content: 'Hello! How can I help you today?' }
 ])
+
+const { sendMessage: sendToDeepSeek, isLoading, error } = useDeepSeek()
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
 }
 
-const sendMessage = () => {
-  if (newMessage.value.trim()) {
-    messages.value.push({ text: newMessage.value, type: 'user' })
+const sendMessage = async () => {
+  if (newMessage.value.trim() && !isLoading.value) {
+    const userMessage = newMessage.value
+    messages.value.push({ role: 'user', content: userMessage })
     newMessage.value = ''
-    // Here you would typically integrate with your actual support chat service
-    setTimeout(() => {
-      messages.value.push({ 
-        text: 'Thank you for your message. Our support team will get back to you soon.',
-        type: 'support'
-      })
-    }, 1000)
+
+    try {
+      const response = await sendToDeepSeek(messages.value)
+      messages.value.push({ role: 'assistant', content: response })
+    } catch (e) {
+      // Error is already handled by the composable
+      console.error('Failed to get response:', e)
+    }
   }
 }
 </script>
@@ -172,6 +190,12 @@ const sendMessage = () => {
   outline: none;
 }
 
+.chat-input input:disabled,
+.chat-input button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .chat-input button {
   padding: 8px 15px;
   background: #4CAF50;
@@ -181,7 +205,27 @@ const sendMessage = () => {
   cursor: pointer;
 }
 
-.chat-input button:hover {
+.chat-input button:hover:not(:disabled) {
   background: #45a049;
+}
+
+.error-message {
+  color: #dc3545;
+  padding: 8px 15px;
+  font-size: 0.875rem;
+  text-align: center;
+  background: #fff;
+  border-top: 1px solid #eee;
+}
+
+.typing-indicator {
+  display: inline-block;
+  animation: typing 1.5s infinite;
+}
+
+@keyframes typing {
+  0%, 20% { content: "."; }
+  40% { content: ".."; }
+  60%, 100% { content: "..."; }
 }
 </style>
