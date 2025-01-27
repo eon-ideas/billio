@@ -20,10 +20,10 @@
         <button @click="toggleChat" class="close-button" aria-label="Close chat">×</button>
       </div>
       <div class="chat-messages" ref="messagesContainer">
-        <div v-for="(message, index) in messages" 
-             :key="index" 
-             :class="['message', message.role === 'user' ? 'user' : 'support']">
-          {{ message.content }}
+        <div v-for="msg in displayMessages" 
+             :key="msg.content"
+             :class="['message', msg.role === 'user' ? 'user' : 'support']">
+          {{ msg.content }}
         </div>
         <div v-if="isLoading" class="message support">
           <span class="typing-indicator">...</span>
@@ -53,14 +53,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useDeepSeek } from '@/composables/useDeepSeek'
 
 const isOpen = ref(false)
 const newMessage = ref('')
-const messages = ref<{ role: 'user' | 'assistant'; content: string }[]>([
+const messages = ref<{ role: 'user' | 'assistant' | 'system'; content: string }[]>([
   { role: 'assistant', content: 'Hello! How can I help you today?' }
 ])
+
+const displayMessages = computed(() => 
+  messages.value.filter(msg => msg.role !== 'system')
+)
+
 const chatWindow = ref<HTMLElement | null>(null)
 
 const { sendMessage: sendToDeepSeek, isLoading, error } = useDeepSeek()
