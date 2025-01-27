@@ -1,10 +1,19 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices'
+import { useCustomersStore } from '@/stores/customers'
 import { RouterLink } from 'vue-router'
 
 const invoicesStore = useInvoicesStore()
-//const customersStore = useCustomersStore()
+const customersStore = useCustomersStore()
+
+// Load data when component mounts
+onMounted(async () => {
+  await Promise.all([
+    customersStore.fetchCustomers(),
+    invoicesStore.fetchInvoices()
+  ])
+})
 
 // Time period selection
 const periods = [
