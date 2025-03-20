@@ -1,3 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  #app {
+    @apply h-full;
+  }
+}
+
+@layer utilities {
+  .outline-hidden {
+    outline: none !important;
+  }
+}
