@@ -22,6 +22,7 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Pinia (State Management)
 - Vue Router
 - Supabase (Authentication & Backend)
+- TailGrids (UI Components)
 - Docker
 - Netlify (Hosting & Deployment)
 
