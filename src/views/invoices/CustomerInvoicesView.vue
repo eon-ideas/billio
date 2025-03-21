@@ -42,11 +42,9 @@ const customerSubtitle = computed(() => {
 </script>
 
 <template>
+  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block  mb-10" />
   <div class="min-h-screen bg-gray-50">
     <main class="py-6 px-4 sm:px-6 lg:px-8">
-      <!-- Breadcrumb -->
-      <Breadcrumb :items="breadcrumbItems" />
-
       <!-- Header -->
       <div class="mb-8">
         <PageTitle 

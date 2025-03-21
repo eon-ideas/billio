@@ -4,6 +4,7 @@ import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
 import { RouterLink } from 'vue-router'
 import PageTitle from '@/components/ui/PageTitle.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 
 const invoicesStore = useInvoicesStore()
 const customersStore = useCustomersStore()
@@ -66,9 +67,14 @@ const formatDate = (date: string) => {
     day: 'numeric'
   })
 }
+
+const breadcrumbItems = computed(() => [
+  { name: 'Dashboard' }
+])
 </script>
 
 <template>
+  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block mb-10" />
   <div class="min-h-screen bg-gray-50">
     <main class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <div class="sm:px-0">

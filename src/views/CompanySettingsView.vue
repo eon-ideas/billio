@@ -53,6 +53,8 @@ const handleSubmit = async () => {
 </script>
 
 <template>
+  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block  mb-10" />
+  
   <div class="min-h-screen bg-gray-50">
     <!-- Success Message -->
     <div
@@ -75,10 +77,10 @@ const handleSubmit = async () => {
       </svg>
       <span>{{ errorMessage }}</span>
     </div>
-
+   
     <main class="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
       <div class="mb-6 sm:mb-8">
-        <Breadcrumb :items="breadcrumbItems" class="hidden sm:block" />
+        
         <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mt-2">Company Settings</h1>
         <p class="mt-2 text-sm text-gray-600">
           Manage your company's information and branding.

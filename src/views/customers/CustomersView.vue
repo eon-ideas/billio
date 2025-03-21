@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import CustomerList from '@/components/customers/CustomerList.vue'
 import PageTitle from '@/components/ui/PageTitle.vue'
+import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 
 const searchQuery = ref('')
 
@@ -9,9 +10,14 @@ const handleSearch = (event: Event) => {
   const target = event.target as HTMLInputElement
   searchQuery.value = target.value.toLowerCase()
 }
+
+const breadcrumbItems = computed(() => [
+  { name: 'Customers' }
+])
 </script>
 
 <template>
+  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block mb-10" />
   <div class="min-h-screen bg-gray-50/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <PageTitle 
