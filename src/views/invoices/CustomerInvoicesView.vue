@@ -5,6 +5,7 @@ import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
 import InvoiceList from '@/components/invoices/InvoiceList.vue'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
+import PageTitle from '@/components/ui/PageTitle.vue'
 import type { Customer } from '@/types/customer'
 
 const router = useRouter()
@@ -34,6 +35,10 @@ const breadcrumbItems = computed(() => [
 const handleAddNew = () => {
   router.push(`/customers/${customerId}/invoices/new`)
 }
+
+const customerSubtitle = computed(() => {
+  return customer.value ? `Manage invoices for ${customer.value.name} (${customer.value.currency})` : 'Loading...'
+})
 </script>
 
 <template>
@@ -44,27 +49,13 @@ const handleAddNew = () => {
 
       <!-- Header -->
       <div class="mb-8">
-        <div class="sm:flex sm:items-center sm:justify-between">
-          <div>
-            <h1 class="text-2xl font-bold text-gray-900">
-              Customer Invoices
-            </h1>
-            <p class="mt-1 text-sm text-gray-500">
-              Manage invoices for {{ customer?.name }} ({{ customer?.currency }})
-            </p>
-          </div>
-          <div class="mt-4 sm:mt-0">
-            <button
-              @click="handleAddNew"
-              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Create Invoice
-            </button>
-          </div>
-        </div>
+        <PageTitle 
+          title="Customer Invoices" 
+          :subtitle="customerSubtitle" 
+          showAddButton 
+          addButtonText="Create Invoice"
+          @click="handleAddNew"
+        />
 
         <!-- Search -->
         <div class="mt-6">

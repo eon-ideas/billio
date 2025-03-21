@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import CustomerList from '@/components/customers/CustomerList.vue'
+import PageTitle from '@/components/ui/PageTitle.vue'
 
 const searchQuery = ref('')
 
@@ -13,23 +14,13 @@ const handleSearch = (event: Event) => {
 <template>
   <div class="min-h-screen bg-gray-50/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h1 class="text-3xl font-bold text-gray-900">Customers</h1>
-          <p class="mt-2 text-sm text-gray-700">Manage your customer relationships</p>
-        </div>
-        <div class="mt-4 sm:mt-0">
-          <router-link
-            to="/customers/new"
-            class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
-            </svg>
-            Add Customer
-          </router-link>
-        </div>
-      </div>
+      <PageTitle 
+        title="Customers" 
+        subtitle="Manage your customer relationships" 
+        showAddButton 
+        addButtonText="Add Customer" 
+        addButtonLink="/customers/new"
+      />
 
       <!-- Search -->
       <div class="mt-6">

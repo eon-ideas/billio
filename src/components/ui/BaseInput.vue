@@ -5,6 +5,9 @@ defineProps<{
   type?: string
   placeholder?: string
   required?: boolean
+  id?: string
+  name?: string
+  autocomplete?: string
 }>()
 
 defineEmits<{
@@ -13,17 +16,22 @@ defineEmits<{
 </script>
 
 <template>
-  <div class="space-y-2">
-    <label v-if="label" class="block text-sm font-medium text-gray-700">
+  <div>
+    <label v-if="label" :for="id" class="mb-2.5 block text-sm font-medium text-dark">
       {{ label }}
     </label>
-    <input
-      :type="type || 'text'"
-      :value="modelValue"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
-      :placeholder="placeholder"
-      :required="required"
-      class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-    />
+    <div class="relative">
+      <input
+        :type="type || 'text'"
+        :value="modelValue"
+        @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
+        :placeholder="placeholder"
+        :required="required"
+        :id="id"
+        :name="name"
+        :autocomplete="autocomplete"
+        class="w-full rounded-md border border-stroke bg-transparent py-3 px-5 text-dark outline-none transition focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+      />
+    </div>
   </div>
 </template>

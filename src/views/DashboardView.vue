@@ -3,6 +3,7 @@ import { computed, ref, onMounted } from 'vue'
 import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
 import { RouterLink } from 'vue-router'
+import PageTitle from '@/components/ui/PageTitle.vue'
 
 const invoicesStore = useInvoicesStore()
 const customersStore = useCustomersStore()
@@ -73,10 +74,11 @@ const formatDate = (date: string) => {
       <div class="sm:px-0">
         <!-- Header -->
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 sm:mb-8">
-          <div>
-            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p class="mt-1 sm:mt-2 text-sm text-gray-600">Track your business performance and invoice statistics</p>
-          </div>
+          <PageTitle 
+            title="Dashboard" 
+            subtitle="Track your business performance and invoice statistics" 
+          />
+          
           <div class="mt-4 sm:mt-0 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <div class="inline-flex rounded-lg shadow-sm">
               <template v-for="(period, index) in periods" :key="period.days">
