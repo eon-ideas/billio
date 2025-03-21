@@ -67,10 +67,10 @@ onMounted(async () => {
 </script>
 
 <template>
+  <Breadcrumb :items="breadcrumbItems" class="print:hidden hidden sm:block  mb-10" />
   <div class="min-h-screen bg-gray-100">
     <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
       <div class="px-4 sm:px-0">
-        <Breadcrumb :items="breadcrumbItems" class="print:hidden" />
         <div v-if="loading" class="flex justify-center items-center h-64">
           <div class="text-center">
             <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
