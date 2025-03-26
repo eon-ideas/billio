@@ -35,10 +35,10 @@ const handleAddButtonClick = () => {
   <div class="mb-6">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-title-md2 font-bold text-black dark:text-white">
+        <h2 class="text-3xl font-bold text-gray-900">
           {{ title }}
         </h2>
-        <p v-if="subtitle" class="mt-1 text-sm font-medium">
+        <p v-if="subtitle" class="mt-1 text-sm font-medium text-gray-600">
           {{ subtitle }}
         </p>
       </div>

@@ -30,7 +30,7 @@ defineEmits<{
         :id="id"
         :name="name"
         :autocomplete="autocomplete"
-        class="w-full rounded-md border border-stroke bg-transparent py-3 px-5 text-dark outline-none transition focus:border-primary focus-visible:shadow-none dark:border-form-strokedark dark:bg-form-input dark:text-white dark:focus:border-primary"
+        class="w-full rounded-md border border-gray-300 bg-white py-3 px-5 text-gray-700 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus-visible:shadow-none"
       />
     </div>
   </div>
