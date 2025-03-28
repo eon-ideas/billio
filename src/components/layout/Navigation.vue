@@ -27,8 +27,8 @@
                     <li>
                       <ul role="list" class="-mx-2 space-y-1">
                         <li v-for="item in navigation" :key="item.name">
-                          <router-link :to="item.href" :class="[$route.path.startsWith(item.href) ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
-                            <component :is="item.icon" :class="[$route.path.startsWith(item.href) ? 'text-[#3B82F6]' : 'text-gray-400 group-hover:text-[#3B82F6]', 'size-6 shrink-0']" aria-hidden="true" />
+                          <router-link :to="item.href" :class="[$route.path.startsWith(item.href) ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
+                            <component :is="item.icon" :class="[$route.path.startsWith(item.href) ? 'text-primary' : 'text-gray-400 group-hover:text-primary', 'size-6 shrink-0']" aria-hidden="true" />
                             {{ item.name }}
                           </router-link>
                         </li>
@@ -39,8 +39,8 @@
                       <div class="text-xs/6 font-semibold text-gray-400">Recent Customers</div>
                       <ul role="list" class="-mx-2 mt-2 space-y-1">
                         <li v-for="customer in topCustomers" :key="customer.id">
-                          <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
-                            <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-[#3B82F6] border-[#3B82F6]/30' : 'text-gray-400 group-hover:border-[#3B82F6] group-hover:text-[#3B82F6]']">
+                          <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
                               {{ customer.name.charAt(0) }}
                             </span>
                             <span class="truncate">{{ customer.name }}</span>
@@ -49,8 +49,8 @@
                       </ul>
                     </li>
                     <li class="mt-auto">
-                      <router-link to="/company-settings" :class="[$route.path.startsWith('/company-settings') ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
-                        <Cog6ToothIcon :class="[$route.path.startsWith('/company-settings') ? 'text-[#3B82F6]' : 'text-gray-400 group-hover:text-[#3B82F6]', 'size-6 shrink-0']" aria-hidden="true" />
+                      <router-link to="/company-settings" :class="[$route.path.startsWith('/company-settings') ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
+                        <Cog6ToothIcon :class="[$route.path.startsWith('/company-settings') ? 'text-primary' : 'text-gray-400 group-hover:text-primary', 'size-6 shrink-0']" aria-hidden="true" />
                         Settings
                       </router-link>
                     </li>
@@ -74,8 +74,8 @@
             <li>
               <ul role="list" class="-mx-2 space-y-1">
                 <li v-for="item in navigation" :key="item.name">
-                  <router-link :to="item.href" :class="[$route.path.startsWith(item.href) ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                    <component :is="item.icon" :class="[$route.path.startsWith(item.href) ? 'text-[#3B82F6]' : 'text-gray-400 group-hover:text-[#3B82F6]', 'size-6 shrink-0']" aria-hidden="true" />
+                  <router-link :to="item.href" :class="[$route.path.startsWith(item.href) ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <component :is="item.icon" :class="[$route.path.startsWith(item.href) ? 'text-primary' : 'text-gray-400 group-hover:text-primary', 'size-6 shrink-0']" aria-hidden="true" />
                     {{ item.name }}
                   </router-link>
                 </li>
@@ -86,8 +86,8 @@
               <div class="text-xs/6 font-semibold text-gray-400">Recent Customers</div>
               <ul role="list" class="-mx-2 mt-2 space-y-1">
                 <li v-for="customer in topCustomers" :key="customer.id">
-                  <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                    <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-[#3B82F6] border-[#3B82F6]/30' : 'text-gray-400 group-hover:border-[#3B82F6] group-hover:text-[#3B82F6]']">
+                  <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
                       {{ customer.name.charAt(0) }}
                     </span>
                     <span class="truncate">{{ customer.name }}</span>
@@ -96,8 +96,8 @@
               </ul>
             </li>
             <li class="mt-auto">
-              <router-link to="/company-settings" :class="[$route.path.startsWith('/company-settings') ? 'bg-gray-50 text-[#3B82F6]' : 'text-gray-700 hover:bg-gray-50 hover:text-[#3B82F6]', 'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                <Cog6ToothIcon :class="[$route.path.startsWith('/company-settings') ? 'text-[#3B82F6]' : 'text-gray-400 group-hover:text-[#3B82F6]', 'size-6 shrink-0']" aria-hidden="true" />
+              <router-link to="/company-settings" :class="[$route.path.startsWith('/company-settings') ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group -mx-2 flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                <Cog6ToothIcon :class="[$route.path.startsWith('/company-settings') ? 'text-primary' : 'text-gray-400 group-hover:text-primary', 'size-6 shrink-0']" aria-hidden="true" />
                 Settings
               </router-link>
             </li>
