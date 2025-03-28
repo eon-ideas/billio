@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import SelectMenu from '@/components/ui/SelectMenu.vue'
@@ -36,10 +36,32 @@ const currencies = [
   { value: 'USD', label: 'USD' }
 ]
 
+// Track the selected currency separately to handle object vs string conversion
+const selectedCurrency = ref(
+  typeof formData.value.currency === 'string'
+    ? currencies.find(c => c.value === formData.value.currency) || currencies[0]
+    : formData.value.currency
+)
+
+// Update formData.currency when selectedCurrency changes
+watch(selectedCurrency, (newVal) => {
+  if (newVal && typeof newVal === 'object' && 'value' in newVal) {
+    formData.value.currency = newVal.value
+  } else if (typeof newVal === 'string') {
+    formData.value.currency = newVal
+  }
+}, { immediate: true })
+
 const handleSubmit = async () => {
   try {
     loading.value = true
     error.value = null
+    
+    // Ensure currency is a string value before submitting
+    if (typeof formData.value.currency === 'object' && formData.value.currency !== null) {
+      formData.value.currency = (formData.value.currency as any).value || 'EUR'
+    }
+    
     emit('submit', formData.value)
   } catch (err: any) {
     error.value = err.message
@@ -181,7 +203,7 @@ const handleCancel = () => {
             <div class="mt-2 sm:col-span-2 sm:mt-0 sm:max-w-xs">
               <SelectMenu
                 id="currency"
-                v-model="formData.currency"
+                v-model="selectedCurrency"
                 :options="currencies"
                 valueKey="value"
                 labelKey="label"
@@ -199,8 +221,7 @@ const handleCancel = () => {
                 id="include_vat"
                 v-model="formData.include_vat"
                 label="Include VAT"
-                description="Check this if VAT should be included in invoices for this customer"
-                :disabled="loading"
+                description="When enabled, VAT will be included in all invoices for this customer."
               />
             </div>
           </div>
@@ -211,23 +232,19 @@ const handleCancel = () => {
     <!-- Submit Button -->
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <BaseButton 
-        type="button"
-        variant="secondary"
-        size="sm"
-        :loading="loading"
-        class="w-auto"
+        type="button" 
+        variant="secondary" 
         @click="handleCancel"
+        :disabled="loading"
       >
         Cancel
       </BaseButton>
-      <BaseButton
-        type="submit"
-        variant="primary"
-        size="sm"
+      <BaseButton 
+        type="submit" 
+        variant="primary" 
         :loading="loading"
-        class="w-auto"
       >
-        {{ loading ? 'Saving...' : 'Save Customer' }}
+        Save
       </BaseButton>
     </div>
   </form>
