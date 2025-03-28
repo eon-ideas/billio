@@ -4,7 +4,6 @@ import { useInvoicesStore } from '@/stores/invoices'
 import { useCustomersStore } from '@/stores/customers'
 import { RouterLink } from 'vue-router'
 import PageTitle from '@/components/ui/PageTitle.vue'
-import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 
 const invoicesStore = useInvoicesStore()
 const customersStore = useCustomersStore()
@@ -134,14 +133,9 @@ const formatDate = (date: string) => {
     day: 'numeric'
   })
 }
-
-const breadcrumbItems = computed(() => [
-  { name: 'Dashboard' }
-])
 </script>
 
 <template>
-  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block mb-10" />
   <div class="min-h-screen">
     <main class="max-w-7xl mx-auto py-4 sm:py-6 px-4 sm:px-6 lg:px-8">
       <div class="sm:px-0">
@@ -190,31 +184,38 @@ const breadcrumbItems = computed(() => [
             <div class="p-4 sm:p-6">
               <h2 class="text-lg font-medium text-gray-900 mb-4">Recent Invoices</h2>
               <div class="flow-root">
-                <ul role="list" class="-my-5 divide-y divide-gray-200">
-                  <li v-for="invoice in recentInvoices" :key="invoice.id" class="py-4">
-                    <div class="flex items-center space-x-4">
-                      <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-gray-900 truncate">
-                          Invoice #{{ invoice.number }}
+                <ul role="list" class="divide-y divide-gray-100 overflow-hidden bg-white ring-1 ring-gray-900/5 sm:rounded-xl">
+                  <li v-for="invoice in recentInvoices" :key="invoice.id" class="relative flex justify-between gap-x-6 px-4 py-5 hover:bg-gray-50 sm:px-6">
+                    <div class="flex min-w-0 gap-x-4">
+                      <div class="flex-none rounded-full bg-gray-100 p-2">
+                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                      </div>
+                      <div class="min-w-0 flex-auto">
+                        <p class="text-sm/6 font-semibold text-gray-900">
+                          <RouterLink :to="`/customers/${invoice.customer_id}/invoices/${invoice.id}/preview`">
+                            <span class="absolute inset-x-0 -top-px bottom-0" />
+                            Invoice #{{ invoice.number }}
+                          </RouterLink>
                         </p>
-                        <p class="text-sm text-gray-500">
+                        <p class="mt-1 text-xs/5 text-gray-500">
                           {{ formatDate(invoice.date) }}
                         </p>
                       </div>
-                      <div class="text-right flex flex-col sm:block">
-                        <p class="text-sm font-medium text-gray-900 mb-1 sm:mb-0">
-                          {{ formatCurrency(invoice.total) }}
+                    </div>
+                    <div class="flex shrink-0 items-center gap-x-4">
+                      <div class="hidden sm:flex sm:flex-col sm:items-end">
+                        <p class="text-sm/6 font-medium text-gray-900">{{ formatCurrency(invoice.total) }}</p>
+                        <p class="mt-1 text-xs/5 text-gray-500">
+                          <span :class="invoice.paid ? 'text-emerald-600' : 'text-amber-600'">
+                            {{ invoice.paid ? 'Paid' : 'Pending' }}
+                          </span>
                         </p>
-                        <RouterLink
-                          :to="`/invoices/${invoice.id}`"
-                          class="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700"
-                        >
-                          View
-                          <svg class="ml-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                          </svg>
-                        </RouterLink>
                       </div>
+                      <svg class="h-5 w-5 flex-none text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                      </svg>
                     </div>
                   </li>
                 </ul>

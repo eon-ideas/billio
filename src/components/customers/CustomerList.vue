@@ -3,6 +3,9 @@ import { computed, onMounted, ref } from 'vue'
 import { useCustomersStore } from '@/stores/customers'
 import { useRouter } from 'vue-router'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { EllipsisHorizontalIcon } from '@heroicons/vue/20/solid'
+import EmptyState from '@/components/ui/EmptyState.vue'
 
 const props = defineProps<{
   searchQuery: string
@@ -50,6 +53,15 @@ const handleDeleteClick = (customer: { id: string, name: string }) => {
   showDeleteDialog.value = true
 }
 
+const handleCardClick = (id: string, event: MouseEvent) => {
+  // Make sure we're not clicking on the menu or its children
+  const target = event.target as HTMLElement;
+  const isMenuClick = target.closest('.customer-menu');
+  if (!isMenuClick) {
+    handleView(id);
+  }
+}
+
 onMounted(async () => {
   await customersStore.fetchCustomers()
 })
@@ -73,101 +85,95 @@ onMounted(async () => {
     </div>
 
     <div v-else-if="filteredCustomers.length === 0" class="p-8 text-center">
-      <p class="text-gray-500">No customers found</p>
+      <EmptyState
+        title="No customers found"
+        description="Add a customer to get started."
+        icon="folder-plus"
+      />
     </div>
 
-    <div v-else class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead>
-          <tr>
-            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50/50">
-              Customer
-            </th>
-            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50/50">
-              Email
-            </th>
-            <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50/50">
-              Phone
-            </th>
-            <th scope="col" class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-50/50">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="customer in filteredCustomers" 
-              :key="customer.id"
-              class="group hover:bg-blue-50/50 transition-colors duration-200"
-          >
-            <td class="px-6 py-5 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="flex-shrink-0 h-10 w-10">
-                  <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-                    <span class="text-blue-600 font-medium text-sm">
-                      {{ customer.name.charAt(0).toUpperCase() }}
-                    </span>
-                  </div>
-                </div>
-                <div class="ml-4">
-                  <div class="text-sm font-medium text-gray-900">
-                    {{ customer.name }}
-                  </div>
-                  <div class="text-sm text-gray-500">
-                    {{ customer.company }}
-                  </div>
-                </div>
-              </div>
-            </td>
-            <td class="px-6 py-5 whitespace-nowrap">
-              <div class="text-sm text-gray-900">{{ customer.email }}</div>
-            </td>
-            <td class="px-6 py-5 whitespace-nowrap">
-              <div class="text-sm text-gray-900">{{ customer.phone }}</div>
-            </td>
-            <td class="px-6 py-5 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex items-center justify-end space-x-3">
-                <button
-                  @click="handleView(customer.id)"
-                  class="text-gray-400 hover:text-indigo-600 transition-colors duration-200"
-                  title="View Details"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-                <button
-                  @click="handleEdit(customer.id)"
-                  class="text-gray-400 hover:text-blue-600 transition-colors duration-200"
-                  title="Edit"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                </button>
-                <button
-                  @click="handleViewInvoices(customer.id)"
-                  class="text-gray-400 hover:text-green-600 transition-colors duration-200"
-                  title="View Invoices"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-                <button
-                  @click="handleDeleteClick({ id: customer.id, name: customer.name })"
-                  class="text-gray-400 hover:text-red-600 transition-colors duration-200"
-                  title="Delete"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div v-else>
+      <ul role="list" class="grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
+        <li v-for="customer in filteredCustomers" 
+            :key="customer.id" 
+            @click="(event) => handleCardClick(customer.id, event)"
+            class="overflow-hidden rounded-xl border border-gray-200 hover:border-blue-300 transition-colors duration-200 cursor-pointer">
+          <div class="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
+            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+              <span class="text-blue-600 font-medium text-sm">
+                {{ customer.name.charAt(0).toUpperCase() }}
+              </span>
+            </div>
+            <div>
+              <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
+              <div class="text-xs text-gray-500">{{ customer.company }}</div>
+            </div>
+            <Menu as="div" class="relative ml-auto customer-menu">
+              <MenuButton class="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500">
+                <span class="sr-only">Open options</span>
+                <EllipsisHorizontalIcon class="h-5 w-5" aria-hidden="true" />
+              </MenuButton>
+              <transition 
+                enter-active-class="transition ease-out duration-100" 
+                enter-from-class="transform opacity-0 scale-95" 
+                enter-to-class="transform opacity-100 scale-100" 
+                leave-active-class="transition ease-in duration-75" 
+                leave-from-class="transform opacity-100 scale-100" 
+                leave-to-class="transform opacity-0 scale-95"
+              >
+                <MenuItems class="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
+                  <MenuItem v-slot="{ active }">
+                    <button 
+                      @click="handleView(customer.id)"
+                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    >
+                      View
+                      <span class="sr-only">, {{ customer.name }}</span>
+                    </button>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <button 
+                      @click="handleEdit(customer.id)"
+                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    >
+                      Edit
+                      <span class="sr-only">, {{ customer.name }}</span>
+                    </button>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <button 
+                      @click="handleViewInvoices(customer.id)"
+                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    >
+                      Invoices
+                      <span class="sr-only">, {{ customer.name }}</span>
+                    </button>
+                  </MenuItem>
+                  <MenuItem v-slot="{ active }">
+                    <button 
+                      @click="handleDeleteClick({ id: customer.id, name: customer.name })"
+                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-red-600']"
+                    >
+                      Delete
+                      <span class="sr-only">, {{ customer.name }}</span>
+                    </button>
+                  </MenuItem>
+                </MenuItems>
+              </transition>
+            </Menu>
+          </div>
+          <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm">
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500">Email</dt>
+              <dd class="text-gray-700">{{ customer.email || 'N/A' }}</dd>
+            </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500">Phone</dt>
+              <dd class="text-gray-700">{{ customer.phone || 'N/A' }}</dd>
+            </div>
+          </dl>
+        </li>
+      </ul>
     </div>
   </div>
 </template>
