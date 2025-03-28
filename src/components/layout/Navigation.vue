@@ -20,7 +20,7 @@
               <!-- Sidebar component -->
               <div class="flex grow flex-col gap-y-5 overflow-y-auto bg-white px-6 pb-4">
                 <div class="flex h-16 shrink-0 items-center">
-                  <img class="h-14 w-auto" src="@/assets/logo.png" alt="Invoice Master" />
+                  <img class="h-16 w-auto" src="@/assets/logo.png" alt="Invoice Master" />
                 </div>
                 <nav class="flex flex-1 flex-col">
                   <ul role="list" class="flex flex-1 flex-col gap-y-7">
