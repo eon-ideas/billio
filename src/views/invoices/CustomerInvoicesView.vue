@@ -162,14 +162,18 @@ const formatCurrency = (amount: number, currency: string) => {
               No invoices found. Create your first invoice by clicking the "Create Invoice" button.
             </td>
           </tr>
-          <tr v-for="invoice in invoices" :key="invoice.id" class="hover:bg-gray-50 transition-colors">
-            <td class="w-full max-w-0 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:w-auto sm:max-w-none sm:pl-0">
-              <button
-                @click="handlePreview(invoice.id)"
-                class="text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors"
-              >
+          <tr 
+            v-for="invoice in invoices" 
+            :key="invoice.id" 
+            class="hover:bg-gray-50 transition-colors"
+          >
+            <td 
+              class="w-full max-w-0 py-4 pr-3 pl-4 text-sm font-medium text-gray-900 sm:w-auto sm:max-w-none sm:pl-0 cursor-pointer"
+              @click="handlePreview(invoice.id)"
+            >
+              <div class="text-sm font-medium text-gray-900 hover:text-indigo-600 transition-colors">
                 {{ invoice.number }}
-              </button>
+              </div>
               <dl class="font-normal sm:hidden">
                 <dt class="sr-only">Date</dt>
                 <dd class="mt-1 truncate text-gray-700">{{ new Date(invoice.date).toLocaleDateString() }}</dd>
@@ -216,27 +220,34 @@ const formatCurrency = (amount: number, currency: string) => {
               {{ formatCurrency(invoice.total, customer?.currency || 'USD') }}
             </td>
             <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
-              <button
-                @click="handleTogglePaid(invoice.id)"
-                :class="[
-                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium transition-colors',
-                  invoice.paid 
-                    ? 'bg-green-100 text-green-800 hover:bg-green-200' 
-                    : 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                ]"
+              <button 
+                @click.stop="handleTogglePaid(invoice.id)" 
+                class="flex items-center"
               >
-                <span class="flex items-center">
-                  <span class="h-2 w-2 mr-1.5 rounded-full" :class="[
-                    invoice.paid ? 'bg-green-400' : 'bg-yellow-400'
-                  ]"></span>
-                  {{ invoice.paid ? 'Paid' : 'Unpaid' }}
+                <span
+                  :class="[
+                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                    invoice.paid 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-yellow-100 text-yellow-800'
+                  ]"
+                >
+                  <span class="flex items-center">
+                    <span class="h-2 w-2 mr-1.5 rounded-full" :class="[
+                      invoice.paid ? 'bg-green-400' : 'bg-yellow-400'
+                    ]"></span>
+                    {{ invoice.paid ? 'Paid' : 'Unpaid' }}
+                  </span>
                 </span>
               </button>
             </td>
             <td class="py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
-              <Menu as="div" class="relative inline-block text-left">
+              <Menu as="div" class="relative inline-block text-left" @click.stop>
                 <div>
-                  <MenuButton class="inline-flex justify-center rounded-md bg-white p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                  <MenuButton 
+                    class="inline-flex justify-center rounded-md bg-white p-2 text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    @click.stop
+                  >
                     <span class="sr-only">Open options</span>
                     <EllipsisVerticalIcon class="h-5 w-5" aria-hidden="true" />
                   </MenuButton>
@@ -254,16 +265,11 @@ const formatCurrency = (amount: number, currency: string) => {
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
                         <button
-                          @click="handlePreview(invoice.id)"
-                          :class="[
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'group flex w-full items-center px-4 py-2 text-sm'
-                          ]"
+                          @click.stop="handlePreview(invoice.id)"
+                          class="w-full flex items-center px-4 py-2 text-sm"
+                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700']"
                         >
-                          <EyeIcon 
-                            :class="[active ? 'text-indigo-500' : 'text-indigo-400', 'mr-3 h-5 w-5']" 
-                            aria-hidden="true" 
-                          />
+                          <EyeIcon class="mr-3 h-5 w-5 text-gray-400" aria-hidden="true" />
                           View
                         </button>
                       </MenuItem>
@@ -286,16 +292,11 @@ const formatCurrency = (amount: number, currency: string) => {
                     <div class="py-1">
                       <MenuItem v-slot="{ active }">
                         <button
-                          @click="handleDelete(invoice.id, invoice.number)"
-                          :class="[
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'group flex w-full items-center px-4 py-2 text-sm'
-                          ]"
+                          @click.stop="handleDelete(invoice.id, invoice.number)"
+                          class="w-full flex items-center px-4 py-2 text-sm"
+                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700']"
                         >
-                          <TrashIcon 
-                            :class="[active ? 'text-red-500' : 'text-red-400', 'mr-3 h-5 w-5']" 
-                            aria-hidden="true" 
-                          />
+                          <TrashIcon class="mr-3 h-5 w-5 text-gray-400" aria-hidden="true" />
                           Delete
                         </button>
                       </MenuItem>
