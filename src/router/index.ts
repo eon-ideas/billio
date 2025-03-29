@@ -48,6 +48,12 @@ const router = createRouter({
       meta: routeMeta['customer-invoices']
     },
     {
+      path: '/invoices',
+      name: 'invoices',
+      component: () => import('@/views/invoices/InvoicesView.vue'),
+      meta: routeMeta['invoices']
+    },
+    {
       path: '/customers/:customerId/invoices/new',
       name: 'invoice-new',
       component: () => import('@/views/invoices/InvoiceNewView.vue'),

@@ -27,6 +27,10 @@ export const routeMeta = {
     title: 'Customer Invoices - Invoice Master',
     requiresAuth: true
   },
+  'invoices': {
+    title: 'All Invoices - Invoice Master',
+    requiresAuth: true
+  },
   'invoice-new': {
     title: 'New Invoice - Invoice Master',
     requiresAuth: true

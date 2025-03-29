@@ -182,6 +182,7 @@ import {
   HomeIcon,
   UsersIcon,
   XMarkIcon,
+  DocumentTextIcon,
 } from '@heroicons/vue/24/outline'
 import { ChevronDownIcon, MagnifyingGlassIcon } from '@heroicons/vue/20/solid'
 
@@ -212,6 +213,7 @@ const topCustomers = computed(() => {
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, current: false },
   { name: 'Customers', href: '/customers', icon: UsersIcon, current: false },
+  { name: 'Invoices', href: '/invoices', icon: DocumentTextIcon, current: false },
 ]
 
 const userNavigation = [
