@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
-import PageTitle from '@/components/ui/PageTitle.vue'
 import { useCompanyStore } from '@/stores/company'
 
 const companyStore = useCompanyStore()

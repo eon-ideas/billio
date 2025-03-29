@@ -97,18 +97,18 @@ onMounted(async () => {
         <li v-for="customer in filteredCustomers" 
             :key="customer.id" 
             @click="(event) => handleCardClick(customer.id, event)"
-            class="overflow-hidden rounded-xl border border-gray-200 hover:border-blue-300 transition-colors duration-200 cursor-pointer">
+            class="overflow-hidden rounded-xl border border-gray-200 hover:border-blue-300 transition-colors duration-200 cursor-pointer min-w-[280px]">
           <div class="flex items-center gap-x-4 border-b border-gray-900/5 bg-gray-50 p-6">
-            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
+            <div class="h-10 w-10 flex-shrink-0 rounded-full bg-blue-100 flex items-center justify-center">
               <span class="text-blue-600 font-medium text-sm">
                 {{ customer.name.charAt(0).toUpperCase() }}
               </span>
             </div>
-            <div>
-              <div class="text-sm font-medium text-gray-900">{{ customer.name }}</div>
-              <div class="text-xs text-gray-500">{{ customer.company }}</div>
+            <div class="min-w-0 flex-1">
+              <div class="text-sm font-medium text-gray-900 truncate">{{ customer.name }}</div>
+              <div class="text-xs text-gray-500 truncate">{{ customer.company }}</div>
             </div>
-            <Menu as="div" class="relative ml-auto customer-menu">
+            <Menu as="div" class="relative flex-shrink-0 ml-auto customer-menu">
               <MenuButton class="-m-2.5 block p-2.5 text-gray-400 hover:text-gray-500">
                 <span class="sr-only">Open options</span>
                 <EllipsisHorizontalIcon class="h-5 w-5" aria-hidden="true" />
@@ -164,12 +164,12 @@ onMounted(async () => {
           </div>
           <dl class="-my-3 divide-y divide-gray-100 px-6 py-4 text-sm">
             <div class="flex justify-between gap-x-4 py-3">
-              <dt class="text-gray-500">Email</dt>
-              <dd class="text-gray-700">{{ customer.email || 'N/A' }}</dd>
+              <dt class="text-gray-500 flex-shrink-0">Email</dt>
+              <dd class="text-gray-700 truncate ml-2 text-right">{{ customer.email || 'N/A' }}</dd>
             </div>
             <div class="flex justify-between gap-x-4 py-3">
-              <dt class="text-gray-500">Phone</dt>
-              <dd class="text-gray-700">{{ customer.phone || 'N/A' }}</dd>
+              <dt class="text-gray-500 flex-shrink-0">Phone</dt>
+              <dd class="text-gray-700 truncate ml-2 text-right">{{ customer.phone || 'N/A' }}</dd>
             </div>
           </dl>
         </li>
