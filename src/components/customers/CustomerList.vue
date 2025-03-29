@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useCustomersStore } from '@/stores/customers'
+import { useInvoicesStore } from '@/stores/invoices'
 import { useRouter } from 'vue-router'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
@@ -12,6 +13,7 @@ const props = defineProps<{
 }>()
 
 const customersStore = useCustomersStore()
+const invoicesStore = useInvoicesStore()
 const router = useRouter()
 const showDeleteDialog = ref(false)
 const customerToDelete = ref<{ id: string, name: string } | null>(null)
@@ -26,6 +28,56 @@ const filteredCustomers = computed(() => {
     (customer.company?.toLowerCase().includes(query) ?? false)
   )
 })
+
+// Get invoice counts for each customer
+const invoiceCounts = computed(() => {
+  const counts: Record<string, number> = {}
+  
+  for (const invoice of invoicesStore.invoices) {
+    if (invoice.customer_id) {
+      counts[invoice.customer_id] = (counts[invoice.customer_id] || 0) + 1
+    }
+  }
+  
+  return counts
+})
+
+// Check if all invoices for a customer are paid
+const allInvoicesPaid = computed(() => {
+  const result: Record<string, boolean> = {}
+  
+  // Group invoices by customer
+  const customerInvoices: Record<string, { paid: boolean }[]> = {}
+  
+  for (const invoice of invoicesStore.invoices) {
+    if (invoice.customer_id) {
+      if (!customerInvoices[invoice.customer_id]) {
+        customerInvoices[invoice.customer_id] = []
+      }
+      customerInvoices[invoice.customer_id].push(invoice)
+    }
+  }
+  
+  // Check if all invoices are paid for each customer
+  for (const [customerId, invoices] of Object.entries(customerInvoices)) {
+    result[customerId] = invoices.length > 0 && invoices.every(invoice => invoice.paid)
+  }
+  
+  return result
+})
+
+// Determine badge color based on payment status
+const getBadgeClasses = (customerId: string) => {
+  if (!invoiceCounts.value[customerId]) {
+    return 'bg-gray-50 text-gray-600 ring-gray-500/10'
+  }
+  
+  if (allInvoicesPaid.value[customerId]) {
+    return 'bg-green-50 text-green-700 ring-green-600/20'
+  }
+  
+  return 'bg-yellow-50 text-yellow-800 ring-yellow-600/20'
+}
 
 const handleEdit = (id: string) => {
   router.push(`/customers/${id}/edit`)
@@ -58,12 +110,13 @@ const handleCardClick = (id: string, event: MouseEvent) => {
   const target = event.target as HTMLElement;
   const isMenuClick = target.closest('.customer-menu');
   if (!isMenuClick) {
-    handleView(id);
+    handleViewInvoices(id);
   }
 }
 
 onMounted(async () => {
   await customersStore.fetchCustomers()
+  await invoicesStore.fetchInvoices()
 })
 </script>
 
@@ -105,7 +158,18 @@ onMounted(async () => {
               </span>
             </div>
             <div class="min-w-0 flex-1">
-              <div class="text-sm font-medium text-gray-900 truncate">{{ customer.name }}</div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-medium text-gray-900 truncate">{{ customer.name }}</span>
+                <span 
+                  v-if="invoiceCounts[customer.id]" 
+                  :class="[
+                    'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
+                    getBadgeClasses(customer.id)
+                  ]"
+                >
+                  {{ invoiceCounts[customer.id] }} {{ invoiceCounts[customer.id] === 1 ? 'invoice' : 'invoices' }}
+                </span>
+              </div>
               <div class="text-xs text-gray-500 truncate">{{ customer.company }}</div>
             </div>
             <Menu as="div" class="relative flex-shrink-0 ml-auto customer-menu">
