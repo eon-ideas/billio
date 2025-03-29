@@ -9,7 +9,16 @@ const companyStore = useCompanyStore()
 const logoInput = ref<HTMLInputElement | null>(null)
 const showSuccessMessage = ref(false)
 const errorMessage = ref('')
+const sidebarOpen = ref(false)
 
+// Tabs for settings
+const tabs = [
+  { name: 'Company Settings', href: '#', current: true },
+  { name: 'Invoice Settings', href: '#', current: false },
+  { name: 'User Profile', href: '#', current: false },
+  { name: 'Team Members', href: '#', current: false },
+  { name: 'Billing', href: '#', current: false },
+]
 
 const handleLogoUpload = async (event: Event) => {
   const input = event.target as HTMLInputElement
@@ -49,7 +58,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="min-h-screen">
+  <div>
     <!-- Success Message -->
     <div
       v-if="showSuccessMessage"
@@ -71,177 +80,216 @@ const handleSubmit = async () => {
       </svg>
       <span>{{ errorMessage }}</span>
     </div>
-   
-    <main class="max-w-5xl mx-auto py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
-      <PageTitle 
-        title="Company Settings" 
-        subtitle="Manage your company's information and branding"
-      />
-      
-      <div class="bg-white shadow-lg rounded-lg overflow-hidden">
-        <form @submit.prevent="handleSubmit" class="space-y-12 sm:space-y-16">
-          <!-- Logo Section -->
-          <div class="p-4 sm:p-6">
-            <h2 class="text-base font-semibold leading-7 text-gray-900">Company Logo</h2>
-            <p class="mt-1 text-sm text-gray-500">
-              This will be displayed on your invoices and customer portal.
-            </p>
+    
+    <!-- Content area -->
+    <div class="lg:px-8">
+      <div class="mx-auto flex flex-col lg:max-w-4xl">
+        <div class="sticky top-0 z-10 flex h-16 shrink-0 border-b border-gray-200 bg-white">
+          <button type="button" class="border-r border-gray-200 px-4 text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden focus:ring-inset lg:hidden" @click="sidebarOpen = true">
+            <span class="sr-only">Open sidebar</span>
+            <svg xmlns="http://www.w3.org/2000/svg" class="size-6" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div class="flex flex-1 justify-between px-4 lg:px-0">
+            <div class="flex flex-1">
+              <!-- Search placeholder - can be replaced with actual search if needed -->
+              <div class="grid flex-1 grid-cols-1">
+                <input type="search" name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6" placeholder="Search" />
+                <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400 ml-2" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <div class="mt-10 sm:border-t sm:border-gray-900/10 sm:pt-6">
-              <div class="sm:grid sm:grid-cols-3 sm:items-center sm:gap-4 sm:py-6">
-                <label class="block text-sm font-medium text-gray-900">Logo</label>
-                <div class="mt-2 sm:col-span-2 sm:mt-0">
-                  <div class="flex items-center gap-x-6">
-                    <div 
-                      class="w-24 h-24 border-2 rounded-lg flex items-center justify-center overflow-hidden bg-gray-50"
-                      :class="{ 'border-dashed border-gray-300': !companyStore.companyInfo.logoUrl, 'border-transparent': companyStore.companyInfo.logoUrl }"
-                    >
-                      <img 
-                        v-if="companyStore.companyInfo.logoUrl" 
-                        :src="companyStore.companyInfo.logoUrl" 
-                        alt="Company logo"
-                        class="w-full h-full object-contain"
-                      />
-                      <div v-else class="text-center px-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                        <p class="mt-1 text-xs text-gray-500">No logo</p>
-                      </div>
+        <main class="flex-1">
+          <div class="relative mx-auto max-w-4xl">
+            <div class="pt-10 pb-16">
+              <div class="px-4 sm:px-6 lg:px-0">
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900">Settings</h1>
+              </div>
+              <div class="px-4 sm:px-6 lg:px-0">
+                <div class="py-6">
+                  <!-- Tabs -->
+                  <div class="grid grid-cols-1 lg:hidden">
+                    <!-- Mobile tabs dropdown -->
+                    <select aria-label="Select a tab" class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-2 pr-8 pl-3 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6">
+                      <option v-for="tab in tabs" :key="tab.name" :selected="tab.current">{{ tab.name }}</option>
+                    </select>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none col-start-1 row-start-1 mr-2 size-5 self-center justify-self-end fill-gray-500" aria-hidden="true" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                  <div class="hidden lg:block">
+                    <div class="border-b border-gray-200">
+                      <nav class="-mb-px flex space-x-8">
+                        <a v-for="tab in tabs" :key="tab.name" :href="tab.href" :class="[tab.current ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700', 'border-b-2 px-1 py-4 text-sm font-medium whitespace-nowrap']">{{ tab.name }}</a>
+                      </nav>
                     </div>
-                    <div>
-                      <input
-                        type="file"
-                        ref="logoInput"
-                        @change="handleLogoUpload"
-                        accept="image/*"
-                        class="hidden"
-                      />
-                      <BaseButton
+                  </div>
+
+                  <!-- Company Information Section -->
+                  <div class="mt-10 divide-y divide-gray-200">
+                    <div class="space-y-1">
+                      <h3 class="text-lg/6 font-medium text-gray-900">Company Information</h3>
+                      <p class="max-w-2xl text-sm text-gray-500">This information will be displayed on your invoices and customer portal.</p>
+                    </div>
+                    <div class="mt-6">
+                      <dl class="divide-y divide-gray-200">
+                        <!-- Company Logo -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:pt-5">
+                          <dt class="text-sm font-medium text-gray-500">Logo</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <span class="grow">
+                              <div 
+                                class="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden bg-gray-50"
+                                :class="{ 'border-dashed border-gray-300': !companyStore.companyInfo.logoUrl, 'border-transparent': companyStore.companyInfo.logoUrl }"
+                              >
+                                <img 
+                                  v-if="companyStore.companyInfo.logoUrl" 
+                                  :src="companyStore.companyInfo.logoUrl" 
+                                  alt="Company logo"
+                                  class="w-full h-full object-contain"
+                                />
+                                <div v-else class="text-center px-2">
+                                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                </div>
+                              </div>
+                            </span>
+                            <span class="ml-4 flex shrink-0 items-start space-x-4">
+                              <input
+                                type="file"
+                                ref="logoInput"
+                                @change="handleLogoUpload"
+                                accept="image/*"
+                                class="hidden"
+                              />
+                              <BaseButton
+                                type="button"
+                                @click="logoInput?.click()"
+                                class="text-sm py-2 px-3"
+                                size="sm"
+                                variant="secondary"
+                                :disabled="companyStore.isLoading"
+                              >
+                                <template v-if="companyStore.isLoading">
+                                  <svg class="animate-spin -ml-1 mr-2 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Uploading...
+                                </template>
+                                <template v-else>
+                                  {{ companyStore.companyInfo.logoUrl ? 'Change Logo' : 'Upload Logo' }}
+                                </template>
+                              </BaseButton>
+                              <p class="mt-2 text-xs text-gray-500">
+                                Recommended: Square image, at least 400x400px
+                              </p>
+                            </span>
+                          </dd>
+                        </div>
+                        
+                        <!-- Company Name -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Company Name</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="name"
+                              type="text"
+                              v-model="companyStore.companyInfo.name"
+                              :disabled="companyStore.isLoading"
+                              required
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- VAT ID -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="vatId"
+                              type="text"
+                              v-model="companyStore.companyInfo.vatId"
+                              :disabled="companyStore.isLoading"
+                              required
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- Company Address -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Company Address</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <textarea
+                              id="address"
+                              v-model="companyStore.companyInfo.address"
+                              rows="3"
+                              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              :disabled="companyStore.isLoading"
+                              required
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- IBAN -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">IBAN</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <div class="w-full">
+                              <BaseInput
+                                id="iban"
+                                type="text"
+                                v-model="companyStore.companyInfo.iban"
+                                :disabled="companyStore.isLoading"
+                                required
+                                class="grow"
+                              />
+                              <p class="mt-1 text-xs text-gray-500">
+                                This will be displayed on your invoices for receiving payments.
+                              </p>
+                            </div>
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <div class="mt-6 pt-6 border-t border-gray-200">
+                    <div class="flex justify-end">
+                      <BaseButton 
                         type="button"
-                        @click="logoInput?.click()"
-                        class="text-sm py-2 px-3"
-                        size="sm"
-                        variant="secondary"
+                        @click="handleSubmit"
                         :disabled="companyStore.isLoading"
+                        class="w-auto"
                       >
                         <template v-if="companyStore.isLoading">
-                          <svg class="animate-spin -ml-1 mr-2 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
-                          Uploading...
+                          Saving...
                         </template>
                         <template v-else>
-                          {{ companyStore.companyInfo.logoUrl ? 'Change Logo' : 'Upload Logo' }}
+                          Save Changes
                         </template>
                       </BaseButton>
-                      <p class="mt-2 text-xs text-gray-500">
-                        Recommended: Square image, at least 400x400px
-                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Company Information Section -->
-          <div class="p-4 sm:p-6">
-            <h2 class="text-base font-semibold leading-7 text-gray-900">Company Information</h2>
-            
-            <div class="mt-10 space-y-8 sm:space-y-0 sm:divide-y sm:divide-gray-900/10 sm:border-t sm:border-b sm:pb-0">
-              <!-- Company Name -->
-              <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label for="name" class="block text-sm font-medium text-gray-900 sm:pt-1.5">
-                  Company Name
-                </label>
-                <div class="mt-2 sm:col-span-2 sm:mt-0">
-                  <BaseInput
-                    id="name"
-                    type="text"
-                    v-model="companyStore.companyInfo.name"
-                    :disabled="companyStore.isLoading"
-                    required
-                  />
-                </div>
-              </div>
-
-              <!-- VAT ID -->
-              <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label for="vatId" class="block text-sm font-medium text-gray-900 sm:pt-1.5">
-                  VAT ID
-                </label>
-                <div class="mt-2 sm:col-span-2 sm:mt-0">
-                  <BaseInput
-                    id="vatId"
-                    type="text"
-                    v-model="companyStore.companyInfo.vatId"
-                    :disabled="companyStore.isLoading"
-                    required
-                  />
-                </div>
-              </div>
-
-              <!-- Company Address -->
-              <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label for="address" class="block text-sm font-medium text-gray-900 sm:pt-1.5">
-                  Company Address
-                </label>
-                <div class="mt-2 sm:col-span-2 sm:mt-0">
-                  <textarea
-                    id="address"
-                    v-model="companyStore.companyInfo.address"
-                    rows="3"
-                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                    :disabled="companyStore.isLoading"
-                    required
-                  />
-                </div>
-              </div>
-
-              <!-- IBAN -->
-              <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-                <label for="iban" class="block text-sm font-medium text-gray-900 sm:pt-1.5">
-                  IBAN
-                </label>
-                <div class="mt-2 sm:col-span-2 sm:mt-0">
-                  <BaseInput
-                    id="iban"
-                    type="text"
-                    v-model="companyStore.companyInfo.iban"
-                    :disabled="companyStore.isLoading"
-                    required
-                  />
-                  <p class="mt-1 text-xs text-gray-500">
-                    This will be displayed on your invoices for receiving payments.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Submit Button -->
-          <div class="px-4 py-4 sm:px-6 flex justify-end">
-            <BaseButton 
-              type="submit"
-              :disabled="companyStore.isLoading"
-              class="w-full sm:w-auto"
-            >
-              <template v-if="companyStore.isLoading">
-                <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Saving...
-              </template>
-              <template v-else>
-                Save Changes
-              </template>
-            </BaseButton>
-          </div>
-        </form>
+        </main>
       </div>
-    </main>
+    </div>
   </div>
 </template>
