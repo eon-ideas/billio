@@ -4,6 +4,7 @@ import type { InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
 import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import BaseButton from '@/components/ui/BaseButton.vue'
 import InvoiceItemForm from './InvoiceItemForm.vue'
 
 const props = defineProps<{
@@ -13,6 +14,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'submit', data: InvoiceFormData): void
+  (e: 'cancel'): void
 }>()
 
 const customersStore = useCustomersStore()
@@ -211,13 +213,22 @@ const handleSubmit = () => {
     </div>
 
     <!-- Submit Button -->
-    <div class="flex justify-end">
-      <button
-        type="submit"
-        class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+    <div class="flex justify-end space-x-4">
+      <BaseButton 
+        type="button" 
+        variant="secondary" 
+        size="md" 
+        @click="emit('cancel')"
+      >
+        Cancel
+      </BaseButton>
+      <BaseButton 
+        type="submit" 
+        variant="primary" 
+        size="md"
       >
         Save Invoice
-      </button>
+      </BaseButton>
     </div>
   </form>
 </template>
