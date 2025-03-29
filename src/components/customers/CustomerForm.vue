@@ -101,7 +101,7 @@ const handleCancel = () => {
                 v-model="formData.name"
                 required
                 placeholder="Enter customer name"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -115,7 +115,7 @@ const handleCancel = () => {
                 type="email"
                 v-model="formData.email"
                 placeholder="Enter email address"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -129,7 +129,7 @@ const handleCancel = () => {
                 type="tel"
                 v-model="formData.phone"
                 placeholder="Enter phone number"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -142,7 +142,7 @@ const handleCancel = () => {
                 id="company"
                 v-model="formData.company"
                 placeholder="Enter company name"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -155,7 +155,7 @@ const handleCancel = () => {
                 id="city"
                 v-model="formData.city"
                 placeholder="Enter city"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -170,7 +170,7 @@ const handleCancel = () => {
                 rows="3"
                 :disabled="loading"
                 placeholder="Enter full address"
-                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:max-w-xl sm:text-sm/6"
+                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               ></textarea>
             </div>
           </div>
@@ -192,7 +192,7 @@ const handleCancel = () => {
                 id="vat_id"
                 v-model="formData.vat_id"
                 placeholder="Enter VAT ID"
-                class="sm:max-w-md"
+                class="w-full"
               />
             </div>
           </div>
@@ -200,7 +200,7 @@ const handleCancel = () => {
           <!-- Currency -->
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
             <label for="currency" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Currency *</label>
-            <div class="mt-2 sm:col-span-2 sm:mt-0 sm:max-w-xs">
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
               <SelectMenu
                 id="currency"
                 v-model="selectedCurrency"

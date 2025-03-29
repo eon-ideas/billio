@@ -36,9 +36,10 @@ const handleCancel = () => {
 <template>
   <div class="min-h-screen bg-white">
     <div class="py-6 px-4 sm:px-6 lg:px-8">
+
       <!-- Breadcrumb -->
       <Breadcrumb :items="breadcrumbItems" class="mb-6" />
-      
+
       <!-- Header -->
       <PageTitle 
         title="Add New Customer" 
@@ -54,7 +55,7 @@ const handleCancel = () => {
       </div>
 
       <!-- Main Content -->
-      <div class="max-w-4xl mx-auto">
+      <div>
         <CustomerForm 
           @submit="handleSubmit" 
           @cancel="handleCancel"

@@ -38,11 +38,11 @@ const handleViewInvoices = () => {
 </script>
 
 <template>
-  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block  mb-10" />
-  <div class="min-h-screen bg-gray-50">
+  <Breadcrumb :items="breadcrumbItems" class="hidden sm:block mb-10" />
+  <div class="min-h-screen">
     <main class="py-6 px-4 sm:px-6 lg:px-8">
       <!-- Header -->
-      <div class="mb-8">
+      <div class="mb-12">
         <div class="sm:flex sm:items-center sm:justify-between">
           <div>
             <h1 class="text-2xl font-bold text-gray-900">
@@ -84,33 +84,88 @@ const handleViewInvoices = () => {
         </div>
       </div>
 
-      <!-- Customer Details -->
-      <div class="bg-white shadow-sm rounded-lg border border-gray-200">
-        <div class="px-4 py-5 sm:p-6">
-          <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Company Name</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ customer?.name }}</dd>
+      <!-- Customer Information Section -->
+      <div class="mb-10">
+        <div class="px-4 sm:px-0">
+          <h3 class="text-base/7 font-semibold text-gray-900">Customer Information</h3>
+          <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">Contact details and address information.</p>
+        </div>
+        <div class="mt-6 border-t border-gray-100">
+          <dl class="divide-y divide-gray-100">
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Company Name</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.name || 'Not provided' }}</dd>
             </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ customer?.vat_id }}</dd>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Email Address</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.email || 'Not provided' }}</dd>
             </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500">Currency</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ customer?.currency }}</dd>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Phone Number</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.phone || 'Not provided' }}</dd>
             </div>
-            <div>
-              <dt class="text-sm font-medium text-gray-500">City</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ customer?.city }}</dd>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Company</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.company || 'Not provided' }}</dd>
             </div>
-            <div class="sm:col-span-2">
-              <dt class="text-sm font-medium text-gray-500">Address</dt>
-              <dd class="mt-1 text-sm text-gray-900">{{ customer?.address }}</dd>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">City</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.city || 'Not provided' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Address</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.address || 'Not provided' }}</dd>
             </div>
           </dl>
         </div>
       </div>
+      
+      <!-- Billing Information Section -->
+      <div>
+        <div class="px-4 sm:px-0">
+          <h3 class="text-base/7 font-semibold text-gray-900">Billing Information</h3>
+          <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">Billing details and preferences for this customer.</p>
+        </div>
+        <div class="mt-6 border-t border-gray-100">
+          <dl class="divide-y divide-gray-100">
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">VAT ID</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.vat_id || 'Not provided' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Currency</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.currency }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Include VAT</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.include_vat ? 'Yes' : 'No' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Customer ID</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.id }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Created At</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.created_at ? new Date(customer.created_at).toLocaleString() : 'Not available' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Last Updated</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.updated_at ? new Date(customer.updated_at).toLocaleString() : 'Not available' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
     </main>
   </div>
 </template>
