@@ -39,8 +39,8 @@
                       <div class="text-xs/6 font-semibold text-gray-400">Recent Customers</div>
                       <ul role="list" class="-mx-2 mt-2 space-y-1">
                         <li v-for="customer in topCustomers" :key="customer.id">
-                          <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
-                            <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
+                          <router-link :to="`/customers/${customer.id}/invoices`" :class="[$route.path.includes(`/customers/${customer.id}`) ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']" @click="emit('close')">
+                            <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path.includes(`/customers/${customer.id}`) ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
                               {{ customer.name.charAt(0) }}
                             </span>
                             <span class="truncate">{{ customer.name }}</span>
@@ -86,8 +86,8 @@
               <div class="text-xs/6 font-semibold text-gray-400">Recent Customers</div>
               <ul role="list" class="-mx-2 mt-2 space-y-1">
                 <li v-for="customer in topCustomers" :key="customer.id">
-                  <router-link :to="`/customers/${customer.id}`" :class="[$route.path === `/customers/${customer.id}` ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
-                    <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path === `/customers/${customer.id}` ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
+                  <router-link :to="`/customers/${customer.id}/invoices`" :class="[$route.path.includes(`/customers/${customer.id}`) ? 'bg-gray-50 text-primary' : 'text-gray-700 hover:bg-gray-50 hover:text-primary', 'group flex gap-x-3 rounded-md p-2 text-sm/6 font-semibold']">
+                    <span class="flex size-6 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-[0.625rem] font-medium" :class="[$route.path.includes(`/customers/${customer.id}`) ? 'text-primary border-primary/30' : 'text-gray-400 group-hover:border-primary group-hover:text-primary']">
                       {{ customer.name.charAt(0) }}
                     </span>
                     <span class="truncate">{{ customer.name }}</span>

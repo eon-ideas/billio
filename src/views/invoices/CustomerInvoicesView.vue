@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
@@ -25,27 +25,38 @@ const showDeleteDialog = ref(false)
 const invoiceToDelete = ref<string | null>(null)
 const invoiceToDeleteNumber = ref('')
 
-const customerId = route.params.customerId as string
+const customerId = computed(() => route.params.customerId as string)
 
-onMounted(async () => {
+const loadCustomerData = async (id: string) => {
   loading.value = true
-  customer.value = await customersStore.getCustomerById(customerId)
+  customer.value = await customersStore.getCustomerById(id)
   if (!customer.value) {
     router.push('/customers')
     return
   }
-  await invoicesStore.fetchInvoices(customerId)
+  await invoicesStore.fetchInvoices(id)
   loading.value = false
+}
+
+onMounted(async () => {
+  await loadCustomerData(customerId.value)
 })
+
+// Watch for changes in the route parameter and reload data when it changes
+watch(() => route.params.customerId, async (newId) => {
+  if (newId) {
+    await loadCustomerData(newId as string)
+  }
+}, { immediate: false })
 
 const breadcrumbItems = computed(() => [
   { name: 'Customers', to: '/customers' },
-  { name: customer.value?.name || '', to: `/customers/${customerId}` },
+  { name: customer.value?.name || '', to: `/customers/${customerId.value}` },
   { name: 'Invoices' }
 ])
 
 const handleAddNew = () => {
-  router.push(`/customers/${customerId}/invoices/new`)
+  router.push(`/customers/${customerId.value}/invoices/new`)
 }
 
 const customerSubtitle = computed(() => {
@@ -54,7 +65,7 @@ const customerSubtitle = computed(() => {
 
 const invoices = computed(() => {
   const allInvoices = invoicesStore.invoices
-  let filteredInvoices = allInvoices.filter(i => i.customer_id === customerId)
+  let filteredInvoices = allInvoices.filter(i => i.customer_id === customerId.value)
   
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase()
@@ -68,11 +79,11 @@ const invoices = computed(() => {
 })
 
 const handleEdit = (id: string) => {
-  router.push(`/customers/${customerId}/invoices/${id}/edit`)
+  router.push(`/customers/${customerId.value}/invoices/${id}/edit`)
 }
 
 const handlePreview = (id: string) => {
-  router.push(`/customers/${customerId}/invoices/${id}/preview`)
+  router.push(`/customers/${customerId.value}/invoices/${id}/preview`)
 }
 
 const handleTogglePaid = (id: string) => {
