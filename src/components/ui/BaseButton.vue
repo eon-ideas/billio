@@ -8,17 +8,17 @@ const props = withDefaults(defineProps<{
   type: 'button',
   loading: false,
   variant: 'primary',
-  size: 'md'
+  size: 'sm'
 })
 
 const getButtonClasses = () => {
-  const baseClasses = 'inline-flex items-center justify-center gap-2.5 rounded-md font-medium text-white hover:bg-opacity-90 w-full'
+  const baseClasses = 'inline-flex items-center justify-center gap-2 rounded-md font-medium text-white hover:bg-opacity-90 w-full'
   
   // Size classes
   const sizeClasses = {
-    sm: 'py-2 px-6 text-sm',
-    md: 'py-3 px-8 text-base',
-    lg: 'py-4 px-10 text-base lg:px-8 xl:px-10'
+    sm: 'py-1.5 px-4 text-sm',
+    md: 'py-2.5 px-6 text-base',
+    lg: 'py-3.5 px-8 text-base lg:px-8 xl:px-10'
   }
   
   // Variant classes
@@ -42,7 +42,7 @@ const getButtonClasses = () => {
   >
     <svg
       v-if="props.loading"
-      class="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
+      class="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
       xmlns="http://www.w3.org/2000/svg"
       fill="none"
       viewBox="0 0 24 24"

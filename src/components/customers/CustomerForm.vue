@@ -233,7 +233,7 @@ const handleCancel = () => {
     <div class="mt-6 flex items-center justify-end gap-x-6">
       <BaseButton 
         type="button" 
-        variant="secondary" 
+        variant="secondary"
         @click="handleCancel"
         :disabled="loading"
       >
