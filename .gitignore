@@ -60,3 +60,4 @@ coverage
 
 # Local Netlify folder
 .netlify
+supabase/.temp/

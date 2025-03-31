@@ -83,26 +83,6 @@ const handleSubmit = async () => {
     <!-- Content area -->
     <div class="lg:px-8">
       <div class="mx-auto flex flex-col lg:max-w-4xl">
-        <div class="sticky top-0 z-10 flex h-16 shrink-0 border-b border-gray-200 bg-white">
-          <button type="button" class="border-r border-gray-200 px-4 text-gray-500 focus:ring-2 focus:ring-indigo-500 focus:outline-hidden focus:ring-inset lg:hidden" @click="sidebarOpen = true">
-            <span class="sr-only">Open sidebar</span>
-            <svg xmlns="http://www.w3.org/2000/svg" class="size-6" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div class="flex flex-1 justify-between px-4 lg:px-0">
-            <div class="flex flex-1">
-              <!-- Search placeholder - can be replaced with actual search if needed -->
-              <div class="grid flex-1 grid-cols-1">
-                <input type="search" name="search" aria-label="Search" class="col-start-1 row-start-1 block size-full bg-white pl-8 text-base text-gray-900 outline-hidden placeholder:text-gray-400 sm:text-sm/6" placeholder="Search" />
-                <svg xmlns="http://www.w3.org/2000/svg" class="pointer-events-none col-start-1 row-start-1 size-5 self-center text-gray-400 ml-2" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
         <main class="flex-1">
           <div class="relative mx-auto max-w-4xl">
             <div class="pt-10 pb-16">
@@ -133,7 +113,7 @@ const handleSubmit = async () => {
                   <div class="mt-10 divide-y divide-gray-200">
                     <div class="space-y-1">
                       <h3 class="text-lg/6 font-medium text-gray-900">Company Information</h3>
-                      <p class="max-w-2xl text-sm text-gray-500">This information will be displayed on your invoices and customer portal.</p>
+                      <p class="max-w-2xl text-sm text-gray-500">Basic information about your company.</p>
                     </div>
                     <div class="mt-6">
                       <dl class="divide-y divide-gray-200">
@@ -183,12 +163,9 @@ const handleSubmit = async () => {
                                   Uploading...
                                 </template>
                                 <template v-else>
-                                  {{ companyStore.companyInfo.logoUrl ? 'Change Logo' : 'Upload Logo' }}
+                                  {{ companyStore.companyInfo.logoUrl ? 'Change' : 'Upload' }}
                                 </template>
                               </BaseButton>
-                              <p class="mt-2 text-xs text-gray-500">
-                                Recommended: Square image, at least 400x400px
-                              </p>
                             </span>
                           </dd>
                         </div>
@@ -201,21 +178,6 @@ const handleSubmit = async () => {
                               id="name"
                               type="text"
                               v-model="companyStore.companyInfo.name"
-                              :disabled="companyStore.isLoading"
-                              required
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-                        
-                        <!-- VAT ID -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="vatId"
-                              type="text"
-                              v-model="companyStore.companyInfo.vatId"
                               :disabled="companyStore.isLoading"
                               required
                               class="grow"
@@ -237,6 +199,46 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
+                      </dl>
+                    </div>
+                  </div>
+                  
+                  <!-- Billing Information Section -->
+                  <div class="mt-10 divide-y divide-gray-200">
+                    <div class="space-y-1">
+                      <h3 class="text-lg/6 font-medium text-gray-900">Billing Information</h3>
+                      <p class="max-w-2xl text-sm text-gray-500">Tax and financial details used on your invoices.</p>
+                    </div>
+                    <div class="mt-6">
+                      <dl class="divide-y divide-gray-200">
+                        <!-- VAT ID -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="vatId"
+                              type="text"
+                              v-model="companyStore.companyInfo.vatId"
+                              :disabled="companyStore.isLoading"
+                              required
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- PIN ID (OIB) -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Personal ID Number (OIB)</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="pinId"
+                              type="text"
+                              v-model="companyStore.companyInfo.pinId"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
                         
                         <!-- IBAN -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
@@ -255,6 +257,60 @@ const handleSubmit = async () => {
                                 This will be displayed on your invoices for receiving payments.
                               </p>
                             </div>
+                          </dd>
+                        </div>
+                      </dl>
+                    </div>
+                  </div>
+                  
+                  <!-- Contact Information Section -->
+                  <div class="mt-10 divide-y divide-gray-200">
+                    <div class="space-y-1">
+                      <h3 class="text-lg/6 font-medium text-gray-900">Contact Information</h3>
+                      <p class="max-w-2xl text-sm text-gray-500">How customers can reach your company.</p>
+                    </div>
+                    <div class="mt-6">
+                      <dl class="divide-y divide-gray-200">
+                        <!-- Email -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Email</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="email"
+                              type="email"
+                              v-model="companyStore.companyInfo.email"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- Phone -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="phone"
+                              type="tel"
+                              v-model="companyStore.companyInfo.phone"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                            />
+                          </dd>
+                        </div>
+                        
+                        <!-- Website -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Website</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="web"
+                              type="url"
+                              v-model="companyStore.companyInfo.web"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                              placeholder="https://example.com"
+                            />
                           </dd>
                         </div>
                       </dl>

@@ -11,7 +11,11 @@ export const useCompanyStore = defineStore('company', () => {
     address: '',
     vatId: '',
     iban: '',
-    logoUrl: null
+    logoUrl: null,
+    pinId: '',
+    web: '',
+    email: '',
+    phone: ''
   })
   const isLoading = ref(false)
 
@@ -36,7 +40,11 @@ export const useCompanyStore = defineStore('company', () => {
           address: data.address,
           vatId: data.vat_id,
           iban: data.iban,
-          logoUrl: data.logo_url
+          logoUrl: data.logo_url,
+          pinId: data.pin_id,
+          web: data.web,
+          email: data.email,
+          phone: data.phone
         }
       }
     } catch (error) {
@@ -63,7 +71,11 @@ export const useCompanyStore = defineStore('company', () => {
             address: '',
             vat_id: '',
             iban: '',
-            logo_url: null
+            logo_url: null,
+            pin_id: '',
+            web: '',
+            email: '',
+            phone: ''
           })
         if (insertError) throw insertError
       } else if (error) {
@@ -90,10 +102,10 @@ export const useCompanyStore = defineStore('company', () => {
         .select('id')
         .single()
 
-      if (fetchError) throw fetchError
-
-      if (!currentRecord) {
-        // Create initial record if none exists
+      // Handle case where no record exists (PGRST116)
+      if (fetchError && fetchError.code === 'PGRST116') {
+        console.log('No company record found, creating initial record')
+        // Create initial record
         const { error: insertError } = await supabase
           .from('company_info')
           .insert({
@@ -101,20 +113,35 @@ export const useCompanyStore = defineStore('company', () => {
             address: info.address || '',
             vat_id: info.vatId || '',
             iban: info.iban || '',
-            logo_url: info.logoUrl || null
+            logo_url: info.logoUrl || null,
+            pin_id: info.pinId || '',
+            web: info.web || '',
+            email: info.email || '',
+            phone: info.phone || ''
           })
-          .select()
-          .single()
 
         if (insertError) throw insertError
-      } else {
+        
+        // Reload company info to get the latest data
+        await loadCompanyInfo()
+        return
+      } else if (fetchError) {
+        // This is some other error, not just "no records found"
+        throw fetchError
+      }
+
+      if (currentRecord) {
         // Update existing record
         const updatedInfo = {
           name: info.name || companyInfo.value.name,
           address: info.address || companyInfo.value.address,
           vat_id: info.vatId || companyInfo.value.vatId,
           iban: info.iban || companyInfo.value.iban,
-          logo_url: info.logoUrl || companyInfo.value.logoUrl
+          logo_url: info.logoUrl || companyInfo.value.logoUrl,
+          pin_id: info.pinId || companyInfo.value.pinId,
+          web: info.web || companyInfo.value.web,
+          email: info.email || companyInfo.value.email,
+          phone: info.phone || companyInfo.value.phone
         }
 
         const { error: updateError } = await supabase
@@ -200,7 +227,11 @@ export const useCompanyStore = defineStore('company', () => {
           address: '',
           vatId: '',
           iban: '',
-          logoUrl: null
+          logoUrl: null,
+          pinId: '',
+          web: '',
+          email: '',
+          phone: ''
         }
       }
     },

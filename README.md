@@ -19,6 +19,8 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - TypeScript
 - Vite
 - Tailwind CSS
+- headlessui/vue (UI components)
+- heroicons/vue (Icons)
 - Pinia (State Management)
 - Vue Router
 - Supabase (Authentication & Backend)

@@ -4,4 +4,8 @@ export interface CompanyInfo {
   vatId: string
   iban: string
   logoUrl: string | null
+  pinId: string
+  web: string
+  email: string
+  phone: string
 }
