@@ -235,6 +235,27 @@ onMounted(async () => {
               <dt class="text-gray-500 flex-shrink-0">Phone</dt>
               <dd class="text-gray-700 truncate ml-2 text-right">{{ customer.phone || 'N/A' }}</dd>
             </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500 flex-shrink-0">Currency</dt>
+              <dd class="text-gray-700 truncate ml-2 text-right">{{ customer.currency || 'N/A' }}</dd>
+            </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500 flex-shrink-0">VAT</dt>
+              <dd class="text-gray-700 truncate ml-2 text-right">
+                <span :class="customer.include_vat ? 'text-green-600' : 'text-gray-600'">
+                  {{ customer.include_vat ? 'Included' : 'Not included' }}
+                </span>
+              </dd>
+            </div>
+            <div class="flex justify-between gap-x-4 py-3">
+              <dt class="text-gray-500 flex-shrink-0">Address</dt>
+              <dd class="text-gray-700 ml-2 text-right">
+                <div v-if="customer.address || customer.city" class="truncate">
+                  {{ [customer.address, customer.city].filter(Boolean).join(', ') }}
+                </div>
+                <div v-else>N/A</div>
+              </dd>
+            </div>
           </dl>
         </li>
       </ul>
