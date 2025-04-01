@@ -8,7 +8,6 @@ const companyStore = useCompanyStore()
 const logoInput = ref<HTMLInputElement | null>(null)
 const showSuccessMessage = ref(false)
 const errorMessage = ref('')
-const sidebarOpen = ref(false)
 
 // Tabs for settings
 const tabs = [
