@@ -51,7 +51,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area">
+  <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area border border-gray-300 rounded-lg">
     <!-- Company Info at Top -->
     <div class="flex justify-between items-start mb-4">
       <div class="text-xs space-y-0.5">
@@ -84,7 +84,7 @@ onMounted(async () => {
       </div>
 
       <!-- Customer Info -->
-      <div class="bg-gray-50 p-3 rounded-lg flex flex-col">
+      <div class="border border-gray-300 p-3 rounded-lg flex flex-col">
         <div>
           <div class="mb-2">
             <h2 class="text-xs font-medium text-gray-500">CUSTOMER</h2>
@@ -150,8 +150,8 @@ onMounted(async () => {
     <div class="mt-6 pt-4 border-t"></div>
 
     <!-- Company Details Footer -->
-    <div class="mt-4 text-xs text-gray-500 max-w-3xl mx-auto">
-      <p class="leading-relaxed">
+    <div class="mt-2 text-[0.65rem] leading-3 tracking-tight text-gray-500 max-w-3xl mx-auto">
+      <p>
         EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
         Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:
         RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti
@@ -178,6 +178,32 @@ onMounted(async () => {
   @page {
     size: A4;
     margin: 2cm;
+    margin-header: 0;
+    margin-footer: 0;
+  }
+  
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  
+  @page :first {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  
+  @page :left {
+    margin-left: 0;
+    margin-right: 0;
+    margin-header: 0;
+    margin-footer: 0;
+  }
+  
+  @page :right {
+    margin-left: 0;
+    margin-right: 0;
+    margin-header: 0;
+    margin-footer: 0;
   }
   
   body {
