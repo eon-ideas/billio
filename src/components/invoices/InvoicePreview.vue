@@ -109,7 +109,7 @@ onMounted(async () => {
                 <p class="flex items-center py-0.5 text-sm font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
                 <p class="flex items-center py-0.5">{{ customer?.address || 'N/A' }}</p>
                 <p class="flex items-center py-0.5">{{ customer?.city || 'N/A' }}</p>
-                <p class="flex items-center py-0.5">VAT ID: {{ customer?.vat_id || 'N/A' }}</p>
+                <p class="flex items-center py-0.5">TAX ID / VAT ID: {{ customer?.vat_id || 'N/A' }}</p>
               </div>
             </div>
           </div>
@@ -120,12 +120,12 @@ onMounted(async () => {
           <table class="w-full text-xs">
             <thead>
               <tr>
-                <th class="py-2 text-center font-medium text-gray-500 border-b w-16 whitespace-nowrap">Rb. / No.</th>
-                <th class="py-2 text-left font-medium text-gray-500 border-b">Opis / Description</th>
-                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Količina / Qty</th>
-                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Jmj / Unit</th>
-                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Cijena / Unit price</th>
-                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Iznos / Amount</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-16 whitespace-nowrap">Rb./No.</th>
+                <th class="py-2 text-left font-medium text-gray-500 border-b w-3/5">Opis/Description</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Kol./Qty</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Jmj/Unit</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Cijena/Price</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Iznos/Amount</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
