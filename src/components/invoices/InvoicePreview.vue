@@ -170,10 +170,10 @@ onMounted(async () => {
         <!-- Payment Details -->
         <div class="mt-10 mb-4 text-xs payment-details">
           <div class="space-y-0.5 text-gray-600">
-            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun:</span> {{ company.name }}</p>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun / Pay to:</span> {{ company.name }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
-            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj:</span> <strong>HR99 {{ invoice.number }}</strong></p>
+            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj / Model and reference number:</span> HR99 {{ invoice.number }}</p>
           </div>
         </div>
 
