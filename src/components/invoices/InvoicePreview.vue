@@ -57,7 +57,7 @@ onMounted(async () => {
       <div class="text-sm space-y-1">
         <h2 class="text-xl font-bold mb-2">{{ company.name }}</h2>
         <div>
-          <p v-if="company.vatId" class="text-gray-600">VAT ID: {{ company.vatId }}</p>
+          <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>
           <p v-if="company.iban" class="text-gray-600">IBAN: {{ company.iban }}</p>
         </div>
       </div>
@@ -69,25 +69,29 @@ onMounted(async () => {
     <!-- Invoice Details and Customer Info -->
     <div class="grid grid-cols-2 gap-12 mb-12">
       <div>
-        <div class="mb-8">
+        <div class="mb-3">
           <h1 class="text-3xl font-bold text-gray-900">Invoice #{{ invoice.number }}</h1>
-          <p class="mt-2 text-lg text-gray-600">{{ formatDate(invoice.date) }}</p>
         </div>
-        <div class="space-y-2 text-sm text-gray-600">
-          <p><span class="inline-block w-32">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
-          <p><span class="inline-block w-32">Due date</span> {{ formatDate(invoice.due_date) }}</p>
-          <p><span class="inline-block w-32">Payment method</span>Bank Transfer</p>
+        <div class="text-sm text-gray-600 space-y-0.5">
+          <p class="flex items-center py-0.5"><span class="w-32 flex-shrink-0">Invoice date</span> {{ formatDate(invoice.date) }}</p>
+          <p class="flex items-center py-0.5"><span class="w-32 flex-shrink-0">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
+          <p class="flex items-center py-0.5"><span class="w-32 flex-shrink-0">Due date</span> {{ formatDate(invoice.due_date) }}</p>
+          <p class="flex items-center py-0.5"><span class="w-32 flex-shrink-0">Payment method</span>Bank Transfer</p>
         </div>
       </div>
 
       <!-- Customer Info -->
-      <div class="bg-gray-50 p-6 rounded-lg">
-        <h2 class="text-sm font-medium text-gray-500 mb-3">BILL TO</h2>
-        <div class="space-y-1">
-          <p class="text-lg font-medium text-gray-900">{{ customer?.name }}</p>
-          <p class="text-gray-600">{{ customer?.address }}</p>
-          <p class="text-gray-600">{{ customer?.city }}</p>
-          <p class="text-gray-600">VAT ID: {{ customer?.vat_id }}</p>
+      <div class="bg-gray-50 p-4 rounded-lg flex flex-col">
+        <div>
+          <div class="mb-3">
+            <h2 class="text-sm font-medium text-gray-500">BILL TO</h2>
+          </div>
+          <div class="text-sm text-gray-600 space-y-0.5">
+            <p class="flex items-center py-0.5 text-lg font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
+            <p class="flex items-center py-0.5">{{ customer?.address || 'N/A' }}</p>
+            <p class="flex items-center py-0.5">{{ customer?.city || 'N/A' }}</p>
+            <p class="flex items-center py-0.5">VAT ID: {{ customer?.vat_id || 'N/A' }}</p>
+          </div>
         </div>
       </div>
     </div>
