@@ -69,7 +69,7 @@ onMounted(async () => {
       <!-- Wrapping all content except company details in a container for print layout -->
       <div class="print:flex print:flex-col print:min-h-[calc(100vh-18rem)]">
         <!-- Company Info at Top -->
-        <div class="flex justify-between items-start mb-4">
+        <div class="flex justify-between items-start mb-14">
           <div class="text-xs space-y-0.5">
             <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
             <div>
@@ -85,25 +85,25 @@ onMounted(async () => {
         </div>
 
         <!-- Invoice Details and Customer Info -->
-        <div class="grid grid-cols-2 gap-6 mb-6">
-          <div>
+        <div class="grid grid-cols-5 gap-6 mb-6">
+          <div class="col-span-3">
             <div class="mb-2">
-              <h1 class="text-xl font-bold text-gray-900">Invoice #{{ invoice.number }}</h1>
+              <h1 class="text-xl font-bold text-gray-900">Račun / Invoice: #{{ invoice.number }}</h1>
             </div>
             <div class="text-xs text-gray-600 space-y-0">
-              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Invoice date</span> {{ formatDate(invoice.date) }}</p>
-              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
-              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Due date</span> {{ formatDate(invoice.due_date) }}</p>
-              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Payment method</span>Bank Transfer</p>
-              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Operator</span>Teodor Hirs</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Vrijeme izdavanja / Invoice date</span> {{ formatDate(invoice.date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum isporuke / Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum dospijeća / Due date</span> {{ formatDate(invoice.due_date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Način plaćanja / Payment method</span>Transakcijski račun / Bank Transfer</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Operater / Operator</span>Teodor Hirs</p>
             </div>
           </div>
 
           <!-- Customer Info -->
-          <div class="border border-gray-300 p-3 rounded-lg flex flex-col">
+          <div class="col-span-2 border border-gray-300 p-3 rounded-lg flex flex-col">
             <div>
               <div class="mb-2">
-                <h2 class="text-xs font-medium text-gray-500">CUSTOMER</h2>
+                <h2 class="text-xs font-medium text-gray-500">KUPAC / CUSTOMER</h2>
               </div>
               <div class="text-xs text-gray-600 space-y-0">
                 <p class="flex items-center py-0.5 text-sm font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
@@ -116,15 +116,16 @@ onMounted(async () => {
         </div>
 
         <!-- Invoice Items -->
-        <div class="mb-6 overflow-x-auto">
+        <div class="mt-10 mb-6 overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
               <tr>
-                <th class="py-2 text-center font-medium text-gray-500 border-b w-12">No.</th>
-                <th class="py-2 text-left font-medium text-gray-500 border-b">Description</th>
-                <th class="py-2 text-center font-medium text-gray-500 border-b w-20">Qty</th>
-                <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Unit price</th>
-                <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Amount</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-16 whitespace-nowrap">Rb. / No.</th>
+                <th class="py-2 text-left font-medium text-gray-500 border-b">Opis / Description</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Količina / Qty</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-28 whitespace-nowrap">Jmj / Unit</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Cijena / Unit price</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-36 whitespace-nowrap">Iznos / Amount</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-gray-100">
@@ -134,6 +135,7 @@ onMounted(async () => {
                   {{ item.description }}
                 </td>
                 <td class="py-2 text-center align-top">{{ item.quantity }}</td>
+                <td class="py-2 text-center align-top">Usl./Serv.</td>
                 <td class="py-2 text-right align-top">{{ formatCurrency(item.price) }}</td>
                 <td class="py-2 text-right align-top">{{ formatCurrency(calculateItemTotal(item)) }}</td>
               </tr>
@@ -158,7 +160,7 @@ onMounted(async () => {
 
           <!-- VAT Exemption Info -->
           <div v-if="!customer?.include_vat" class="mt-2">
-            <p class="text-xs text-gray-500">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
+            <p class="text-[0.65rem] text-gray-500">PDV nije obračunat temeljem čl.17, stavak 1 Zakona o PDV-u / VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
           </div>
         </div>
 
@@ -166,13 +168,12 @@ onMounted(async () => {
         <div class="my-6 border-b border-gray-200"></div>
 
         <!-- Payment Details -->
-        <div class="mt-4 print:mt-6 mb-4 text-xs payment-details">
+        <div class="mt-10 mb-4 text-xs payment-details">
           <div class="space-y-0.5 text-gray-600">
             <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun:</span> {{ company.name }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
             <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj:</span> <strong>HR99 {{ invoice.number }}</strong></p>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-medium text-gray-700">Rok plaćanja:</span> {{ invoice.due_date ? formatDate(invoice.due_date) : '11 dana' }}</p>
           </div>
         </div>
 
@@ -224,7 +225,7 @@ onMounted(async () => {
   
   /* Ensure proper spacing for payment details */
   .payment-details {
-    margin-top: 2rem !important;
+    margin-top: 3rem !important;
   }
   
   @page :first {
