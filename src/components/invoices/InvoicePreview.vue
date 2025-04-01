@@ -51,115 +51,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area border border-gray-300 rounded-lg">
-    <!-- Company Info at Top -->
-    <div class="flex justify-between items-start mb-4">
-      <div class="text-xs space-y-0.5">
-        <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
-        <div>
-          <p class="text-gray-600">{{ company.address }}</p>
-          <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>          
-        </div>
-      </div>
-      <div class="text-right ml-4">
-        <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-10 ml-auto" />
-        <p v-if="company.web" class="text-gray-600 text-xs mt-1">web: <a class="hover:underline" :href="`https://${company.web}`" target="_blank">{{ company.web }}</a></p>
-        <p v-if="company.email" class="text-gray-600 text-xs">email: <a class="hover:underline" :href="`mailto:${company.email}`">{{ company.email }}</a></p>
-      </div>
-    </div>
-
-    <!-- Invoice Details and Customer Info -->
-    <div class="grid grid-cols-2 gap-6 mb-6">
-      <div>
-        <div class="mb-2">
-          <h1 class="text-xl font-bold text-gray-900">Invoice #{{ invoice.number }}</h1>
-        </div>
-        <div class="text-xs text-gray-600 space-y-0">
-          <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Invoice date</span> {{ formatDate(invoice.date) }}</p>
-          <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
-          <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Due date</span> {{ formatDate(invoice.due_date) }}</p>
-          <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Payment method</span>Bank Transfer</p>
-          <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Operator</span>Teodor Hirs</p>
-        </div>
-      </div>
-
-      <!-- Customer Info -->
-      <div class="border border-gray-300 p-3 rounded-lg flex flex-col">
-        <div>
-          <div class="mb-2">
-            <h2 class="text-xs font-medium text-gray-500">CUSTOMER</h2>
-          </div>
-          <div class="text-xs text-gray-600 space-y-0">
-            <p class="flex items-center py-0.5 text-sm font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
-            <p class="flex items-center py-0.5">{{ customer?.address || 'N/A' }}</p>
-            <p class="flex items-center py-0.5">{{ customer?.city || 'N/A' }}</p>
-            <p class="flex items-center py-0.5">VAT ID: {{ customer?.vat_id || 'N/A' }}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Invoice Items -->
-    <div class="mb-6 overflow-x-auto">
-      <table class="w-full text-xs">
-        <thead>
-          <tr>
-            <th class="py-2 text-center font-medium text-gray-500 border-b w-12">No.</th>
-            <th class="py-2 text-left font-medium text-gray-500 border-b">Description</th>
-            <th class="py-2 text-center font-medium text-gray-500 border-b w-20">Qty</th>
-            <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Unit price</th>
-            <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Amount</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-100">
-          <tr v-for="(item, index) in items" :key="item.id">
-            <td class="py-2 text-center align-top">{{ index + 1 }}</td>
-            <td class="py-2 align-top">
-              {{ item.description }}
-            </td>
-            <td class="py-2 text-center align-top">{{ item.quantity }}</td>
-            <td class="py-2 text-right align-top">{{ formatCurrency(item.price) }}</td>
-            <td class="py-2 text-right align-top">{{ formatCurrency(calculateItemTotal(item)) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Totals -->
-    <div class="ml-auto w-64 space-y-2">
-      <div class="flex justify-between text-xs text-gray-600">
-        <span>Subtotal</span>
-        <span>{{ formatCurrency(invoice.subtotal) }}</span>
-      </div>
-      <div class="flex justify-between text-xs text-gray-600">
-        <span>VAT</span>
-        <span>{{ formatCurrency(invoice.vat) }}</span>
-      </div>
-      <div class="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t">
-        <span>Total</span>
-        <span>{{ formatCurrency(invoice.total) }}</span>
-      </div>
-
-      <!-- VAT Exemption Info -->
-      <div v-if="!customer?.include_vat" class="mt-2">
-        <p class="text-xs text-gray-500">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
-      </div>
-    </div>
-
-    <!-- Operator Info -->
-    <div class="mt-6 pt-4 border-t"></div>
-
-    <!-- Company Details Footer -->
-    <div class="mt-2 text-[0.65rem] leading-3 tracking-tight text-gray-500 max-w-3xl mx-auto">
-      <p>
-        EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
-        Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:
-        RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti
-      </p>
-    </div>
-
-    <!-- Print Button -->
-    <div class="mt-6 text-center print:hidden">
+  <div class="relative">
+    <!-- Print Button - Positioned outside invoice content area -->
+    <div class="max-w-4xl mx-auto text-right mb-4 print:hidden">
       <button
         @click="printInvoice"
         class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1.5 px-4 rounded text-xs inline-flex items-center transition-colors"
@@ -169,6 +63,131 @@ onMounted(async () => {
         </svg>
         Print Receipt
       </button>
+    </div>
+    
+    <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area border border-gray-300 rounded-lg">
+      <!-- Wrapping all content except company details in a container for print layout -->
+      <div class="print:flex print:flex-col print:min-h-[calc(100vh-18rem)]">
+        <!-- Company Info at Top -->
+        <div class="flex justify-between items-start mb-4">
+          <div class="text-xs space-y-0.5">
+            <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
+            <div>
+              <p class="text-gray-600">{{ company.address }}</p>
+              <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>          
+            </div>
+          </div>
+          <div class="text-right ml-4">
+            <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-10 ml-auto" />
+            <p v-if="company.web" class="text-gray-600 text-xs mt-1">web: <a class="hover:underline" :href="`https://${company.web}`" target="_blank">{{ company.web }}</a></p>
+            <p v-if="company.email" class="text-gray-600 text-xs">email: <a class="hover:underline" :href="`mailto:${company.email}`">{{ company.email }}</a></p>
+          </div>
+        </div>
+
+        <!-- Invoice Details and Customer Info -->
+        <div class="grid grid-cols-2 gap-6 mb-6">
+          <div>
+            <div class="mb-2">
+              <h1 class="text-xl font-bold text-gray-900">Invoice #{{ invoice.number }}</h1>
+            </div>
+            <div class="text-xs text-gray-600 space-y-0">
+              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Invoice date</span> {{ formatDate(invoice.date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Due date</span> {{ formatDate(invoice.due_date) }}</p>
+              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Payment method</span>Bank Transfer</p>
+              <p class="flex items-center py-0.5"><span class="w-28 flex-shrink-0">Operator</span>Teodor Hirs</p>
+            </div>
+          </div>
+
+          <!-- Customer Info -->
+          <div class="border border-gray-300 p-3 rounded-lg flex flex-col">
+            <div>
+              <div class="mb-2">
+                <h2 class="text-xs font-medium text-gray-500">CUSTOMER</h2>
+              </div>
+              <div class="text-xs text-gray-600 space-y-0">
+                <p class="flex items-center py-0.5 text-sm font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
+                <p class="flex items-center py-0.5">{{ customer?.address || 'N/A' }}</p>
+                <p class="flex items-center py-0.5">{{ customer?.city || 'N/A' }}</p>
+                <p class="flex items-center py-0.5">VAT ID: {{ customer?.vat_id || 'N/A' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoice Items -->
+        <div class="mb-6 overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead>
+              <tr>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-12">No.</th>
+                <th class="py-2 text-left font-medium text-gray-500 border-b">Description</th>
+                <th class="py-2 text-center font-medium text-gray-500 border-b w-20">Qty</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Unit price</th>
+                <th class="py-2 text-right font-medium text-gray-500 border-b w-28">Amount</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+              <tr v-for="(item, index) in items" :key="item.id">
+                <td class="py-2 text-center align-top">{{ index + 1 }}</td>
+                <td class="py-2 align-top">
+                  {{ item.description }}
+                </td>
+                <td class="py-2 text-center align-top">{{ item.quantity }}</td>
+                <td class="py-2 text-right align-top">{{ formatCurrency(item.price) }}</td>
+                <td class="py-2 text-right align-top">{{ formatCurrency(calculateItemTotal(item)) }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Totals -->
+        <div class="ml-auto w-64 space-y-2">
+          <div class="flex justify-between text-xs text-gray-600">
+            <span>Subtotal</span>
+            <span>{{ formatCurrency(invoice.subtotal) }}</span>
+          </div>
+          <div class="flex justify-between text-xs text-gray-600">
+            <span>VAT</span>
+            <span>{{ formatCurrency(invoice.vat) }}</span>
+          </div>
+          <div class="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t">
+            <span>Total</span>
+            <span>{{ formatCurrency(invoice.total) }}</span>
+          </div>
+
+          <!-- VAT Exemption Info -->
+          <div v-if="!customer?.include_vat" class="mt-2">
+            <p class="text-xs text-gray-500">VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
+          </div>
+        </div>
+
+        <!-- Visual separator between totals and payment details -->
+        <div class="my-6 border-b border-gray-200"></div>
+
+        <!-- Payment Details -->
+        <div class="mt-4 print:mt-6 mb-4 text-xs payment-details">
+          <div class="space-y-0.5 text-gray-600">
+            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun:</span> {{ company.name }}</p>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
+            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj:</span> <strong>HR99 {{ invoice.number }}</strong></p>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-medium text-gray-700">Rok plaćanja:</span> {{ invoice.due_date ? formatDate(invoice.due_date) : '11 dana' }}</p>
+          </div>
+        </div>
+
+        <!-- Push space to move company details to bottom when printing -->
+        <div class="print:flex-grow"></div>
+      </div><!-- End of main content wrapper -->
+
+      <!-- Company Details - At bottom of page when printing -->
+      <div class="mt-2 text-[0.65rem] leading-3 tracking-tight text-gray-500 max-w-3xl mx-auto print:fixed print:bottom-0 print:left-0 print:right-0 print:mx-auto print:w-[calc(100%-4cm)] print:mt-0 print:pb-4">
+        <p>
+          EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
+          Tome Masaryka 2, Varazdin, Croatia OIB: 87607117119 IBAN: HR1123400091110751687 otvoren u banci: Privredna banka Zagreb d.d. Djelatnost:
+          RAČUNALNO PROGRAMIRANJE (pretežita djelatnost). Temljni kapital uplaćen u cijelosti
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -185,6 +204,27 @@ onMounted(async () => {
   html {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  /* Force consistent font in print view */
+  * {
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
+                 "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", 
+                 "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
+  }
+  
+  /* Ensure no borders appear in print view */
+  .border-t {
+    border-top: none !important;
+  }
+  
+  .print-area {
+    border: none !important;
+  }
+  
+  /* Ensure proper spacing for payment details */
+  .payment-details {
+    margin-top: 2rem !important;
   }
   
   @page :first {
