@@ -79,7 +79,7 @@ onMounted(async () => {
     customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
   }
   
-  generateBarcode()
+  await generateBarcode()
 })
 </script>
 
