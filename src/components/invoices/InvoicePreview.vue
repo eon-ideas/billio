@@ -4,6 +4,7 @@ import type { Invoice } from '@/types/invoice'
 import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
 import { useCompanyStore } from '@/stores/company'
+import { useBarcode } from '@/composables/useBarcode'
 
 const props = defineProps<{
   invoice: Invoice
@@ -11,14 +12,15 @@ const props = defineProps<{
 
 const customersStore = useCustomersStore()
 const companyStore = useCompanyStore()
-const customer = ref<Customer | null>(null)
 const company = computed(() => companyStore.companyInfo)
+const customer = ref<Customer | null>(null)
+const barcodeUrl = ref<string | null>(null)
 
-// Ensure we have an array of items, even if empty
 const items = computed(() => {
-  console.log('Invoice items in preview:', props.invoice.invoice_items)
   return props.invoice.invoice_items || []
 })
+
+const { fetchBarcode } = useBarcode()
 
 const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('en-US', {
@@ -42,17 +44,47 @@ const printInvoice = () => {
   window.print()
 }
 
-// Load customer data when component mounts
+const generateBarcode = async () => {
+  if (!props.invoice.id) return
+  
+  try {
+    const paymentData = {
+      amount: props.invoice.total,
+      recipientName: company.value?.name || '',
+      recipientAddress: {
+        street: company.value?.address?.split(',')[0] || '',
+        houseNumber: '',
+        city: {
+          name: company.value?.address?.split(',')[1]?.trim() || '',
+          postalCode: ''
+        }
+      },
+      iban: company.value?.iban || '',
+      model: 'HR99',
+      callNumber: props.invoice.number || '',
+      description: `Invoice #${props.invoice.number}`
+    }
+
+    const url = await fetchBarcode(props.invoice.id, paymentData)
+    if (url) {
+      barcodeUrl.value = url
+    }
+  } catch (error) {
+    console.error('Error in generateBarcode:', error)
+  }
+}
+
 onMounted(async () => {
   if (props.invoice.customer_id) {
     customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
   }
+  
+  generateBarcode()
 })
 </script>
 
 <template>
   <div class="relative">
-    <!-- Print Button - Positioned outside invoice content area -->
     <div class="max-w-4xl mx-auto text-right mb-4 print:hidden">
       <button
         @click="printInvoice"
@@ -66,9 +98,7 @@ onMounted(async () => {
     </div>
     
     <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area border border-gray-300 rounded-lg">
-      <!-- Wrapping all content except company details in a container for print layout -->
       <div class="print:flex print:flex-col print:min-h-[calc(100vh-18rem)]">
-        <!-- Company Info at Top -->
         <div class="flex justify-between items-start mb-14">
           <div class="text-xs space-y-0.5">
             <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
@@ -84,7 +114,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Invoice Details and Customer Info -->
         <div class="grid grid-cols-5 gap-6 mb-6">
           <div class="col-span-3">
             <div class="mb-2">
@@ -99,7 +128,6 @@ onMounted(async () => {
             </div>
           </div>
 
-          <!-- Customer Info -->
           <div class="col-span-2 border border-gray-300 p-3 rounded-lg flex flex-col">
             <div>
               <div class="mb-2">
@@ -115,7 +143,6 @@ onMounted(async () => {
           </div>
         </div>
 
-        <!-- Invoice Items -->
         <div class="mt-10 mb-6 overflow-x-auto">
           <table class="w-full text-xs">
             <thead>
@@ -143,7 +170,6 @@ onMounted(async () => {
           </table>
         </div>
 
-        <!-- Totals -->
         <div class="ml-auto w-64 space-y-2">
           <div class="flex justify-between text-xs text-gray-600">
             <span>Subtotal</span>
@@ -158,30 +184,30 @@ onMounted(async () => {
             <span>{{ formatCurrency(invoice.total) }}</span>
           </div>
 
-          <!-- VAT Exemption Info -->
           <div v-if="!customer?.include_vat" class="mt-2">
             <p class="text-[0.65rem] text-gray-500">PDV nije obračunat temeljem čl.17, stavak 1 Zakona o PDV-u / VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act.</p>
           </div>
         </div>
 
-        <!-- Visual separator between totals and payment details -->
         <div class="my-6 border-b border-gray-200"></div>
 
-        <!-- Payment Details -->
         <div class="mt-10 mb-4 text-xs payment-details">
           <div class="space-y-0.5 text-gray-600">
             <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun / Pay to:</span> {{ company.name }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
             <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj / Model and reference number:</span> HR99 {{ invoice.number }}</p>
+            
+            <div v-if="barcodeUrl" class="mt-4 flex flex-col items-center">
+              <p class="font-medium text-gray-700 mb-2">Skeniraj za plaćanje / Scan barcode for payment</p>
+              <img :src="barcodeUrl" alt="Payment barcode" class="max-w-full h-auto" style="max-height: 120px;" />
+            </div>
           </div>
         </div>
 
-        <!-- Push space to move company details to bottom when printing -->
         <div class="print:flex-grow"></div>
       </div><!-- End of main content wrapper -->
 
-      <!-- Company Details - At bottom of page when printing -->
       <div class="mt-2 text-[0.65rem] leading-3 tracking-tight text-gray-500 max-w-3xl mx-auto print:fixed print:bottom-0 print:left-0 print:right-0 print:mx-auto print:w-[calc(100%-4cm)] print:mt-0 print:pb-4">
         <p>
           EONIdeas jednostavno društvo s ograničenom odgovornošću za računalne djelatnosti Teodor Hirš, OIB: 92537995324 i Gordan Jugo, OIB: 84353789089
