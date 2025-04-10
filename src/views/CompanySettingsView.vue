@@ -78,7 +78,7 @@ const handleSubmit = async () => {
       </svg>
       <span>{{ errorMessage }}</span>
     </div>
-    
+
     <!-- Content area -->
     <div class="lg:px-8">
       <div class="mx-auto flex flex-col lg:max-w-4xl">
@@ -121,13 +121,13 @@ const handleSubmit = async () => {
                           <dt class="text-sm font-medium text-gray-500">Logo</dt>
                           <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                             <span class="grow">
-                              <div 
+                              <div
                                 class="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden bg-gray-50"
                                 :class="{ 'border-dashed border-gray-300': !companyStore.companyInfo.logoUrl, 'border-transparent': companyStore.companyInfo.logoUrl }"
                               >
-                                <img 
-                                  v-if="companyStore.companyInfo.logoUrl" 
-                                  :src="companyStore.companyInfo.logoUrl" 
+                                <img
+                                  v-if="companyStore.companyInfo.logoUrl"
+                                  :src="companyStore.companyInfo.logoUrl"
                                   alt="Company logo"
                                   class="w-full h-full object-contain"
                                 />
@@ -168,7 +168,7 @@ const handleSubmit = async () => {
                             </span>
                           </dd>
                         </div>
-                        
+
                         <!-- Company Name -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">Company Name</dt>
@@ -183,7 +183,7 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
-                        
+
                         <!-- Company Address -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">Company Address</dt>
@@ -195,13 +195,74 @@ const handleSubmit = async () => {
                               class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                               :disabled="companyStore.isLoading"
                               required
+                              placeholder="Full address (legacy format)"
+                            />
+                          </dd>
+                        </div>
+
+                        <!-- Street -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Street</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="street"
+                              type="text"
+                              v-model="companyStore.companyInfo.street"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                              placeholder="Street name"
+                            />
+                          </dd>
+                        </div>
+
+                        <!-- House Number -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">House Number</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="houseNumber"
+                              type="text"
+                              v-model="companyStore.companyInfo.houseNumber"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                              placeholder="House/building number"
+                            />
+                          </dd>
+                        </div>
+
+                        <!-- Postal Code -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">Postal Code</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="postalCode"
+                              type="text"
+                              v-model="companyStore.companyInfo.postalCode"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                              placeholder="Postal/ZIP code"
+                            />
+                          </dd>
+                        </div>
+
+                        <!-- City -->
+                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
+                          <dt class="text-sm font-medium text-gray-500">City</dt>
+                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <BaseInput
+                              id="city"
+                              type="text"
+                              v-model="companyStore.companyInfo.city"
+                              :disabled="companyStore.isLoading"
+                              class="grow"
+                              placeholder="City name"
                             />
                           </dd>
                         </div>
                       </dl>
                     </div>
                   </div>
-                  
+
                   <!-- Billing Information Section -->
                   <div class="mt-10 divide-y divide-gray-200">
                     <div class="space-y-1">
@@ -224,7 +285,7 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
-                        
+
                         <!-- PIN ID (OIB) -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">Personal ID Number (OIB)</dt>
@@ -238,7 +299,7 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
-                        
+
                         <!-- IBAN -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">IBAN</dt>
@@ -261,7 +322,7 @@ const handleSubmit = async () => {
                       </dl>
                     </div>
                   </div>
-                  
+
                   <!-- Contact Information Section -->
                   <div class="mt-10 divide-y divide-gray-200">
                     <div class="space-y-1">
@@ -283,7 +344,7 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
-                        
+
                         <!-- Phone -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">Phone</dt>
@@ -297,7 +358,7 @@ const handleSubmit = async () => {
                             />
                           </dd>
                         </div>
-                        
+
                         <!-- Website -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
                           <dt class="text-sm font-medium text-gray-500">Website</dt>
@@ -319,7 +380,7 @@ const handleSubmit = async () => {
                   <!-- Submit Button -->
                   <div class="mt-6 pt-6 border-t border-gray-200">
                     <div class="flex justify-end">
-                      <BaseButton 
+                      <BaseButton
                         type="button"
                         @click="handleSubmit"
                         :disabled="companyStore.isLoading"

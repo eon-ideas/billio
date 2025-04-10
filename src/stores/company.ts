@@ -9,6 +9,10 @@ export const useCompanyStore = defineStore('company', () => {
   const companyInfo = ref<CompanyInfo>({
     name: '',
     address: '',
+    street: '',
+    houseNumber: '',
+    postalCode: '',
+    city: '',
     vatId: '',
     iban: '',
     logoUrl: null,
@@ -38,6 +42,10 @@ export const useCompanyStore = defineStore('company', () => {
         companyInfo.value = {
           name: data.name,
           address: data.address,
+          street: data.street || '',
+          houseNumber: data.house_number || '',
+          postalCode: data.postal_code || '',
+          city: data.city || '',
           vatId: data.vat_id,
           iban: data.iban,
           logoUrl: data.logo_url,
@@ -69,6 +77,10 @@ export const useCompanyStore = defineStore('company', () => {
           .insert({
             name: '',
             address: '',
+            street: '',
+            house_number: '',
+            postal_code: '',
+            city: '',
             vat_id: '',
             iban: '',
             logo_url: null,
@@ -95,7 +107,7 @@ export const useCompanyStore = defineStore('company', () => {
 
     try {
       isLoading.value = true
-      
+
       // Get the current record ID
       const { data: currentRecord, error: fetchError } = await supabase
         .from('company_info')
@@ -111,6 +123,10 @@ export const useCompanyStore = defineStore('company', () => {
           .insert({
             name: info.name || '',
             address: info.address || '',
+            street: info.street || '',
+            house_number: info.houseNumber || '',
+            postal_code: info.postalCode || '',
+            city: info.city || '',
             vat_id: info.vatId || '',
             iban: info.iban || '',
             logo_url: info.logoUrl || null,
@@ -121,7 +137,7 @@ export const useCompanyStore = defineStore('company', () => {
           })
 
         if (insertError) throw insertError
-        
+
         // Reload company info to get the latest data
         await loadCompanyInfo()
         return
@@ -135,6 +151,10 @@ export const useCompanyStore = defineStore('company', () => {
         const updatedInfo = {
           name: info.name || companyInfo.value.name,
           address: info.address || companyInfo.value.address,
+          street: info.street || companyInfo.value.street,
+          house_number: info.houseNumber || companyInfo.value.houseNumber,
+          postal_code: info.postalCode || companyInfo.value.postalCode,
+          city: info.city || companyInfo.value.city,
           vat_id: info.vatId || companyInfo.value.vatId,
           iban: info.iban || companyInfo.value.iban,
           logo_url: info.logoUrl || companyInfo.value.logoUrl,
@@ -170,7 +190,7 @@ export const useCompanyStore = defineStore('company', () => {
 
     try {
       isLoading.value = true
-      
+
       // Ensure we have a company record
       await ensureCompanyRecord()
 
@@ -204,7 +224,7 @@ export const useCompanyStore = defineStore('company', () => {
         ...companyInfo.value,
         logoUrl: publicUrl
       }
-      
+
       return publicUrl
     } catch (error) {
       console.error('Error updating logo:', error)
@@ -225,6 +245,10 @@ export const useCompanyStore = defineStore('company', () => {
         companyInfo.value = {
           name: '',
           address: '',
+          street: '',
+          houseNumber: '',
+          postalCode: '',
+          city: '',
           vatId: '',
           iban: '',
           logoUrl: null,

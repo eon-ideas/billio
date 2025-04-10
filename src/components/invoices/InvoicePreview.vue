@@ -47,19 +47,19 @@ const printInvoice = () => {
 
 const generateBarcode = async () => {
   if (!props.invoice.id) return
-  
+
   isLoadingBarcode.value = true
-  
+
   try {
     const paymentData = {
       amount: props.invoice.total,
       recipientName: company.value?.name || '',
       recipientAddress: {
-        street: company.value?.address?.split(',')[0] || '',
-        houseNumber: '',
+        street: company.value?.street || company.value?.address?.split(',')[0] || '',
+        houseNumber: company.value?.houseNumber || '',
         city: {
-          name: company.value?.address?.split(',')[1]?.trim() || '',
-          postalCode: ''
+          name: company.value?.city || company.value?.address?.split(',')[1]?.trim() || '',
+          postalCode: company.value?.postalCode || ''
         }
       },
       iban: company.value?.iban || '',
@@ -83,7 +83,7 @@ onMounted(async () => {
   if (props.invoice.customer_id) {
     customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
   }
-  
+
   await generateBarcode()
 })
 </script>
@@ -101,15 +101,21 @@ onMounted(async () => {
         Print Receipt
       </button>
     </div>
-    
+
     <div class="max-w-4xl mx-auto bg-white p-5 print:p-4 print-area border border-gray-300 rounded-lg">
       <div class="print:flex print:flex-col print:min-h-[calc(100vh-18rem)]">
         <div class="flex justify-between items-start mb-14">
           <div class="text-xs space-y-0.5">
             <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
             <div>
-              <p class="text-gray-600">{{ company.address }}</p>
-              <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>          
+              <template v-if="company.street || company.houseNumber || company.postalCode || company.city">
+                <p class="text-gray-600">{{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
+                <p class="text-gray-600">{{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
+              </template>
+              <template v-else>
+                <p class="text-gray-600">{{ company.address }}</p>
+              </template>
+              <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>
             </div>
           </div>
           <div class="text-right ml-4">
@@ -199,10 +205,16 @@ onMounted(async () => {
         <div class="mt-10 mb-4 text-xs payment-details">
           <div class="space-y-0.5 text-gray-600">
             <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun / Pay to:</span> {{ company.name }}</p>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
+            <template v-if="company.street || company.houseNumber || company.postalCode || company.city">
+              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
+              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
+            </template>
+            <template v-else>
+              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
+            </template>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
             <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj / Model and reference number:</span> HR99 {{ invoice.number }}</p>
-            
+
             <div v-if="isLoadingBarcode" class="mt-4 flex flex-col items-center">
               <p class="font-medium text-gray-700 mb-2">Generating barcode</p>
               <div class="flex justify-center items-center h-20">
@@ -212,7 +224,7 @@ onMounted(async () => {
                 </svg>
               </div>
             </div>
-            
+
             <div v-else-if="barcodeUrl" class="mt-4 flex flex-col items-center">
               <p class="font-medium text-gray-700 mb-2">Skeniraj za plaćanje / Scan barcode for payment</p>
               <img :src="barcodeUrl" alt="Payment barcode" class="max-w-full h-auto" style="max-height: 120px;" />
@@ -242,7 +254,7 @@ onMounted(async () => {
     margin-header: 0;
     margin-footer: 0;
   }
-  
+
   html {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
@@ -250,90 +262,90 @@ onMounted(async () => {
 
   /* Force consistent font in print view */
   * {
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 
-                 "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", 
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji",
                  "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji" !important;
   }
-  
+
   /* Ensure no borders appear in print view */
   .border-t {
     border-top: none !important;
   }
-  
+
   .print-area {
     border: none !important;
   }
-  
+
   /* Ensure proper spacing for payment details */
   .payment-details {
     margin-top: 3rem !important;
   }
-  
+
   @page :first {
     margin-top: 0;
     margin-bottom: 0;
   }
-  
+
   @page :left {
     margin-left: 0;
     margin-right: 0;
     margin-header: 0;
     margin-footer: 0;
   }
-  
+
   @page :right {
     margin-left: 0;
     margin-right: 0;
     margin-header: 0;
     margin-footer: 0;
   }
-  
+
   body {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-  
+
   body * {
     visibility: hidden;
   }
-  
+
   .print-area, .print-area * {
     visibility: visible;
   }
-  
+
   .print-area {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
   }
-  
+
   /* Ensure background colors print */
   * {
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
-  
+
   /* Remove shadows and borders for cleaner print */
   .shadow-lg, .rounded-lg {
     box-shadow: none !important;
     border-radius: 0 !important;
   }
-  
+
   /* Ensure proper page breaks */
   table {
     page-break-inside: auto;
   }
-  
+
   tr {
     page-break-inside: avoid;
     page-break-after: auto;
   }
-  
+
   thead {
     display: table-header-group;
   }
-  
+
   tfoot {
     display: table-footer-group;
   }
