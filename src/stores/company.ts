@@ -8,7 +8,6 @@ export const useCompanyStore = defineStore('company', () => {
   const authStore = useAuthStore()
   const companyInfo = ref<CompanyInfo>({
     name: '',
-    address: '',
     street: '',
     houseNumber: '',
     postalCode: '',
@@ -31,29 +30,38 @@ export const useCompanyStore = defineStore('company', () => {
 
     try {
       isLoading.value = true
+      console.log('Loading company info...')
+
       const { data, error } = await supabase
         .from('company_info')
         .select('*')
         .single()
 
+      console.log('Company data from DB:', data)
+      console.log('Error from DB:', error)
+
       if (error && error.code !== 'PGRST116') throw error // PGRST116 is "Results contain 0 rows"
 
       if (data) {
         companyInfo.value = {
-          name: data.name,
-          address: data.address,
+          name: data.name || 'Company Name',
           street: data.street || '',
           houseNumber: data.house_number || '',
           postalCode: data.postal_code || '',
           city: data.city || '',
-          vatId: data.vat_id,
-          iban: data.iban,
+          vatId: data.vat_id || '',
+          iban: data.iban || '',
           logoUrl: data.logo_url,
-          pinId: data.pin_id,
-          web: data.web,
-          email: data.email,
-          phone: data.phone
+          pinId: data.pin_id || '',
+          web: data.web || '',
+          email: data.email || '',
+          phone: data.phone || ''
         }
+
+        console.log('Company info loaded:', companyInfo.value)
+      } else {
+        console.warn('No company data found, creating initial record')
+        await ensureCompanyRecord()
       }
     } catch (error) {
       console.error('Error loading company info:', error)
@@ -65,33 +73,64 @@ export const useCompanyStore = defineStore('company', () => {
 
   const ensureCompanyRecord = async () => {
     try {
+      console.log('Ensuring company record exists...')
       const { data, error } = await supabase
         .from('company_info')
         .select('*')
         .maybeSingle()
 
+      console.log('Company record check:', data, error)
+
       if (!data) {
-        // No record exists, create initial record
-        const { error: insertError } = await supabase
+        console.log('No company record found, creating one with default values')
+        // No record exists, create initial record with default values
+        const { data: insertData, error: insertError } = await supabase
           .from('company_info')
           .insert({
-            name: '',
-            address: '',
-            street: '',
-            house_number: '',
-            postal_code: '',
-            city: '',
-            vat_id: '',
-            iban: '',
+            name: 'Company Name',
+            street: 'Default Street',
+            house_number: '1',
+            postal_code: '10000',
+            city: 'Default City',
+            vat_id: 'VAT12345678',
+            iban: 'HR1234567890123456789',
             logo_url: null,
-            pin_id: '',
-            web: '',
-            email: '',
-            phone: ''
+            pin_id: 'PIN12345678',
+            web: 'example.com',
+            email: 'info@example.com',
+            phone: '+385 1 234 5678'
           })
-        if (insertError) throw insertError
+          .select()
+          .single()
+        if (insertError) {
+          console.error('Error creating company record:', insertError)
+          throw insertError
+        }
+
+        console.log('Created company record:', insertData)
+
+        // Update the local companyInfo with the newly created record
+        if (insertData) {
+          companyInfo.value = {
+            name: insertData.name,
+            street: insertData.street,
+            houseNumber: insertData.house_number,
+            postalCode: insertData.postal_code,
+            city: insertData.city,
+            vatId: insertData.vat_id,
+            iban: insertData.iban,
+            logoUrl: insertData.logo_url,
+            pinId: insertData.pin_id,
+            web: insertData.web,
+            email: insertData.email,
+            phone: insertData.phone
+          }
+        }
       } else if (error) {
+        console.error('Error checking company record:', error)
         throw error
+      } else {
+        console.log('Company record already exists')
       }
     } catch (error) {
       console.error('Error ensuring company record:', error)
@@ -107,6 +146,7 @@ export const useCompanyStore = defineStore('company', () => {
 
     try {
       isLoading.value = true
+      console.log('Updating company info with:', info)
 
       // Get the current record ID
       const { data: currentRecord, error: fetchError } = await supabase
@@ -114,66 +154,117 @@ export const useCompanyStore = defineStore('company', () => {
         .select('id')
         .single()
 
+      console.log('Current record check:', currentRecord, fetchError)
+
       // Handle case where no record exists (PGRST116)
       if (fetchError && fetchError.code === 'PGRST116') {
         console.log('No company record found, creating initial record')
-        // Create initial record
-        const { error: insertError } = await supabase
+        // Create initial record with default values for missing fields
+        const { data: insertData, error: insertError } = await supabase
           .from('company_info')
           .insert({
-            name: info.name || '',
-            address: info.address || '',
-            street: info.street || '',
-            house_number: info.houseNumber || '',
-            postal_code: info.postalCode || '',
-            city: info.city || '',
-            vat_id: info.vatId || '',
-            iban: info.iban || '',
+            name: info.name || 'Company Name',
+            street: info.street || 'Default Street',
+            house_number: info.houseNumber || '1',
+            postal_code: info.postalCode || '10000',
+            city: info.city || 'Default City',
+            vat_id: info.vatId || 'VAT12345678',
+            iban: info.iban || 'HR1234567890123456789',
             logo_url: info.logoUrl || null,
-            pin_id: info.pinId || '',
-            web: info.web || '',
-            email: info.email || '',
-            phone: info.phone || ''
+            pin_id: info.pinId || 'PIN12345678',
+            web: info.web || 'example.com',
+            email: info.email || 'info@example.com',
+            phone: info.phone || '+385 1 234 5678'
           })
+          .select()
+          .single()
 
-        if (insertError) throw insertError
+        if (insertError) {
+          console.error('Error creating company record:', insertError)
+          throw insertError
+        }
 
-        // Reload company info to get the latest data
-        await loadCompanyInfo()
+        console.log('Created company record:', insertData)
+
+        // Update local companyInfo with the newly created record
+        if (insertData) {
+          companyInfo.value = {
+            name: insertData.name,
+            street: insertData.street,
+            houseNumber: insertData.house_number,
+            postalCode: insertData.postal_code,
+            city: insertData.city,
+            vatId: insertData.vat_id,
+            iban: insertData.iban,
+            logoUrl: insertData.logo_url,
+            pinId: insertData.pin_id,
+            web: insertData.web,
+            email: insertData.email,
+            phone: insertData.phone
+          }
+        }
+
         return
       } else if (fetchError) {
         // This is some other error, not just "no records found"
+        console.error('Error fetching company record:', fetchError)
         throw fetchError
       }
 
       if (currentRecord) {
-        // Update existing record
+        console.log('Updating existing company record')
+        // Update existing record, ensuring we have default values for empty fields
         const updatedInfo = {
-          name: info.name || companyInfo.value.name,
-          address: info.address || companyInfo.value.address,
-          street: info.street || companyInfo.value.street,
-          house_number: info.houseNumber || companyInfo.value.houseNumber,
-          postal_code: info.postalCode || companyInfo.value.postalCode,
-          city: info.city || companyInfo.value.city,
-          vat_id: info.vatId || companyInfo.value.vatId,
-          iban: info.iban || companyInfo.value.iban,
+          name: info.name || companyInfo.value.name || 'Company Name',
+          street: info.street || companyInfo.value.street || 'Default Street',
+          house_number: info.houseNumber || companyInfo.value.houseNumber || '1',
+          postal_code: info.postalCode || companyInfo.value.postalCode || '10000',
+          city: info.city || companyInfo.value.city || 'Default City',
+          vat_id: info.vatId || companyInfo.value.vatId || 'VAT12345678',
+          iban: info.iban || companyInfo.value.iban || 'HR1234567890123456789',
           logo_url: info.logoUrl || companyInfo.value.logoUrl,
-          pin_id: info.pinId || companyInfo.value.pinId,
-          web: info.web || companyInfo.value.web,
-          email: info.email || companyInfo.value.email,
-          phone: info.phone || companyInfo.value.phone
+          pin_id: info.pinId || companyInfo.value.pinId || 'PIN12345678',
+          web: info.web || companyInfo.value.web || 'example.com',
+          email: info.email || companyInfo.value.email || 'info@example.com',
+          phone: info.phone || companyInfo.value.phone || '+385 1 234 5678'
         }
 
-        const { error: updateError } = await supabase
+        const { data: updateData, error: updateError } = await supabase
           .from('company_info')
           .update(updatedInfo)
           .eq('id', currentRecord.id)
+          .select()
+          .single()
 
-        if (updateError) throw updateError
+        if (updateError) {
+          console.error('Error updating company record:', updateError)
+          throw updateError
+        }
+
+        console.log('Updated company record:', updateData)
+
+        // Update local companyInfo with the updated record
+        if (updateData) {
+          companyInfo.value = {
+            name: updateData.name,
+            street: updateData.street,
+            houseNumber: updateData.house_number,
+            postalCode: updateData.postal_code,
+            city: updateData.city,
+            vatId: updateData.vat_id,
+            iban: updateData.iban,
+            logoUrl: updateData.logo_url,
+            pinId: updateData.pin_id,
+            web: updateData.web,
+            email: updateData.email,
+            phone: updateData.phone
+          }
+        }
+      } else {
+        console.warn('No current record found but no PGRST116 error either')
+        // Ensure we have a company record
+        await ensureCompanyRecord()
       }
-
-      // Reload company info to ensure we have the latest data
-      await loadCompanyInfo()
     } catch (error) {
       console.error('Error updating company info:', error)
       throw error
@@ -244,7 +335,6 @@ export const useCompanyStore = defineStore('company', () => {
         // Reset company info when user logs out
         companyInfo.value = {
           name: '',
-          address: '',
           street: '',
           houseNumber: '',
           postalCode: '',

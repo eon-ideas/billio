@@ -184,21 +184,7 @@ const handleSubmit = async () => {
                           </dd>
                         </div>
 
-                        <!-- Company Address -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Company Address</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <textarea
-                              id="address"
-                              v-model="companyStore.companyInfo.address"
-                              rows="3"
-                              class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                              :disabled="companyStore.isLoading"
-                              required
-                              placeholder="Full address (legacy format)"
-                            />
-                          </dd>
-                        </div>
+
 
                         <!-- Street -->
                         <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">

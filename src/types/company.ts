@@ -1,6 +1,5 @@
 export interface CompanyInfo {
   name: string
-  address: string
   street: string
   houseNumber: string
   postalCode: string

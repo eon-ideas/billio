@@ -51,22 +51,37 @@ const generateBarcode = async () => {
   isLoadingBarcode.value = true
 
   try {
+    // Make sure we have the latest company info
+    await companyStore.loadCompanyInfo()
+
+    // Log company info for debugging
+    console.log('Company info for barcode:', companyStore.companyInfo)
+
+    // Default values for required fields
+    const defaultCompanyName = 'Company Name'
+    const defaultStreet = 'Default Street'
+    const defaultCity = 'Default City'
+    const defaultIban = 'HR1234567890123456789'
+
     const paymentData = {
       amount: props.invoice.total,
-      recipientName: company.value?.name || '',
+      recipientName: company.value?.name || defaultCompanyName,
       recipientAddress: {
-        street: company.value?.street || company.value?.address?.split(',')[0] || '',
-        houseNumber: company.value?.houseNumber || '',
+        street: company.value?.street || defaultStreet,
+        houseNumber: company.value?.houseNumber || '1',
         city: {
-          name: company.value?.city || company.value?.address?.split(',')[1]?.trim() || '',
-          postalCode: company.value?.postalCode || ''
+          name: company.value?.city || defaultCity,
+          postalCode: company.value?.postalCode || '10000'
         }
       },
-      iban: company.value?.iban || '',
+      iban: company.value?.iban || defaultIban,
       model: 'HR99',
       callNumber: props.invoice.number || '',
       description: `Invoice #${props.invoice.number}`
     }
+
+    // Log payment data for debugging
+    console.log('Payment data for barcode:', paymentData)
 
     const url = await fetchBarcode(props.invoice.id, paymentData)
     if (url) {
@@ -80,11 +95,21 @@ const generateBarcode = async () => {
 }
 
 onMounted(async () => {
-  if (props.invoice.customer_id) {
-    customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
-  }
+  try {
+    // Load company info first
+    await companyStore.loadCompanyInfo()
+    console.log('Company info loaded:', companyStore.companyInfo)
 
-  await generateBarcode()
+    // Then load customer info
+    if (props.invoice.customer_id) {
+      customer.value = await customersStore.getCustomerById(props.invoice.customer_id)
+    }
+
+    // Finally generate barcode
+    await generateBarcode()
+  } catch (error) {
+    console.error('Error in onMounted:', error)
+  }
 })
 </script>
 
@@ -108,13 +133,8 @@ onMounted(async () => {
           <div class="text-xs space-y-0.5">
             <h2 class="text-lg font-bold mb-1">{{ company.name }}</h2>
             <div>
-              <template v-if="company.street || company.houseNumber || company.postalCode || company.city">
-                <p class="text-gray-600">{{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
-                <p class="text-gray-600">{{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
-              </template>
-              <template v-else>
-                <p class="text-gray-600">{{ company.address }}</p>
-              </template>
+              <p class="text-gray-600">{{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
+              <p class="text-gray-600">{{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
               <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>
             </div>
           </div>
@@ -205,13 +225,8 @@ onMounted(async () => {
         <div class="mt-10 mb-4 text-xs payment-details">
           <div class="space-y-0.5 text-gray-600">
             <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun / Pay to:</span> {{ company.name }}</p>
-            <template v-if="company.street || company.houseNumber || company.postalCode || company.city">
-              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
-              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
-            </template>
-            <template v-else>
-              <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ company.address }}</p>
-            </template>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
             <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
             <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj / Model and reference number:</span> HR99 {{ invoice.number }}</p>
 
