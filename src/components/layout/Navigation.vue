@@ -137,6 +137,7 @@
                 <img class="size-8 rounded-full bg-gray-50" :src="userPhotoUrl" :alt="auth.user?.email" />
                 <span class="hidden lg:flex lg:items-center">
                   <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">{{ auth.user?.email }}</span>
+                  <span v-if="auth.isAdmin()" class="ml-2 inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-700/10 ring-inset">ADMIN</span>
                   <ChevronDownIcon class="ml-2 size-5 text-gray-400" aria-hidden="true" />
                 </span>
               </MenuButton>
