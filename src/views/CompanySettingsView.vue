@@ -1,46 +1,51 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import BaseButton from '@/components/ui/BaseButton.vue'
-import BaseInput from '@/components/ui/BaseInput.vue'
+import { ref, computed } from 'vue'
 import { useCompanyStore } from '@/stores/company'
+import { useAuthStore } from '@/stores/auth'
+import CompanySettingsForm from '@/components/company/CompanySettingsForm.vue'
+import CompanySettingsReadOnly from '@/components/company/CompanySettingsReadOnly.vue'
 
 const companyStore = useCompanyStore()
-const logoInput = ref<HTMLInputElement | null>(null)
+const authStore = useAuthStore()
 const showSuccessMessage = ref(false)
 const errorMessage = ref('')
 
+// Check if user is admin
+const isAdmin = computed(() => authStore.isAdmin())
+
 // Tabs for settings
-const tabs = [
+const allTabs = [
   { name: 'Company Settings', href: '#', current: true },
-  { name: 'Invoice Settings', href: '#', current: false },
-  { name: 'User Profile', href: '#', current: false },
-  { name: 'Team Members', href: '#', current: false },
-  { name: 'Billing', href: '#', current: false },
+  { name: 'Invoice Settings', href: '#', current: false, adminOnly: true },
+  { name: 'User Profile', href: '#', current: false, adminOnly: true },
+  { name: 'Team Members', href: '#', current: false, adminOnly: true },
+  { name: 'Billing', href: '#', current: false, adminOnly: true },
 ]
 
-const handleLogoUpload = async (event: Event) => {
-  const input = event.target as HTMLInputElement
-  if (input.files && input.files[0]) {
-    const file = input.files[0]
-    try {
-      await companyStore.updateLogo(file)
-      showSuccessMessage.value = true
-      setTimeout(() => {
-        showSuccessMessage.value = false
-      }, 3000)
-    } catch (error) {
-      console.error('Error uploading logo:', error)
-      errorMessage.value = 'Failed to upload logo. Please try again.'
-      setTimeout(() => {
-        errorMessage.value = ''
-      }, 3000)
-    }
+// Filter tabs based on user role
+const tabs = computed(() => {
+  return allTabs.filter(tab => !tab.adminOnly || isAdmin.value)
+})
+
+const handleLogoUpload = async (file: File) => {
+  try {
+    await companyStore.updateLogo(file)
+    showSuccessMessage.value = true
+    setTimeout(() => {
+      showSuccessMessage.value = false
+    }, 3000)
+  } catch (error) {
+    console.error('Error uploading logo:', error)
+    errorMessage.value = 'Failed to upload logo. Please try again.'
+    setTimeout(() => {
+      errorMessage.value = ''
+    }, 3000)
   }
 }
 
-const handleSubmit = async () => {
+const handleSubmit = async (data: any) => {
   try {
-    await companyStore.updateCompanyInfo(companyStore.companyInfo)
+    await companyStore.updateCompanyInfo(data)
     showSuccessMessage.value = true
     setTimeout(() => {
       showSuccessMessage.value = false
@@ -52,6 +57,11 @@ const handleSubmit = async () => {
       errorMessage.value = ''
     }, 3000)
   }
+}
+
+const handleCancel = () => {
+  // Reset form data to original values
+  companyStore.loadCompanyInfo()
 }
 </script>
 
@@ -77,6 +87,25 @@ const handleSubmit = async () => {
         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
       </svg>
       <span>{{ errorMessage }}</span>
+    </div>
+
+    <!-- View-only notification for non-admin users -->
+    <div
+      v-if="!isAdmin"
+      class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6"
+    >
+      <div class="flex">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+          </svg>
+        </div>
+        <div class="ml-3">
+          <p class="text-sm text-yellow-700">
+            You are in view-only mode. Contact an administrator to make changes to company settings.
+          </p>
+        </div>
+      </div>
     </div>
 
     <!-- Content area -->
@@ -108,282 +137,18 @@ const handleSubmit = async () => {
                     </div>
                   </div>
 
-                  <!-- Company Information Section -->
-                  <div class="mt-10 divide-y divide-gray-200">
-                    <div class="space-y-1">
-                      <h3 class="text-lg/6 font-medium text-gray-900">Company Information</h3>
-                      <p class="max-w-2xl text-sm text-gray-500">Basic information about your company.</p>
-                    </div>
-                    <div class="mt-6">
-                      <dl class="divide-y divide-gray-200">
-                        <!-- Company Logo -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:pt-5">
-                          <dt class="text-sm font-medium text-gray-500">Logo</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <span class="grow">
-                              <div
-                                class="w-16 h-16 rounded-full flex items-center justify-center overflow-hidden bg-gray-50"
-                                :class="{ 'border-dashed border-gray-300': !companyStore.companyInfo.logoUrl, 'border-transparent': companyStore.companyInfo.logoUrl }"
-                              >
-                                <img
-                                  v-if="companyStore.companyInfo.logoUrl"
-                                  :src="companyStore.companyInfo.logoUrl"
-                                  alt="Company logo"
-                                  class="w-full h-full object-contain"
-                                />
-                                <div v-else class="text-center px-2">
-                                  <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                  </svg>
-                                </div>
-                              </div>
-                            </span>
-                            <span class="ml-4 flex shrink-0 items-start space-x-4">
-                              <input
-                                type="file"
-                                ref="logoInput"
-                                @change="handleLogoUpload"
-                                accept="image/*"
-                                class="hidden"
-                              />
-                              <BaseButton
-                                type="button"
-                                @click="logoInput?.click()"
-                                class="text-sm py-2 px-3"
-                                size="sm"
-                                variant="secondary"
-                                :disabled="companyStore.isLoading"
-                              >
-                                <template v-if="companyStore.isLoading">
-                                  <svg class="animate-spin -ml-1 mr-2 h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                  </svg>
-                                  Uploading...
-                                </template>
-                                <template v-else>
-                                  {{ companyStore.companyInfo.logoUrl ? 'Change' : 'Upload' }}
-                                </template>
-                              </BaseButton>
-                            </span>
-                          </dd>
-                        </div>
-
-                        <!-- Company Name -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Company Name</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="name"
-                              type="text"
-                              v-model="companyStore.companyInfo.name"
-                              :disabled="companyStore.isLoading"
-                              required
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-
-
-
-                        <!-- Street -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Street</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="street"
-                              type="text"
-                              v-model="companyStore.companyInfo.street"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                              placeholder="Street name"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- House Number -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">House Number</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="houseNumber"
-                              type="text"
-                              v-model="companyStore.companyInfo.houseNumber"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                              placeholder="House/building number"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- Postal Code -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Postal Code</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="postalCode"
-                              type="text"
-                              v-model="companyStore.companyInfo.postalCode"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                              placeholder="Postal/ZIP code"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- City -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">City</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="city"
-                              type="text"
-                              v-model="companyStore.companyInfo.city"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                              placeholder="City name"
-                            />
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
+                  <!-- Conditional rendering based on user role -->
+                  <div v-if="isAdmin">
+                    <CompanySettingsForm 
+                      :initial-data="companyStore.companyInfo" 
+                      :is-loading="companyStore.isLoading"
+                      @submit="handleSubmit"
+                      @cancel="handleCancel"
+                      @logo-upload="handleLogoUpload"
+                    />
                   </div>
-
-                  <!-- Billing Information Section -->
-                  <div class="mt-10 divide-y divide-gray-200">
-                    <div class="space-y-1">
-                      <h3 class="text-lg/6 font-medium text-gray-900">Billing Information</h3>
-                      <p class="max-w-2xl text-sm text-gray-500">Tax and financial details used on your invoices.</p>
-                    </div>
-                    <div class="mt-6">
-                      <dl class="divide-y divide-gray-200">
-                        <!-- VAT ID -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">VAT ID</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="vatId"
-                              type="text"
-                              v-model="companyStore.companyInfo.vatId"
-                              :disabled="companyStore.isLoading"
-                              required
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- PIN ID (OIB) -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Personal ID Number (OIB)</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="pinId"
-                              type="text"
-                              v-model="companyStore.companyInfo.pinId"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- IBAN -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">IBAN</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <div class="w-full">
-                              <BaseInput
-                                id="iban"
-                                type="text"
-                                v-model="companyStore.companyInfo.iban"
-                                :disabled="companyStore.isLoading"
-                                required
-                                class="grow"
-                              />
-                              <p class="mt-1 text-xs text-gray-500">
-                                This will be displayed on your invoices for receiving payments.
-                              </p>
-                            </div>
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-
-                  <!-- Contact Information Section -->
-                  <div class="mt-10 divide-y divide-gray-200">
-                    <div class="space-y-1">
-                      <h3 class="text-lg/6 font-medium text-gray-900">Contact Information</h3>
-                      <p class="max-w-2xl text-sm text-gray-500">How customers can reach your company.</p>
-                    </div>
-                    <div class="mt-6">
-                      <dl class="divide-y divide-gray-200">
-                        <!-- Email -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Email</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="email"
-                              type="email"
-                              v-model="companyStore.companyInfo.email"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- Phone -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="phone"
-                              type="tel"
-                              v-model="companyStore.companyInfo.phone"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                            />
-                          </dd>
-                        </div>
-
-                        <!-- Website -->
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5">
-                          <dt class="text-sm font-medium text-gray-500">Website</dt>
-                          <dd class="mt-1 flex text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                            <BaseInput
-                              id="web"
-                              type="url"
-                              v-model="companyStore.companyInfo.web"
-                              :disabled="companyStore.isLoading"
-                              class="grow"
-                              placeholder="https://example.com"
-                            />
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
-                  </div>
-
-                  <!-- Submit Button -->
-                  <div class="mt-6 pt-6 border-t border-gray-200">
-                    <div class="flex justify-end">
-                      <BaseButton
-                        type="button"
-                        @click="handleSubmit"
-                        :disabled="companyStore.isLoading"
-                        class="w-auto"
-                      >
-                        <template v-if="companyStore.isLoading">
-                          <svg class="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                          </svg>
-                          Saving...
-                        </template>
-                        <template v-else>
-                          Save Changes
-                        </template>
-                      </BaseButton>
-                    </div>
+                  <div v-else>
+                    <CompanySettingsReadOnly :company-info="companyStore.companyInfo" />
                   </div>
                 </div>
               </div>
