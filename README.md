@@ -12,6 +12,7 @@ A modern invoice management system built with Vue.js. Create, manage, and track 
 - Dashboard with yearly invoice summary
 - User authentication with Supabase
 - Secure data storage
+- Role-based access control (ADMIN and USER roles)
 
 ## Technology Stack
 
@@ -88,6 +89,66 @@ There are two ways to apply database migrations to your Supabase project:
    ```
 
 This will apply all migrations in the `supabase/migrations` directory to your database.
+
+### User Roles and Permissions
+
+The application implements a role-based access control system with two roles:
+
+#### Role Types
+
+1. **ADMIN**
+   - Has full CRUD (Create, Read, Update, Delete) access to all database tables
+   - Can manage user roles
+   - Can access all application features
+
+2. **USER**
+   - Has read-only access to:
+     - Company information
+     - Email templates
+   - Has full CRUD access to:
+     - Customers
+     - Invoices
+     - Invoice items
+     - Documents
+     - Chat histories
+
+#### How Roles Are Assigned
+
+- The first user who registers in the system is automatically assigned the ADMIN role
+- All subsequent users are assigned the USER role by default
+- Only ADMIN users can change the role of other users
+
+#### Implementation Details
+
+The role system is implemented using:
+- A `user_roles` table that links to Supabase auth users
+- Row Level Security (RLS) policies for each table based on user roles
+- Helper functions (`is_admin()`, `get_user_role()`) to check permissions
+- Integration with the auth store to make role information available in the frontend
+
+#### Using Roles in the Frontend
+
+The auth store provides role information through:
+```javascript
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+
+// Check if user is admin
+if (auth.isAdmin()) {
+  // Show admin-only features
+}
+
+// Get the user's role
+const role = auth.userRole
+```
+
+#### Adding New Database Migrations
+
+When adding new tables to the database, make sure to:
+1. Enable Row Level Security (RLS) on the table
+2. Create appropriate policies for ADMIN and USER roles
+3. Follow the existing pattern in the migration files
 
 ### Local Development with Supabase
 
