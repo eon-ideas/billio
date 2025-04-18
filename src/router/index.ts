@@ -94,23 +94,38 @@ const router = createRouter({
 router.beforeEach(async (to) => {
   const auth = useAuthStore()
   
-  // Wait for auth to be initialized
-  if (!auth.isInitialized) {
-    await auth.initAuth()
+  try {
+    // Always allow navigation to login page
+    if (to.path === '/login') {
+      return true
+    }
+    
+    // For protected routes, check if auth is initialized
+    if (!auth.isInitialized) {
+      // Initialize auth but don't block navigation
+      auth.initAuth().catch(err => console.error('Auth init error:', err))
+      
+      // Allow navigation to continue
+      return true
+    }
+    
+    // If going to login while authenticated, redirect to dashboard
+    if (to.path === '/login' && auth.isAuthenticated) {
+      return '/dashboard'
+    }
+    
+    // If going to protected route while not authenticated, redirect to login
+    if (to.meta.requiresAuth !== false && !auth.isAuthenticated) {
+      return '/login'
+    }
+    
+    // Otherwise, allow navigation
+    return true
+  } catch (error) {
+    console.error('Router guard error:', error)
+    // Always allow navigation even if there's an error
+    return true
   }
-  
-  // If going to login while authenticated, redirect to dashboard
-  if (to.path === '/login' && auth.isAuthenticated) {
-    return '/dashboard'
-  }
-  
-  // If going to protected route while not authenticated, redirect to login
-  if (to.meta.requiresAuth !== false && !auth.isAuthenticated) {
-    return '/login'
-  }
-  
-  // Otherwise, allow navigation
-  return true
 })
 
 // Update document title on route change

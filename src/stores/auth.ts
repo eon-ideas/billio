@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
-import type { User } from '@supabase/supabase-js'
+import type { User, Session } from '@supabase/supabase-js'
 
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter()
@@ -10,25 +10,67 @@ export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
   const isInitialized = ref(false)
   const userRole = ref<string | null>(null)
+  const currentSession = ref<Session | null>(null)
+  const authInProgress = ref(false)
 
   // Initialize the auth state
   const initAuth = async () => {
+    // Don't try to initialize more than once simultaneously
+    if (authInProgress.value) {
+      return
+    }
+
+    // If already initialized and authenticated, don't reinitialize
+    if (isInitialized.value && isAuthenticated.value && user.value) {
+      return
+    }
+
     try {
+      authInProgress.value = true
+      
       // Get the current session
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session }, error } = await supabase.auth.getSession()
+      
+      if (error) {
+        throw error
+      }
+      
+      // Store the session
+      currentSession.value = session
+      
       if (session) {
         isAuthenticated.value = true
         user.value = session.user
-        await fetchUserRole()
+        
+        // Set initialized early to allow UI rendering
+        isInitialized.value = true
+        
+        // Fetch role in the background
+        fetchUserRole().catch(err => console.error('Error fetching role:', err))
+      } else {
+        isAuthenticated.value = false
+        user.value = null
+        userRole.value = null
+        isInitialized.value = true
       }
     } catch (error) {
       console.error('Error initializing auth:', error)
-    } finally {
+      isAuthenticated.value = false
+      user.value = null
+      userRole.value = null
+      currentSession.value = null
       isInitialized.value = true
+    } finally {
+      authInProgress.value = false
     }
   }
 
   const fetchUserRole = async () => {
+    if (!user.value) {
+      userRole.value = null
+      return
+    }
+    
     try {
       const { data, error } = await supabase.rpc('get_user_role')
       if (error) throw error
@@ -52,6 +94,7 @@ export const useAuthStore = defineStore('auth', () => {
     if (error) throw error
 
     if (data.session) {
+      currentSession.value = data.session
       isAuthenticated.value = true
       user.value = data.session.user
       await fetchUserRole()
@@ -69,6 +112,7 @@ export const useAuthStore = defineStore('auth', () => {
         isAuthenticated.value = false
         user.value = null
         userRole.value = null
+        currentSession.value = null
         await router.push('/login')
         return
       }
@@ -80,6 +124,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuthenticated.value = false
       user.value = null
       userRole.value = null
+      currentSession.value = null
       await router.push('/login')
     } catch (error) {
       console.error('Logout error:', error)
@@ -87,6 +132,7 @@ export const useAuthStore = defineStore('auth', () => {
       isAuthenticated.value = false
       user.value = null
       userRole.value = null
+      currentSession.value = null
       await router.push('/login')
     }
   }
@@ -94,13 +140,16 @@ export const useAuthStore = defineStore('auth', () => {
   // Listen to auth changes
   supabase.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
+      currentSession.value = session
       isAuthenticated.value = true
       user.value = session.user
-      await fetchUserRole()
+      isInitialized.value = true
+      fetchUserRole().catch(err => console.error('Error fetching role on auth change:', err))
     } else {
       isAuthenticated.value = false
       user.value = null
       userRole.value = null
+      currentSession.value = null
     }
   })
 

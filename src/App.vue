@@ -1,18 +1,34 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, onBeforeMount } from 'vue'
 import Navigation from '@/components/layout/Navigation.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const isMobileNavOpen = ref(false)
+const isLoading = ref(true)
+
+// Always show content after a short delay, regardless of auth state
+onBeforeMount(() => {
+  // Set a short timeout to ensure the app always shows something
+  setTimeout(() => {
+    isLoading.value = false
+  }, 1000)
+})
 
 onMounted(async () => {
-  await auth.initAuth()
+  try {
+    await auth.initAuth()
+  } catch (error) {
+    console.error('Failed to initialize auth:', error)
+  } finally {
+    isLoading.value = false
+  }
 })
 </script>
 
 <template>
-  <div v-if="auth.isInitialized" class="h-full bg-white">
+  <!-- Always show content after loading, regardless of auth.isInitialized -->
+  <div v-if="!isLoading" class="h-full bg-white">
     <template v-if="auth.isAuthenticated">
       <Navigation 
         :is-mobile-open="isMobileNavOpen"
