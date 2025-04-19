@@ -9,7 +9,8 @@ import { EllipsisHorizontalIcon } from '@heroicons/vue/20/solid'
 import EmptyState from '@/components/ui/EmptyState.vue'
 
 const props = defineProps<{
-  searchQuery: string
+  searchQuery: string,
+  canEditCustomer: boolean
 }>()
 
 const customersStore = useCustomersStore()
@@ -140,8 +141,10 @@ onMounted(async () => {
     <div v-else-if="filteredCustomers.length === 0" class="p-8 text-center">
       <EmptyState
         title="No customers found"
-        description="Add a customer to get started."
-        icon="folder-plus"
+        description="Try adjusting your search or add a new customer."
+        :showAddButton="canEditCustomer"
+        addButtonText="Add Customer"
+        addButtonLink="/customers/new"
       />
     </div>
 
@@ -186,41 +189,37 @@ onMounted(async () => {
                 leave-to-class="transform opacity-0 scale-95"
               >
                 <MenuItems class="absolute right-0 z-10 mt-0.5 w-32 origin-top-right rounded-md bg-white py-2 shadow-lg ring-1 ring-gray-900/5 focus:outline-none">
-                  <MenuItem v-slot="{ active }">
-                    <button 
-                      @click="handleView(customer.id)"
-                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
-                    >
-                      View
-                      <span class="sr-only">, {{ customer.name }}</span>
-                    </button>
+                  <MenuItem v-if="canEditCustomer" v-slot="{ active, ...props }" as="button"
+                    @click="handleEdit(customer.id)"
+                    :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    v-bind="props"
+                  >
+                    Edit
+                    <span class="sr-only">, {{ customer.name }}</span>
                   </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <button 
-                      @click="handleEdit(customer.id)"
-                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
-                    >
-                      Edit
-                      <span class="sr-only">, {{ customer.name }}</span>
-                    </button>
+                  <MenuItem v-slot="{ active, ...props }" as="button"
+                    @click="handleView(customer.id)"
+                    :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    v-bind="props"
+                  >
+                    View
+                    <span class="sr-only">, {{ customer.name }}</span>
                   </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <button 
-                      @click="handleViewInvoices(customer.id)"
-                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
-                    >
-                      Invoices
-                      <span class="sr-only">, {{ customer.name }}</span>
-                    </button>
+                  <MenuItem v-slot="{ active, ...props }" as="button"
+                    @click="handleViewInvoices(customer.id)"
+                    :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-gray-900']"
+                    v-bind="props"
+                  >
+                    Invoices
+                    <span class="sr-only">, {{ customer.name }}</span>
                   </MenuItem>
-                  <MenuItem v-slot="{ active }">
-                    <button 
-                      @click="handleDeleteClick({ id: customer.id, name: customer.name })"
-                      :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-red-600']"
-                    >
-                      Delete
-                      <span class="sr-only">, {{ customer.name }}</span>
-                    </button>
+                  <MenuItem v-if="canEditCustomer" v-slot="{ active, ...props }" as="button"
+                    @click="handleDeleteClick({ id: customer.id, name: customer.name })"
+                    :class="[active ? 'bg-gray-50' : '', 'block w-full text-left px-3 py-1 text-sm text-red-600']"
+                    v-bind="props"
+                  >
+                    Delete
+                    <span class="sr-only">, {{ customer.name }}</span>
                   </MenuItem>
                 </MenuItems>
               </transition>

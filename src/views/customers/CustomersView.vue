@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAuthStore } from '@/stores/auth'
 import CustomerList from '@/components/customers/CustomerList.vue'
 import PageTitle from '@/components/ui/PageTitle.vue'
 
+const auth = useAuthStore()
+
 const searchQuery = ref('')
+
+const canEditCustomer = computed(() => auth.isAdmin())
 
 const handleSearch = (event: Event) => {
   const target = event.target as HTMLInputElement
@@ -17,7 +22,7 @@ const handleSearch = (event: Event) => {
       <PageTitle 
         title="Customers" 
         subtitle="Manage your customer relationships" 
-        showAddButton 
+        :showAddButton="canEditCustomer" 
         addButtonText="Add Customer" 
         addButtonLink="/customers/new"
       />
@@ -44,7 +49,7 @@ const handleSearch = (event: Event) => {
 
       <!-- Customer List -->
       <div class="mt-8">
-        <CustomerList :search-query="searchQuery" />
+        <CustomerList :search-query="searchQuery" :can-edit-customer="canEditCustomer" />
       </div>
     </div>
   </div>

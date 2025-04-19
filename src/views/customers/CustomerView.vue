@@ -2,12 +2,14 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
+import { useAuthStore } from '@/stores/auth'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import type { Customer } from '@/types/customer'
 
 const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
+const auth = useAuthStore()
 const customer = ref<Customer | null>(null)
 
 const customerId = route.params.id as string
@@ -23,6 +25,8 @@ const breadcrumbItems = computed(() => [
   { name: 'Customers', to: '/customers' },
   { name: customer.value?.name || '' }
 ])
+
+const isAdmin = computed(() => auth.isAdmin())
 
 const handleEdit = () => {
   router.push(`/customers/${customerId}/edit`)
@@ -63,6 +67,17 @@ const handleViewInvoices = () => {
               View Invoices
             </button>
             <button
+              v-if="isAdmin"
+              @click="handleEdit"
+              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <svg class="-ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 11l6 6M3 21h6v-6H3v6z" />
+              </svg>
+              Edit Customer
+            </button>
+            <button
+              v-if="isAdmin"
               @click="handleEmailTemplate"
               class="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
@@ -70,15 +85,6 @@ const handleViewInvoices = () => {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               Email Template
-            </button>
-            <button
-              @click="handleEdit"
-              class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit Customer
             </button>
           </div>
         </div>
