@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
+import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -17,6 +18,7 @@ import {
 const router = useRouter()
 const customersStore = useCustomersStore()
 const invoicesStore = useInvoicesStore()
+const auth = useAuthStore()
 const searchQuery = ref('')
 const loading = ref(true)
 const showDeleteDialog = ref(false)
@@ -312,24 +314,17 @@ const getCustomerCurrency = (customerId: string) => {
                           View
                         </button>
                       </MenuItem>
-                      <MenuItem v-slot="{ active }">
+                      <MenuItem v-if="auth.isAdmin() || invoice.user_id === auth.user?.id" v-slot="{ active }">
                         <button
                           @click="handleEdit(invoice.customer_id, invoice.id)"
-                          :class="[
-                            active ? 'bg-gray-100 text-gray-900' : 'text-gray-700',
-                            'group flex w-full items-center px-4 py-2 text-sm'
-                          ]"
+                          class="w-full flex items-center px-4 py-2 text-sm"
+                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700']"
                         >
-                          <PencilSquareIcon 
-                            :class="[active ? 'text-gray-500' : 'text-gray-400', 'mr-3 h-5 w-5']" 
-                            aria-hidden="true" 
-                          />
+                          <PencilSquareIcon class="mr-3 h-5 w-5 text-gray-400" aria-hidden="true" />
                           Edit
                         </button>
                       </MenuItem>
-                    </div>
-                    <div class="py-1">
-                      <MenuItem v-slot="{ active }">
+                      <MenuItem v-if="auth.isAdmin() || invoice.user_id === auth.user?.id" v-slot="{ active }">
                         <button
                           @click.stop="handleDelete(invoice.id, invoice.number)"
                           class="w-full flex items-center px-4 py-2 text-sm"

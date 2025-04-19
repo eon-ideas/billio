@@ -3,6 +3,7 @@ import { ref, onMounted, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
+import { useAuthStore } from '@/stores/auth'
 import { supabase } from '@/lib/supabase'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
@@ -19,6 +20,7 @@ const router = useRouter()
 const route = useRoute()
 const customersStore = useCustomersStore()
 const invoicesStore = useInvoicesStore()
+const auth = useAuthStore()
 const searchQuery = ref('')
 const customer = ref<Customer | null>(null)
 const loading = ref(true)
@@ -318,7 +320,7 @@ const formatCurrency = (amount: number, currency: string) => {
                           View
                         </button>
                       </MenuItem>
-                      <MenuItem v-slot="{ active }">
+                      <MenuItem v-if="auth.isAdmin() || invoice.user_id === auth.user?.id" v-slot="{ active }">
                         <button
                           @click="handleEdit(invoice.id)"
                           :class="[
@@ -333,9 +335,7 @@ const formatCurrency = (amount: number, currency: string) => {
                           Edit
                         </button>
                       </MenuItem>
-                    </div>
-                    <div class="py-1">
-                      <MenuItem v-slot="{ active }">
+                      <MenuItem v-if="auth.isAdmin() || invoice.user_id === auth.user?.id" v-slot="{ active }">
                         <button
                           @click.stop="handleDelete(invoice.id, invoice.number)"
                           class="w-full flex items-center px-4 py-2 text-sm"
