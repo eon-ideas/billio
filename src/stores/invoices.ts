@@ -23,7 +23,6 @@ export const useInvoicesStore = defineStore('invoices', () => {
           *,
           invoice_items (*)
         `)
-        .eq('user_id', auth.user.id)
         .order('date', { ascending: false })
 
       if (customerId) {

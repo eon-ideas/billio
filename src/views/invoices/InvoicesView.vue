@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
+import { supabase } from '@/lib/supabase'
 import Breadcrumb from '@/components/ui/Breadcrumb.vue'
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
@@ -22,6 +23,7 @@ const showDeleteDialog = ref(false)
 const invoiceToDelete = ref<string | null>(null)
 const invoiceToDeleteNumber = ref('')
 const customerMap = ref<Record<string, any>>({})
+const usersMap = ref<Record<string, string>>({})
 
 const loadData = async () => {
   loading.value = true
@@ -39,8 +41,24 @@ const loadData = async () => {
   loading.value = false
 }
 
+const fetchUsersEmails = async (userIds: string[]) => {
+  if (userIds.length === 0) return
+  const { data, error } = await supabase
+    .from('user_emails')
+    .select('id, email')
+    .in('id', userIds)
+  if (!error && data) {
+    data.forEach((u: any) => {
+      usersMap.value[u.id] = u.email
+    })
+  }
+}
+
 onMounted(async () => {
   await loadData()
+  // After loading invoices, fetch user emails
+  const ids = [...new Set(invoicesStore.invoices.map(i => i.user_id).filter(Boolean))]
+  await fetchUsersEmails(ids)
 })
 
 const breadcrumbItems = computed(() => [
@@ -141,6 +159,7 @@ const getCustomerCurrency = (customerId: string) => {
             <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Items</th>
             <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Total</th>
             <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Status</th>
+            <th scope="col" class="hidden px-3 py-3.5 text-left text-sm font-semibold text-gray-900 sm:table-cell">Created/Updated By</th>
             <th scope="col" class="relative py-3.5 pr-4 pl-3 sm:pr-0">
               <span class="sr-only">Actions</span>
             </th>
@@ -148,12 +167,12 @@ const getCustomerCurrency = (customerId: string) => {
         </thead>
         <tbody class="divide-y divide-gray-200 bg-white">
           <tr v-if="loading" class="bg-white">
-            <td colspan="7" class="py-10 text-center text-sm text-gray-500">
+            <td colspan="8" class="py-10 text-center text-sm text-gray-500">
               Loading invoices...
             </td>
           </tr>
           <tr v-else-if="invoices.length === 0" class="bg-white">
-            <td colspan="7" class="py-10 text-center text-sm text-gray-500">
+            <td colspan="8" class="py-10 text-center text-sm text-gray-500">
               No invoices found.
             </td>
           </tr>
@@ -246,6 +265,20 @@ const getCustomerCurrency = (customerId: string) => {
                   </span>
                 </span>
               </button>
+            </td>
+            <td class="hidden px-3 py-4 text-xs text-gray-500 sm:table-cell">
+              <div>
+                <span v-if="usersMap[invoice.user_id]">
+                  <span class="font-medium text-xs">{{ usersMap[invoice.user_id] }}</span>
+                </span>
+                <span v-else>
+                  <span class="italic text-gray-400 text-xs">Unknown</span>
+                </span>
+                <br/>
+                <span class="text-[10px] text-gray-400">Created: {{ invoice.created_at ? new Date(invoice.created_at).toLocaleString() : '-' }}</span>
+                <br/>
+                <span class="text-[10px] text-gray-400">Updated: {{ invoice.updated_at ? new Date(invoice.updated_at).toLocaleString() : '-' }}</span>
+              </div>
             </td>
             <td class="py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
               <Menu as="div" class="relative inline-block text-left" @click.stop>
