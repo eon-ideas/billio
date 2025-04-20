@@ -46,7 +46,7 @@ const printInvoice = () => {
 }
 
 const generateBarcode = async () => {
-  if (!props.invoice.id) return
+  if (!props.invoice.id || !customer.value?.include_bar_code) return
 
   isLoadingBarcode.value = true
 
@@ -155,7 +155,7 @@ onMounted(async () => {
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum isporuke / Delivery date</span> {{ formatDate(invoice.delivery_date) }}</p>
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum dospijeća / Due date</span> {{ formatDate(invoice.due_date) }}</p>
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Način plaćanja / Payment method</span>Transakcijski račun / Bank Transfer</p>
-              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Operater / Operator</span>Teodor Hirs</p>
+              <p class="flex items-center py-0.5"><span>Operater / Operator</span>Teodor Hirs</p>
             </div>
           </div>
 
@@ -240,7 +240,7 @@ onMounted(async () => {
               </div>
             </div>
 
-            <div v-else-if="barcodeUrl" class="mt-4 flex flex-col items-center">
+            <div v-else-if="barcodeUrl && customer?.include_bar_code" class="mt-4 flex flex-col items-center">
               <p class="font-medium text-gray-700 mb-2">Skeniraj za plaćanje / Scan barcode for payment</p>
               <img :src="barcodeUrl" alt="Payment barcode" class="max-w-full h-auto" style="max-height: 120px;" />
             </div>
