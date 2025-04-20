@@ -21,7 +21,7 @@ const handleLogin = async () => {
   try {
     loading.value = true
     error.value = ''
-    await auth.login(email.value, password.value)
+    await auth.login(email.value, password.value, rememberMe.value)
   } catch (e: any) {
     error.value = e.message || 'An error occurred during login'
   } finally {

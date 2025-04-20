@@ -85,13 +85,24 @@ export const useAuthStore = defineStore('auth', () => {
     return userRole.value === 'ADMIN'
   }
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, rememberMe: boolean = false) => {
+    // If rememberMe is false, we'll use sessionStorage which is cleared when the browser is closed
+    // If rememberMe is true, we'll use localStorage which persists until explicitly cleared
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
     
     if (error) throw error
+
+    // If user doesn't want to be remembered, update the session storage type
+    if (!rememberMe && data.session) {
+      // Set session to be stored in sessionStorage instead of localStorage
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token
+      })
+    }
 
     if (data.session) {
       currentSession.value = data.session
