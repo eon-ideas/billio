@@ -95,16 +95,13 @@ router.beforeEach(async (to) => {
   const auth = useAuthStore()
   
   try {
-    // Always allow navigation to login page
-    if (to.path === '/login') {
-      return true
-    }
-    
-    // For protected routes, check if auth is initialized
+    // Initialize auth if not already initialized
     if (!auth.isInitialized) {
       // Initialize auth and wait for it to complete before continuing
-      await auth.initAuth().catch(err => console.error('Auth init error:', err))
+      await auth.initAuth()
     }
+    
+    // After auth is initialized, handle routing based on auth state
     
     // If going to login while authenticated, redirect to dashboard
     if (to.path === '/login' && auth.isAuthenticated) {

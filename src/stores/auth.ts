@@ -17,7 +17,15 @@ export const useAuthStore = defineStore('auth', () => {
   const initAuth = async () => {
     // Don't try to initialize more than once simultaneously
     if (authInProgress.value) {
-      return
+      // If initialization is in progress, wait for it to complete
+      return new Promise((resolve) => {
+        const checkInterval = setInterval(() => {
+          if (!authInProgress.value) {
+            clearInterval(checkInterval)
+            resolve(true)
+          }
+        }, 100)
+      })
     }
 
     // If already initialized and authenticated, don't reinitialize
@@ -161,6 +169,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = null
       userRole.value = null
       currentSession.value = null
+      isInitialized.value = true
     }
   })
 
