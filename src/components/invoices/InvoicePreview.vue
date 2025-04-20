@@ -136,6 +136,7 @@ onMounted(async () => {
               <p class="text-gray-600">{{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
               <p class="text-gray-600">{{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
               <p v-if="company.vatId" class="text-gray-600">OIB: {{ company.pinId }}</p>
+              <p class="text-gray-600">IBAN: <span class="font-mono">{{ company.iban }}</span></p>
             </div>
           </div>
           <div class="text-right ml-4">
@@ -157,7 +158,7 @@ onMounted(async () => {
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum isporuke{{ customer?.include_english_translation ? ' / Delivery date' : '' }}</span> {{ formatDate(invoice.delivery_date) }}</p>
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Datum dospijeća{{ customer?.include_english_translation ? ' / Due date' : '' }}</span> {{ formatDate(invoice.due_date) }}</p>
               <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Način plaćanja{{ customer?.include_english_translation ? ' / Payment method' : '' }}</span>Transakcijski račun{{ customer?.include_english_translation ? ' / Bank Transfer' : '' }}</p>
-              <p class="flex items-center py-0.5"><span>Operater{{ customer?.include_english_translation ? ' / Operator' : '' }}</span>Teodor Hirs</p>
+              <p class="flex items-center py-0.5"><span class="w-52 flex-shrink-0">Operater{{ customer?.include_english_translation ? ' / Operator' : '' }}</span>Teodor Hirs</p>
             </div>
           </div>
 
@@ -225,12 +226,10 @@ onMounted(async () => {
         <div class="my-6 border-b border-gray-200"></div>
 
         <div class="mt-10 mb-4 text-xs payment-details">
-          <div class="space-y-0.5 text-gray-600">
-            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Platiti na račun{{ customer?.include_english_translation ? ' / Pay to' : '' }}:</span> {{ company.name }}</p>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.street, company.houseNumber].filter(Boolean).join(' ') }}</p>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> {{ [company.postalCode, company.city].filter(Boolean).join(' ') }}</p>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0"></span> IBAN: {{ company.iban }}</p>
-            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj{{ customer?.include_english_translation ? ' / Model and reference number' : '' }}:</span> HR99 {{ invoice.number }}</p>
+          <div class="space-y-0.5 text-gray-600 p-4">
+            <h3 class="font-bold text-gray-800 text-sm mb-2">{{ customer?.include_english_translation ? 'Podaci za plaćanje / Payment Details' : 'Podaci za plaćanje' }}</h3>
+            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">IBAN:</span> <span class="font-mono font-bold text-blue-800 tracking-wide">{{ company.iban }}</span></p>
+            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj{{ customer?.include_english_translation ? ' / Model and reference number' : '' }}:</span> <span class="font-mono font-bold text-blue-800 tracking-wide">HR99 {{ invoice.number }}</span></p>
 
             <div v-if="isLoadingBarcode" class="mt-4 flex flex-col items-center">
               <p class="font-medium text-gray-700 mb-2">Generating barcode</p>
