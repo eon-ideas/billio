@@ -150,11 +150,6 @@ const handleViewInvoices = () => {
             </div>
             
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt class="text-sm/6 font-medium text-gray-900">Include VAT</dt>
-              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.include_vat ? 'Yes' : 'No' }}</dd>
-            </div>
-            
-            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt class="text-sm/6 font-medium text-gray-900">Customer ID</dt>
               <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.id }}</dd>
             </div>
@@ -167,6 +162,27 @@ const handleViewInvoices = () => {
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt class="text-sm/6 font-medium text-gray-900">Last Updated</dt>
               <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.updated_at ? new Date(customer.updated_at).toLocaleString() : 'Not available' }}</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Invoice Settings Section -->
+      <div class="mt-10">
+        <div class="px-4 sm:px-0">
+          <h3 class="text-base/7 font-semibold text-gray-900">Invoice Settings</h3>
+          <p class="mt-1 max-w-2xl text-sm/6 text-gray-500">Invoice preferences for this customer.</p>
+        </div>
+        <div class="mt-6 border-t border-gray-100">
+          <dl class="divide-y divide-gray-100">
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Include VAT</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.include_vat ? 'Yes' : 'No' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Include English Translation</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.include_english_translation ? 'Yes' : 'No' }}</dd>
             </div>
           </dl>
         </div>

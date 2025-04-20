@@ -27,7 +27,8 @@ const formData = ref<CustomerFormData>(props.initialData || {
   address: '',
   vat_id: '',
   currency: 'EUR',
-  include_vat: false
+  include_vat: false,
+  include_english_translation: false
 })
 
 const currencies = [
@@ -212,7 +213,16 @@ const handleCancel = () => {
               />
             </div>
           </div>
+        </div>
+      </div>
 
+      <div>
+        <h2 class="text-base/7 font-semibold text-gray-900">Invoice Settings</h2>
+        <p class="mt-1 max-w-2xl text-sm/6 text-gray-600">
+          Configure invoice preferences for this customer.
+        </p>
+
+        <div class="mt-10 space-y-8 border-b border-gray-900/10 pb-12 sm:space-y-0 sm:divide-y sm:divide-gray-900/10 sm:border-t sm:pb-0">
           <!-- Include VAT -->
           <div class="sm:grid sm:grid-cols-3 sm:items-baseline sm:gap-4 sm:py-6">
             <div class="text-sm/6 font-medium text-gray-900">Include VAT</div>
@@ -222,6 +232,19 @@ const handleCancel = () => {
                 v-model="formData.include_vat"
                 label="Include VAT"
                 description="When enabled, VAT will be included in all invoices for this customer."
+              />
+            </div>
+          </div>
+
+          <!-- Include English Translation -->
+          <div class="sm:grid sm:grid-cols-3 sm:items-baseline sm:gap-4 sm:py-6">
+            <div class="text-sm/6 font-medium text-gray-900">Translation Options</div>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <Checkbox
+                id="include_english_translation"
+                v-model="formData.include_english_translation"
+                label="Include English translation"
+                description="When enabled, English translations will be included in all documents for this customer."
               />
             </div>
           </div>
