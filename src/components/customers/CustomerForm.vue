@@ -28,7 +28,8 @@ const formData = ref<CustomerFormData>(props.initialData || {
   vat_id: '',
   currency: 'EUR',
   include_vat: false,
-  include_english_translation: false
+  include_english_translation: false,
+  include_bar_code: false
 })
 
 const currencies = [
@@ -245,6 +246,19 @@ const handleCancel = () => {
                 v-model="formData.include_english_translation"
                 label="Include English translation"
                 description="When enabled, English translations will be included in all documents for this customer."
+              />
+            </div>
+          </div>
+
+          <!-- Include Bar Code -->
+          <div class="sm:grid sm:grid-cols-3 sm:items-baseline sm:gap-4 sm:py-6">
+            <div class="text-sm/6 font-medium text-gray-900">Bar Code</div>
+            <div class="mt-1 sm:col-span-2 sm:mt-0">
+              <Checkbox
+                id="include_bar_code"
+                v-model="formData.include_bar_code"
+                label="Include bar code"
+                description="When enabled, bar codes will be included in all invoices for this customer."
               />
             </div>
           </div>

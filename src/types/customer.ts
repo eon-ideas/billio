@@ -13,6 +13,7 @@ export interface Customer {
   currency: string
   include_vat: boolean
   include_english_translation: boolean
+  include_bar_code: boolean
 }
 
 export type CustomerFormData = Omit<Customer, 'id' | 'created_at' | 'updated_at' | 'user_id'>
