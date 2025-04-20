@@ -102,11 +102,8 @@ router.beforeEach(async (to) => {
     
     // For protected routes, check if auth is initialized
     if (!auth.isInitialized) {
-      // Initialize auth but don't block navigation
-      auth.initAuth().catch(err => console.error('Auth init error:', err))
-      
-      // Allow navigation to continue
-      return true
+      // Initialize auth and wait for it to complete before continuing
+      await auth.initAuth().catch(err => console.error('Auth init error:', err))
     }
     
     // If going to login while authenticated, redirect to dashboard
@@ -123,8 +120,8 @@ router.beforeEach(async (to) => {
     return true
   } catch (error) {
     console.error('Router guard error:', error)
-    // Always allow navigation even if there's an error
-    return true
+    // On error, redirect to login for safety
+    return '/login'
   }
 })
 
