@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import type { InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
 import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
+import { useExchangeRate } from '@/composables/useExchangeRate'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import InvoiceItemForm from './InvoiceItemForm.vue'
@@ -19,6 +20,7 @@ const emit = defineEmits<{
 
 const customersStore = useCustomersStore()
 const customer = ref<Customer | null>(null)
+const { fetchExchangeRate, isLoading: fetchingExchangeRate, error: exchangeRateError } = useExchangeRate()
 
 onMounted(async () => {
   customer.value = await customersStore.getCustomerById(props.customerId)
@@ -43,6 +45,34 @@ watch(() => props.initialData, (newData) => {
       ...newData,
       invoice_items: Array.isArray(newData.invoice_items) ? [...newData.invoice_items] : []
     }
+  }
+}, { immediate: true })
+
+// Track the initial date to detect changes
+const initialDate = ref<string | null>(null)
+
+// Fetch exchange rate only when creating a new invoice or when the date changes
+watch([() => formData.value.date, () => customer.value], async ([date, currentCustomer]) => {
+  // Only fetch if we have a customer with non-EUR currency and a date
+  if (currentCustomer && currentCustomer.currency !== 'EUR' && date) {
+    // For new invoices (no initialData) or when date changes from its initial value
+    const isNewInvoice = !props.initialData
+    const dateChanged = initialDate.value !== null && date !== initialDate.value
+    
+    // If it's a new invoice or the date has changed, fetch the exchange rate
+    if (isNewInvoice || dateChanged) {
+      const rate = await fetchExchangeRate(date, currentCustomer.currency)
+      if (rate !== null) {
+        formData.value.currency_exchange_rate = rate
+      }
+    }
+  }
+}, { immediate: true })
+
+// Set initial date when initialData is loaded
+watch(() => props.initialData, (newData) => {
+  if (newData && newData.date) {
+    initialDate.value = newData.date
   }
 }, { immediate: true })
 
@@ -155,14 +185,23 @@ const handleSubmit = () => {
       />
       <div v-if="customer && customer.currency !== 'EUR'" class="col-span-1">
         <label class="mb-2.5 block text-sm font-medium text-dark">{{ exchangeRateLabel }}</label>
-        <input
-          v-model.number="formData.currency_exchange_rate"
-          type="number"
-          step="0.000001"
-          placeholder="e.g. 1.064736"
-          class="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none"
-          required
-        />
+        <div class="relative">
+          <input
+            v-model.number="formData.currency_exchange_rate"
+            type="number"
+            step="0.000001"
+            placeholder="e.g. 1.064736"
+            class="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none"
+            :class="{ 'opacity-50': fetchingExchangeRate }"
+            required
+            :disabled="fetchingExchangeRate"
+          />
+          <div v-if="fetchingExchangeRate" class="absolute right-3 top-1/2 -translate-y-1/2">
+            <div class="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+          </div>
+        </div>
+        <p v-if="exchangeRateError" class="mt-1 text-sm text-red-600">{{ exchangeRateError }}</p>
+        <p v-else class="mt-1 text-xs text-gray-500">Auto-populated from Billio currency exchange API</p>
       </div>
     </div>
 
