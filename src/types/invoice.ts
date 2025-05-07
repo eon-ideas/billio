@@ -23,6 +23,7 @@ export interface Invoice {
   vat: number
   total: number
   paid: boolean
+  currency_exchange_rate: number | null
 }
 
 export type InvoiceFormData = Omit<Invoice, 'id' | 'created_at' | 'updated_at' | 'user_id' | 'total' | 'paid'>

@@ -32,7 +32,8 @@ const formData = ref<InvoiceFormData>({
   due_date: null,
   invoice_items: [],
   subtotal: 0,
-  vat: 0
+  vat: 0,
+  currency_exchange_rate: null
 })
 
 // Initialize form data when initialData is provided
@@ -111,6 +112,11 @@ const formatCurrency = (amount: number) => {
   }).format(amount)
 }
 
+const exchangeRateLabel = computed(() => {
+  if (!customer.value) return 'Exchange Rate'
+  return `Exchange Rate (1${customer.value.currency} = X EUR)`
+})
+
 const handleSubmit = () => {
   emit('submit', { 
     ...formData.value,
@@ -147,6 +153,17 @@ const handleSubmit = () => {
         label="Due Date"
         required
       />
+      <div v-if="customer && customer.currency !== 'EUR'" class="col-span-1">
+        <label class="mb-2.5 block text-sm font-medium text-dark">{{ exchangeRateLabel }}</label>
+        <input
+          v-model.number="formData.currency_exchange_rate"
+          type="number"
+          step="0.000001"
+          placeholder="e.g. 1.064736"
+          class="w-full rounded-lg border border-stroke bg-transparent py-4 pl-6 pr-10 outline-none focus:border-primary focus-visible:shadow-none"
+          required
+        />
+      </div>
     </div>
 
     <!-- Items Section -->

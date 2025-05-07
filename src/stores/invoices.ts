@@ -79,7 +79,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
           subtotal: subtotal,
           vat: vat,
           total: total,
-          paid: false
+          paid: false,
+          currency_exchange_rate: invoiceData.currency_exchange_rate
         }])
         .select()
         .single()
@@ -160,7 +161,8 @@ export const useInvoicesStore = defineStore('invoices', () => {
           due_date: invoiceData.due_date,
           subtotal: subtotal,
           vat: vat,
-          total: total
+          total: total,
+          currency_exchange_rate: invoiceData.currency_exchange_rate
         })
         .eq('id', id)
         .eq('user_id', auth.user.id)
