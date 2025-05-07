@@ -169,8 +169,10 @@ onMounted(async () => {
               </div>
               <div class="text-xs text-gray-600 space-y-0">
                 <p class="flex items-center py-0.5 text-sm font-medium text-gray-900">{{ customer?.company || 'N/A' }}</p>
-                <p class="flex items-center py-0.5">{{ customer?.address || 'N/A' }}</p>
-                <p class="flex items-center py-0.5">{{ customer?.city || 'N/A' }}</p>
+                <!-- Structured address display -->
+                <p class="flex items-center py-0.5">{{ [customer?.street, customer?.house_number].filter(Boolean).join(' ') || 'N/A' }}</p>
+                <p class="flex items-center py-0.5">{{ [customer?.postal_code, customer?.city].filter(Boolean).join(' ') || 'N/A' }}</p>
+                <p v-if="customer?.country" class="flex items-center py-0.5">{{ customer.country }}</p>
                 <p class="flex items-center py-0.5">{{ customer?.include_english_translation ? 'TAX ID / VAT ID:' : 'OIB:' }} {{ customer?.vat_id || 'N/A' }}</p>
               </div>
             </div>

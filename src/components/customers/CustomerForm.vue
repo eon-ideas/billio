@@ -23,8 +23,12 @@ const formData = ref<CustomerFormData>(props.initialData || {
   email: '',
   phone: '',
   company: '',
+  street: '',
+  house_number: '',
+  postal_code: '',
   city: '',
-  address: '',
+  country: '',
+  address: '', // Keeping for backward compatibility
   vat_id: '',
   currency: 'EUR',
   include_vat: false,
@@ -149,6 +153,45 @@ const handleCancel = () => {
             </div>
           </div>
 
+          <!-- Street -->
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="street" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Street</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <BaseInput
+                id="street"
+                v-model="formData.street"
+                placeholder="Enter street name"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <!-- House Number -->
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="house_number" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">House Number</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <BaseInput
+                id="house_number"
+                v-model="formData.house_number"
+                placeholder="Enter house number"
+                class="w-full"
+              />
+            </div>
+          </div>
+
+          <!-- Postal Code -->
+          <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
+            <label for="postal_code" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Postal Code</label>
+            <div class="mt-2 sm:col-span-2 sm:mt-0">
+              <BaseInput
+                id="postal_code"
+                v-model="formData.postal_code"
+                placeholder="Enter postal code"
+                class="w-full"
+              />
+            </div>
+          </div>
+
           <!-- City -->
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
             <label for="city" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">City</label>
@@ -162,18 +205,16 @@ const handleCancel = () => {
             </div>
           </div>
 
-          <!-- Address -->
+          <!-- Country -->
           <div class="sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:py-6">
-            <label for="address" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Address</label>
+            <label for="country" class="block text-sm/6 font-medium text-gray-900 sm:pt-1.5">Country</label>
             <div class="mt-2 sm:col-span-2 sm:mt-0">
-              <textarea
-                id="address"
-                v-model="formData.address"
-                rows="3"
-                :disabled="loading"
-                placeholder="Enter full address"
-                class="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
-              ></textarea>
+              <BaseInput
+                id="country"
+                v-model="formData.country"
+                placeholder="Enter country"
+                class="w-full"
+              />
             </div>
           </div>
         </div>

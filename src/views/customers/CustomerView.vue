@@ -119,13 +119,28 @@ const handleViewInvoices = () => {
             </div>
             
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Street</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.street || 'Not provided' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">House Number</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.house_number || 'Not provided' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+              <dt class="text-sm/6 font-medium text-gray-900">Postal Code</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.postal_code || 'Not provided' }}</dd>
+            </div>
+            
+            <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt class="text-sm/6 font-medium text-gray-900">City</dt>
               <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.city || 'Not provided' }}</dd>
             </div>
             
             <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-              <dt class="text-sm/6 font-medium text-gray-900">Address</dt>
-              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.address || 'Not provided' }}</dd>
+              <dt class="text-sm/6 font-medium text-gray-900">Country</dt>
+              <dd class="mt-1 text-sm/6 text-gray-700 sm:col-span-2 sm:mt-0">{{ customer?.country || 'Not provided' }}</dd>
             </div>
           </dl>
         </div>

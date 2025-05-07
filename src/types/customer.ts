@@ -7,7 +7,13 @@ export interface Customer {
   email: string | null
   phone: string | null
   company: string | null
+  // Address fields (structured like CompanyInfo)
+  street: string | null
+  house_number: string | null
+  postal_code: string | null
   city: string | null
+  country: string | null
+  // Legacy field - kept for backward compatibility
   address: string | null
   vat_id: string | null
   currency: string
