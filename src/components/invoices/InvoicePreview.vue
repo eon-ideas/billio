@@ -23,10 +23,10 @@ const items = computed(() => {
 
 const { fetchBarcode } = useBarcode()
 
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number, currency?: string) => {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: customer.value?.currency || 'USD',
+    currency: currency || customer.value?.currency || 'USD',
     minimumFractionDigits: 2
   }).format(amount)
 }
@@ -40,6 +40,15 @@ const formatDate = (date: string | null) => {
 const calculateItemTotal = (item: any) => {
   return (item.quantity || 0) * (item.price || 0)
 }
+
+const shouldShowEurTotal = computed(() => {
+  return customer.value?.currency && customer.value.currency !== 'EUR' && props.invoice.currency_exchange_rate
+})
+
+const calculatedEurTotal = computed(() => {
+  if (!shouldShowEurTotal.value || !props.invoice.currency_exchange_rate) return 0
+  return props.invoice.total * props.invoice.currency_exchange_rate
+})
 
 const printInvoice = () => {
   window.print()
@@ -212,16 +221,24 @@ onMounted(async () => {
             <span>{{ formatCurrency(invoice.subtotal) }}</span>
           </div>
           <div class="flex justify-between text-xs text-gray-600">
-            <span>VAT</span>
+            <span>{{ customer?.include_english_translation ? 'PDV/VAT' : 'PDV' }}</span>
             <span>{{ formatCurrency(invoice.vat) }}</span>
           </div>
-          <div class="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t">
-            <span>Total</span>
-            <span>{{ formatCurrency(invoice.total) }}</span>
+          <div v-if="shouldShowEurTotal" class="flex justify-between text-sm text-gray-900 pt-2 border-t">
+            <span>Ukupno{{ customer?.include_english_translation ? '/Total' : '' }} EUR:</span>
+            <span class="font-bold">{{ formatCurrency(calculatedEurTotal, 'EUR') }}</span>
+          </div>
+          <div class="flex justify-between text-sm text-gray-900" :class="{ 'pt-2 border-t': !shouldShowEurTotal }">
+            <span>{{ shouldShowEurTotal ? `Ukupno${customer?.include_english_translation ? '/Total' : ''} ${customer?.currency}:` : (customer?.include_english_translation ? 'Ukupno/Total' : 'Ukupno') }}</span>
+            <span class="font-bold">{{ formatCurrency(invoice.total) }}</span>
           </div>
 
           <div v-if="!customer?.include_vat" class="mt-2">
             <p class="text-[0.65rem] text-gray-500">PDV nije obračunat temeljem čl.17, stavak 1 Zakona o PDV-u{{ customer?.include_english_translation ? ' / VAT is not charged pursuant to Article 17, Paragraph 1 of the Croatian VAT Act' : '' }}.</p>
+          </div>
+          
+          <div v-if="shouldShowEurTotal" class="mt-2">
+            <p class="text-[0.65rem] text-gray-500">Tečaj{{ customer?.include_english_translation ? '/Currency' : '' }} 1 {{ customer?.currency }} = {{ props.invoice.currency_exchange_rate?.toFixed(6) }} EUR</p>
           </div>
         </div>
 
