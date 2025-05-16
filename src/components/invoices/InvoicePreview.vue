@@ -244,11 +244,19 @@ onMounted(async () => {
 
         <div class="my-6 border-b border-gray-200"></div>
 
-        <div class="mt-10 mb-4 text-xs payment-details">
-          <div class="space-y-0.5 text-gray-600 p-4">
-            <h3 class="font-bold text-gray-800 text-sm mb-2">{{ customer?.include_english_translation ? 'Podaci za plaćanje / Payment Details' : 'Podaci za plaćanje' }}</h3>
-            <p class="flex items-center"><span class="w-36 flex-shrink-0 font-bold text-gray-700">IBAN:</span> <span class="font-mono font-bold text-blue-800 tracking-wide">{{ company.iban }}</span></p>
-            <p class="flex items-center mt-1"><span class="w-36 flex-shrink-0 font-bold text-gray-700">Model i poziv na broj{{ customer?.include_english_translation ? ' / Model and reference number' : '' }}:</span> <span class="font-mono font-bold text-blue-800 tracking-wide">HR99 {{ invoice.number }}</span></p>
+        <div class="mt-10 mb-6 text-sm payment-details">
+          <div class="max-w-2xl mx-auto bg-gray-50 border-2 border-gray-200 rounded-lg p-6 text-center space-y-3">
+            <h3 class="font-bold text-gray-800 text-base mb-3 border-b border-gray-200 pb-2">{{ customer?.include_english_translation ? 'Podaci za plaćanje / Payment Details' : 'Podaci za plaćanje' }}</h3>
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <p class="flex items-center justify-center">
+                <span class="font-bold text-gray-700 mr-3">IBAN:</span> 
+                <span class="font-mono font-bold text-gray-900 tracking-wide text-base">{{ company.iban }}</span>
+              </p>
+              <p class="flex items-center justify-center flex-wrap">
+                <span class="font-bold text-gray-700 mr-3">Model i poziv na broj{{ customer?.include_english_translation ? ' / Model and reference number' : '' }}:</span> 
+                <span class="font-mono font-bold text-gray-900 tracking-wide text-base">HR99 {{ invoice.number }}</span>
+              </p>
+            </div>
 
             <div v-if="isLoadingBarcode" class="mt-4 flex flex-col items-center">
               <p class="font-medium text-gray-700 mb-2">Generating barcode</p>
