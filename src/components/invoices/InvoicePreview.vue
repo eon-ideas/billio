@@ -245,8 +245,8 @@ onMounted(async () => {
         <div class="my-6 border-b border-gray-200"></div>
 
         <div class="mt-10 mb-6 text-sm payment-details">
-          <div class="max-w-2xl mx-auto bg-gray-50 border-2 border-gray-200 rounded-lg p-6 text-center space-y-3">
-            <h3 class="font-bold text-gray-800 text-base mb-3 border-b border-gray-200 pb-2">{{ customer?.include_english_translation ? 'Podaci za plaćanje / Payment Details' : 'Podaci za plaćanje' }}</h3>
+          <div class="max-w-2xl mx-auto p-6 text-center space-y-3">
+            <h3 class="font-bold text-gray-800 text-base mb-3">{{ customer?.include_english_translation ? 'Podaci za plaćanje / Payment Details' : 'Podaci za plaćanje' }}</h3>
             <div class="flex flex-col items-center justify-center space-y-2">
               <p class="flex items-center justify-center">
                 <span class="font-bold text-gray-700 mr-3">IBAN:</span> 
