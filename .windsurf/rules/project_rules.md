@@ -23,7 +23,7 @@ When working with any view components or functionality that requires authorizati
    - ADMIN role: Full CRUD access to all database tables
    - USER role:
      - READ access: 'company_info' and 'email_templates' tables
-     - READ access: 'customers', 'invoices', and 'invoice_items' tables
+     - CRUD access: 'customers', 'invoices', and 'invoice_items' tables for records where user is creator
      - NO access: 'user_roles' table
    - Always enforce Row Level Security (RLS) policies
 
