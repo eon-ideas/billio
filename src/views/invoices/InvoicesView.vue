@@ -45,22 +45,32 @@ const loadData = async () => {
 
 const fetchUsersEmails = async (userIds: string[]) => {
   if (userIds.length === 0) return
+  
   const { data, error } = await supabase
     .from('user_emails')
     .select('id, email')
     .in('id', userIds)
-  if (!error && data) {
+    
+  if (error) {
+    console.error('Error fetching user emails:', error);
+    return;
+  }
+  
+  if (data && data.length > 0) {
     data.forEach((u: any) => {
-      usersMap.value[u.id] = u.email
+      usersMap.value[u.id] = u.email;
     })
   }
 }
 
 onMounted(async () => {
   await loadData()
-  // After loading invoices, fetch user emails
-  const ids = [...new Set(invoicesStore.invoices.map(i => i.user_id).filter(Boolean))]
-  await fetchUsersEmails(ids)
+  
+  // After loading invoices, extract unique user IDs and filter out any null/undefined values
+  const userIds = [...new Set(invoicesStore.invoices.map(i => i.user_id).filter(Boolean))]
+  if (userIds.length > 0) {
+    await fetchUsersEmails(userIds);
+  }
 })
 
 const breadcrumbItems = computed(() => [
