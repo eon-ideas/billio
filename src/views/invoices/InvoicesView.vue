@@ -247,26 +247,21 @@ const getCustomerCurrency = (customerId: string) => {
               {{ formatCurrency(invoice.total, getCustomerCurrency(invoice.customer_id)) }}
             </td>
             <td class="hidden px-3 py-4 text-sm text-gray-500 sm:table-cell">
-              <button 
-                @click.stop="handleTogglePaid(invoice.id)" 
-                class="flex items-center"
+              <span
+                :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  invoice.paid 
+                    ? 'bg-green-100 text-green-800' 
+                    : 'bg-yellow-100 text-yellow-800'
+                ]"
               >
-                <span
-                  :class="[
-                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                    invoice.paid 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-yellow-100 text-yellow-800'
-                  ]"
-                >
-                  <span class="flex items-center">
-                    <span class="h-2 w-2 mr-1.5 rounded-full" :class="[
-                      invoice.paid ? 'bg-green-400' : 'bg-yellow-400'
-                    ]"></span>
-                    {{ invoice.paid ? 'Paid' : 'Unpaid' }}
-                  </span>
+                <span class="flex items-center">
+                  <span class="h-2 w-2 mr-1.5 rounded-full" :class="[
+                    invoice.paid ? 'bg-green-400' : 'bg-yellow-400'
+                  ]"></span>
+                  {{ invoice.paid ? 'Paid' : 'Unpaid' }}
                 </span>
-              </button>
+              </span>
             </td>
             <td class="hidden px-3 py-4 text-xs text-gray-500 sm:table-cell">
               <div>
@@ -332,6 +327,20 @@ const getCustomerCurrency = (customerId: string) => {
                         >
                           <TrashIcon class="mr-3 h-5 w-5 text-gray-400" aria-hidden="true" />
                           Delete
+                        </button>
+                      </MenuItem>
+                      <MenuItem v-slot="{ active }">
+                        <button
+                          @click.stop="handleTogglePaid(invoice.id)"
+                          class="w-full flex items-center px-4 py-2 text-sm"
+                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700']"
+                        >
+                          <span class="mr-3 h-5 w-5 text-gray-400 flex items-center justify-center">
+                            <span class="h-3 w-3 rounded-full" :class="[
+                              invoice.paid ? 'bg-yellow-400' : 'bg-green-400'
+                            ]"></span>
+                          </span>
+                          {{ invoice.paid ? 'Mark as unpaid' : 'Mark as paid' }}
                         </button>
                       </MenuItem>
                     </div>
