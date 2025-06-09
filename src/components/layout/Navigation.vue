@@ -136,7 +136,9 @@
                 <span class="sr-only">Open user menu</span>
                 <img class="size-8 rounded-full bg-gray-50" :src="userPhotoUrl" :alt="auth.user?.email" />
                 <span class="hidden lg:flex lg:items-center">
-                  <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">{{ auth.user?.email }}</span>
+                  <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">
+                    {{ auth.userProfile?.nickname || auth.user?.email }}
+                  </span>
                   <span v-if="auth.isAdmin()" class="ml-2 inline-flex items-center rounded-md bg-purple-50 px-2 py-1 text-xs font-medium text-purple-700 ring-1 ring-purple-700/10 ring-inset">ADMIN</span>
                   <ChevronDownIcon class="ml-2 size-5 text-gray-400" aria-hidden="true" />
                 </span>
@@ -163,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCustomersStore } from '@/stores/customers'
 import {
@@ -201,10 +203,16 @@ const customersStore = useCustomersStore()
 
 onMounted(() => {
   customersStore.fetchCustomers()
+  
+  // Fetch user profile data if not already loaded
+  if (!auth.userProfile) {
+    auth.fetchUserProfile()
+  }
 })
 
 const userPhotoUrl = computed(() => {
-  return '/img/user-avatar.jpg'
+  // Use profile avatar if available, otherwise fallback to default
+  return auth.userProfile?.avatar_url || '/img/user-avatar.jpg'
 })
 
 const topCustomers = computed(() => {

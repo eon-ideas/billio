@@ -133,7 +133,37 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
   - Team member management (admin-only)
   - Billing configuration (admin-only)
 
-#### 4.1.6 Email Templates
+#### 4.1.6 User Profile [IN PROGRESS]
+- **Personal Information**
+  - Upload and manage profile avatar image
+  - Set and update display nickname
+  - View account email (non-editable)
+  - View assigned role (non-editable)
+
+- **Technical Approach**
+  - Implement UserProfileView component using Vue 3 Composition API
+  - Use Supabase Storage for avatar image uploads
+  - Create users_metadata table for storing user nickname and avatar URL
+  - Extend auth store with profile management methods
+  - Display profile preview in navigation menu
+
+- **Dependencies**
+  - Supabase Storage bucket for avatar images
+  - Update auth store to include profile information
+  - File upload component with image preview functionality
+  - Update navigation component to display user avatar
+
+- **Estimated Complexity**
+  - Medium: Requires database changes, avatar upload handling, and UI updates
+
+- **Implementation Tasks**
+  1. Create users_metadata table in Supabase
+  2. Implement avatar upload to Supabase Storage
+  3. Create UserProfileView component
+  4. Update auth store with profile methods
+  5. Integrate profile display in navigation
+
+#### 4.1.7 Email Templates
 - Template management for invoice emails
 - Customizable email content
 - Variable substitution support

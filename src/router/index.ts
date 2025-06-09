@@ -84,6 +84,12 @@ const router = createRouter({
       meta: routeMeta['company-settings']
     },
     {
+      path: '/profile',
+      name: 'user-profile',
+      component: () => import('@/views/UserProfileView.vue'),
+      meta: { requiresAuth: true, title: 'User Profile' }
+    },
+    {
       path: '/',
       redirect: '/dashboard'
     }

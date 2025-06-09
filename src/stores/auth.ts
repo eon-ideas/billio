@@ -4,6 +4,14 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 
+interface UserProfile {
+  id: string
+  nickname: string
+  avatar_url: string | null
+  role: string | null
+  email: string
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const router = useRouter()
   const isAuthenticated = ref(false)
@@ -12,6 +20,8 @@ export const useAuthStore = defineStore('auth', () => {
   const userRole = ref<string | null>(null)
   const currentSession = ref<Session | null>(null)
   const authInProgress = ref(false)
+  const userProfile = ref<UserProfile | null>(null)
+  const isProfileLoading = ref(false)
 
   // Initialize the auth state
   const initAuth = async () => {
@@ -88,6 +98,36 @@ export const useAuthStore = defineStore('auth', () => {
       userRole.value = null
     }
   }
+  
+  const fetchUserProfile = async () => {
+    if (!user.value) {
+      userProfile.value = null
+      return
+    }
+    
+    isProfileLoading.value = true
+    
+    try {
+      const { data, error } = await supabase.rpc('get_user_profile')
+      if (error) throw error
+      
+      userProfile.value = data
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      // Create a minimal profile with available data if full profile fetch fails
+      if (user.value) {
+        userProfile.value = {
+          id: user.value.id,
+          nickname: user.value.email || 'User',
+          avatar_url: null,
+          role: userRole.value,
+          email: user.value.email || ''
+        }
+      }
+    } finally {
+      isProfileLoading.value = false
+    }
+  }
 
   const isAdmin = () => {
     return userRole.value === 'ADMIN'
@@ -156,6 +196,86 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  const updateUserProfile = async (nickname: string) => {
+    if (!user.value) throw new Error('Not authenticated')
+    
+    isProfileLoading.value = true
+    
+    try {
+      const { data, error } = await supabase.rpc('update_user_profile', {
+        p_nickname: nickname,
+        p_avatar_url: userProfile.value?.avatar_url || null
+      })
+      
+      if (error) throw error
+      
+      // Update local profile data
+      if (userProfile.value) {
+        userProfile.value.nickname = data.nickname
+      } else {
+        await fetchUserProfile()
+      }
+      
+      return data
+    } catch (error) {
+      console.error('Error updating profile:', error)
+      throw error
+    } finally {
+      isProfileLoading.value = false
+    }
+  }
+  
+  const uploadAvatar = async (file: File) => {
+    if (!user.value) throw new Error('Not authenticated')
+    
+    isProfileLoading.value = true
+    
+    try {
+      // Create a unique file path for the avatar
+      const fileExt = file.name.split('.').pop()
+      const filePath = `user-avatars/${user.value.id}-${Date.now()}.${fileExt}`
+      
+      // Upload the avatar image to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('public')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+      
+      if (uploadError) throw uploadError
+      
+      // Get the public URL for the uploaded image
+      const { data } = supabase.storage
+        .from('public')
+        .getPublicUrl(filePath)
+      
+      const avatarUrl = data.publicUrl
+      
+      // Update the user profile with the new avatar URL
+      const { data: updatedProfile, error } = await supabase.rpc('update_user_profile', {
+        p_nickname: userProfile.value?.nickname || null,
+        p_avatar_url: avatarUrl
+      })
+      
+      if (error) throw error
+      
+      // Update local profile data
+      if (userProfile.value) {
+        userProfile.value.avatar_url = updatedProfile.avatar_url
+      } else {
+        await fetchUserProfile()
+      }
+      
+      return updatedProfile
+    } catch (error) {
+      console.error('Error uploading avatar:', error)
+      throw error
+    } finally {
+      isProfileLoading.value = false
+    }
+  }
+  
   // Listen to auth changes
   supabase.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
@@ -164,10 +284,12 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = session.user
       isInitialized.value = true
       fetchUserRole().catch(err => console.error('Error fetching role on auth change:', err))
+      fetchUserProfile().catch(err => console.error('Error fetching profile on auth change:', err))
     } else {
       isAuthenticated.value = false
       user.value = null
       userRole.value = null
+      userProfile.value = null
       currentSession.value = null
       isInitialized.value = true
     }
@@ -178,9 +300,14 @@ export const useAuthStore = defineStore('auth', () => {
     isInitialized,
     user,
     userRole,
+    userProfile,
+    isProfileLoading,
     isAdmin,
     login,
     logout,
-    initAuth
+    initAuth,
+    fetchUserProfile,
+    updateUserProfile,
+    uploadAvatar
   }
 })
