@@ -89,19 +89,19 @@ Billio is an invoice management application with role-based access control, buil
 
 ### Feature Implementation Guidelines
 - Pre-Implementation:
-  - Review README.md for existing feature documentation and context
+  - Review README.md and PRD.md for existing feature documentation and context
   - Understand how new features integrate with existing functionality
   - Check for related features in the codebase
 - Post-Implementation:
-  - Update README.md with new feature documentation
+  - Update PRD.md with new feature documentation
   - Include implementation details in technical documentation
   - Update any affected existing documentation
 
 ## Documentation Requirements
 
 Always adhere to these documentation rules:
-- Update README.md after implementing new features
-- Consult README.md before implementing new features
+- Update PRD.md after implementing new features
+- Consult PRD.md before implementing new features
 - Keep documentation up-to-date with the codebase
 - Document changes to database schema
 - Document changes to user roles and permissions

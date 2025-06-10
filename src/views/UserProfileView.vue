@@ -166,19 +166,9 @@ const handleSubmit = async () => {
                       </div>
 
                       <!-- Email -->
-                      <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                        <div class="mt-1">
-                          <input 
-                            type="email" 
-                            name="email" 
-                            id="email" 
-                            :value="profile?.email" 
-                            class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm bg-gray-50" 
-                            disabled 
-                          />
-                          <p class="mt-1 text-xs text-gray-500">Email cannot be changed</p>
-                        </div>
+                      <div class="px-0 py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
+                        <dt class="text-sm font-medium text-gray-900">Email Address</dt>
+                        <dd class="mt-1 text-sm text-gray-700 sm:col-span-2 sm:mt-0">{{ profile?.email || 'Not available' }}</dd>
                       </div>
                       
                       <!-- Nickname -->
