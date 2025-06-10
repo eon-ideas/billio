@@ -4,6 +4,9 @@ import { useRouter } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import type { User, Session } from '@supabase/supabase-js'
 
+// Storage bucket name for user avatars
+const STORAGE_BUCKET = 'public' // Change this to match your actual bucket name in Supabase
+
 interface UserProfile {
   id: string
   nickname: string
@@ -237,7 +240,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       // Upload the avatar image to Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from('public')
+        .from(STORAGE_BUCKET)
         .upload(filePath, file, {
           cacheControl: '3600',
           upsert: true
@@ -245,12 +248,12 @@ export const useAuthStore = defineStore('auth', () => {
       
       if (uploadError) throw uploadError
       
-      // Get the public URL for the uploaded image
-      const { data } = supabase.storage
-        .from('public')
-        .getPublicUrl(filePath)
+      // Get a signed URL for the uploaded image that includes authentication
+      const { data } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days expiry
       
-      const avatarUrl = data.publicUrl
+      const avatarUrl = data?.signedUrl || ''
       
       // Update the user profile with the new avatar URL
       const { data: updatedProfile, error } = await supabase.rpc('update_user_profile', {
@@ -295,6 +298,37 @@ export const useAuthStore = defineStore('auth', () => {
     }
   })
 
+  // Function to refresh the signed URL for an avatar
+  const refreshAvatarUrl = async () => {
+    if (!userProfile.value?.avatar_url) return
+
+    try {
+      // Extract the file path from the avatar URL
+      const url = userProfile.value.avatar_url
+      const pathMatch = url.match(/\/storage\/v1\/object\/.*?\/(.*?)(?:\?|$)/)
+      
+      if (!pathMatch || !pathMatch[1]) {
+        console.error('Could not extract file path from avatar URL')
+        return
+      }
+      
+      const filePath = pathMatch[1]
+      console.log('Refreshing signed URL for:', filePath)
+      
+      // Create a new signed URL
+      const { data } = await supabase.storage
+        .from(STORAGE_BUCKET)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days expiry
+      
+      if (data?.signedUrl && userProfile.value) {
+        userProfile.value.avatar_url = data.signedUrl
+        console.log('Avatar URL refreshed:', data.signedUrl)
+      }
+    } catch (error) {
+      console.error('Error refreshing avatar URL:', error)
+    }
+  }
+
   return {
     isAuthenticated,
     isInitialized,
@@ -308,6 +342,7 @@ export const useAuthStore = defineStore('auth', () => {
     initAuth,
     fetchUserProfile,
     updateUserProfile,
-    uploadAvatar
+    uploadAvatar,
+    refreshAvatarUrl
   }
 })

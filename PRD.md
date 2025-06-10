@@ -142,10 +142,11 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
 
 - **Technical Approach**
   - Implement UserProfileView component using Vue 3 Composition API
-  - Use Supabase Storage for avatar image uploads
+  - Use Supabase Storage for avatar image uploads with signed URLs for authentication
   - Create users_metadata table for storing user nickname and avatar URL
   - Extend auth store with profile management methods
   - Display profile preview in navigation menu
+  - Implement automatic URL signing and refresh mechanism for avatar images
 
 - **Dependencies**
   - Supabase Storage bucket for avatar images

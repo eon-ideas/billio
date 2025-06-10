@@ -134,7 +134,12 @@
             <Menu as="div" class="relative">
               <MenuButton class="-m-1.5 flex items-center p-1.5">
                 <span class="sr-only">Open user menu</span>
-                <img class="size-8 rounded-full bg-gray-50" :src="userPhotoUrl" :alt="auth.user?.email" />
+                <img 
+  class="size-8 rounded-full bg-gray-50" 
+  :src="userPhotoUrl" 
+  :alt="auth.user?.email" 
+  @error="handleAvatarError" 
+/>
                 <span class="hidden lg:flex lg:items-center">
                   <span class="ml-4 text-sm/6 font-semibold text-gray-900" aria-hidden="true">
                     {{ auth.userProfile?.nickname || auth.user?.email }}
@@ -165,7 +170,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, watch } from 'vue'
+import { computed, onMounted, watch, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useCustomersStore } from '@/stores/customers'
 import {
@@ -210,9 +215,39 @@ onMounted(() => {
   }
 })
 
+// Watch for changes in user profile to ensure avatar updates are reflected
+watch(
+  () => auth.userProfile,
+  () => {
+    // Avatar URL will update automatically when profile changes
+  },
+  { deep: true }
+)
+
+// Track if avatar loading failed
+const avatarLoadFailed = ref(false)
+
+// Handle avatar image loading error
+const handleAvatarError = async () => {
+  try {
+    // Try to refresh the avatar URL with a signed URL
+    await auth.refreshAvatarUrl()
+    
+    // Reset the failed flag to try again with the new URL
+    avatarLoadFailed.value = false
+  } catch (error) {
+    avatarLoadFailed.value = true
+  }
+}
+
 const userPhotoUrl = computed(() => {
-  // Use profile avatar if available, otherwise fallback to default
-  return auth.userProfile?.avatar_url || '/img/user-avatar.jpg'
+  // If avatar loading previously failed or no avatar URL, use default
+  if (avatarLoadFailed.value || !auth.userProfile?.avatar_url) {
+    return '/img/user-avatar.jpg'
+  }
+  
+  // Return the signed URL from the user profile
+  return auth.userProfile.avatar_url
 })
 
 const topCustomers = computed(() => {
