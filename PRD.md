@@ -399,6 +399,79 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
 
 3. **Phase 3 (Planned)**: Advanced features
    - Reporting and analytics
+
+## 14. Security Implementation and Updates
+
+### 14.1 Security Audit and Improvements (2025-06-10)
+
+A comprehensive security audit was conducted on the Supabase backend, focusing on Row Level Security (RLS) policies. The following improvements were implemented to strengthen data protection and enforce proper role-based access control:
+
+#### 14.1.1 Removed Overly Permissive Policies
+- Eliminated policies that granted full access to any authenticated user regardless of role
+- Replaced with properly scoped policies that enforce role-based and ownership-based restrictions
+- Affected tables: company_info, customers, invoices, invoice_items, email_templates, user_roles
+
+#### 14.1.2 Role-Based Access Control Implementation
+- **Admin Access**:
+  - Full CRUD access to all tables and records
+  - Implemented through `is_admin()` function checks in RLS policies
+
+- **Regular User Access**:
+  - Read-only access to company_info and email_templates
+  - READ access to all customers, invoices, and invoice_items
+  - CREATE, UPDATE, DELETE access limited to owned records in customers, invoices, and invoice_items
+  - No access to user_roles table
+
+#### 14.1.3 Storage Security Enhancements
+- Changed storage buckets from public to private
+- Implemented authenticated access policies for file retrieval
+- Added ownership verification for user avatar uploads and modifications
+
+#### 14.1.4 Policy Structure Improvements
+- Consolidated duplicate and conflicting policies
+- Created clearly named policies that accurately reflect their behavior
+- Separated policies by operation type (SELECT, INSERT, UPDATE, DELETE)
+- Implemented proper ownership checks using user_id fields and relationships
+
+#### 14.1.5 Security Best Practices
+- All tables have RLS enabled with explicit policies
+- Authentication required for all data access
+- Ownership verification for user-created content
+- Role-based restrictions consistently applied across all tables
+
+### 14.2 Security Verification
+
+The following verification steps were performed to ensure security improvements are working as expected:
+
+1. **Admin User Testing**:
+   - Verified full access to all records across all tables
+   - Confirmed ability to modify company settings and user roles
+
+2. **Regular User Testing**:
+   - Verified read-only access to company_info and email_templates
+   - Confirmed ability to manage only owned customers and invoices
+   - Verified inability to access or modify user roles
+
+3. **Unauthenticated Access Testing**:
+   - Confirmed all data access attempts are rejected
+   - Verified storage buckets require authentication
+
+### 14.3 Ongoing Security Maintenance
+
+To maintain the security of the Billio application, the following practices will be implemented:
+
+1. **Regular Security Audits**:
+   - Quarterly review of RLS policies
+   - Testing for unauthorized access scenarios
+
+2. **Database Monitoring**:
+   - Logging of sensitive operations
+   - Regular review of access logs
+
+3. **Security Updates**:
+   - Keep Supabase and dependencies updated
+   - Apply security patches promptly
+   - Review and update security documentation
    - Payment integrations
    - Mobile responsiveness improvements
 
