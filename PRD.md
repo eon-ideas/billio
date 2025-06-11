@@ -286,6 +286,10 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
 - Sensitive data must be encrypted at rest
 - HTTPS required for all communications
 - Regular security audits and updates
+- Role-based functions must validate authentication status [COMPLETED]
+  - `get_user_role()` function returns NULL for unauthenticated users
+  - Prevents unauthorized access to role information
+  - Enhances security of role-based policies
 
 ## 7. User Interface Requirements
 
