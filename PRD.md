@@ -112,6 +112,12 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
   - Delete invoices
   - Print-friendly preview
   - PDF generation capability
+  
+- **User Information Display** [COMPLETED]
+  - User avatars displayed instead of email addresses
+  - Tooltip showing user nickname on hover
+  - Fallback to default icon when no avatar is available
+  - Clear visual indication of invoice creator
 
 #### 4.1.5 Company Settings
 - **Company Information**

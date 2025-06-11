@@ -12,7 +12,8 @@ import {
   EllipsisVerticalIcon, 
   EyeIcon, 
   PencilSquareIcon, 
-  TrashIcon 
+  TrashIcon,
+  UserCircleIcon
 } from '@heroicons/vue/20/solid'
 
 const router = useRouter()
@@ -24,8 +25,8 @@ const loading = ref(true)
 const showDeleteDialog = ref(false)
 const invoiceToDelete = ref<string | null>(null)
 const invoiceToDeleteNumber = ref('')
-const customerMap = ref<Record<string, any>>({})
-const usersMap = ref<Record<string, string>>({})
+const customerMap = ref<Record<string, any>>({})  
+const usersMap = ref<Record<string, any>>({})
 
 const loadData = async () => {
   loading.value = true
@@ -43,22 +44,26 @@ const loadData = async () => {
   loading.value = false
 }
 
-const fetchUsersEmails = async (userIds: string[]) => {
+const fetchUsersProfiles = async (userIds: string[]) => {
   if (userIds.length === 0) return
   
-  const { data, error } = await supabase
-    .from('user_emails')
-    .select('id, email')
-    .in('id', userIds)
+  const { data, error } = await supabase.rpc(
+    'get_multiple_user_profiles',
+    { p_user_ids: userIds }
+  )
     
   if (error) {
-    console.error('Error fetching user emails:', error);
+    console.error('Error fetching user profiles:', error);
     return;
   }
   
   if (data && data.length > 0) {
     data.forEach((u: any) => {
-      usersMap.value[u.id] = u.email;
+      usersMap.value[u.id] = {
+        email: u.email,
+        nickname: u.nickname || u.email?.split('@')[0] || 'User',
+        avatar_url: u.avatar_url
+      };
     })
   }
 }
@@ -69,7 +74,7 @@ onMounted(async () => {
   // After loading invoices, extract unique user IDs and filter out any null/undefined values
   const userIds = [...new Set(invoicesStore.invoices.map(i => i.user_id).filter(Boolean))]
   if (userIds.length > 0) {
-    await fetchUsersEmails(userIds);
+    await fetchUsersProfiles(userIds);
   }
 })
 
@@ -274,17 +279,28 @@ const getCustomerCurrency = (customerId: string) => {
               </span>
             </td>
             <td class="hidden px-3 py-4 text-xs text-gray-500 sm:table-cell">
-              <div>
-                <span v-if="usersMap[invoice.user_id]">
-                  <span class="font-medium text-xs">{{ usersMap[invoice.user_id] }}</span>
-                </span>
-                <span v-else>
-                  <span class="italic text-gray-400 text-xs">Unknown</span>
-                </span>
-                <br/>
-                <span class="text-[10px] text-gray-400">Created: {{ invoice.created_at ? new Date(invoice.created_at).toLocaleString() : '-' }}</span>
-                <br/>
-                <span class="text-[10px] text-gray-400">Updated: {{ invoice.updated_at ? new Date(invoice.updated_at).toLocaleString() : '-' }}</span>
+              <div class="flex items-start">
+                <div class="relative group">
+                  <div v-if="usersMap[invoice.user_id]?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden mr-2">
+                    <img 
+                      :src="usersMap[invoice.user_id].avatar_url" 
+                      :alt="usersMap[invoice.user_id].nickname" 
+                      class="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div v-else class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">
+                    <UserCircleIcon class="h-6 w-6 text-indigo-500" />
+                  </div>
+                  <!-- Tooltip -->
+                  <div class="absolute z-10 invisible group-hover:visible bg-gray-800 text-white text-xs rounded py-1 px-2 -mt-1 left-10 whitespace-nowrap">
+                    {{ usersMap[invoice.user_id]?.nickname || 'Unknown User' }}
+                  </div>
+                </div>
+                <div>
+                  <span class="text-[10px] text-gray-400">Created: {{ invoice.created_at ? new Date(invoice.created_at).toLocaleString() : '-' }}</span>
+                  <br/>
+                  <span class="text-[10px] text-gray-400">Updated: {{ invoice.updated_at ? new Date(invoice.updated_at).toLocaleString() : '-' }}</span>
+                </div>
               </div>
             </td>
             <td class="py-4 pr-4 pl-3 text-right text-sm font-medium sm:pr-0">
