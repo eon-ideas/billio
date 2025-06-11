@@ -47,6 +47,10 @@ const breadcrumbItems = computed(() => [
   { name: 'New Invoice' }
 ])
 
+const subtitleText = computed(() => {
+  return `Create a new invoice for ${customer.value?.name || ''}`
+})
+
 const handleSubmit = (data: InvoiceFormData) => {
   invoicesStore.addInvoice({
     ...data,
@@ -70,7 +74,7 @@ const handleCancel = () => {
       <!-- Header -->
       <PageTitle 
         title="New Invoice" 
-        subtitle="Create a new invoice for {{ customer?.name }}"
+        :subtitle="subtitleText"
         class="mb-8"
       />
 
