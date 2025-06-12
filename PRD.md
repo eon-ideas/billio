@@ -112,6 +112,18 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
   - Delete invoices
   - Print-friendly preview
   - PDF generation capability
+  - Use invoice as template (duplicate) [COMPLETED]
+    - Create new invoice using existing invoice as template
+    - Copy all invoice data except invoice number
+    - Append "(Copy)" to invoice number
+    - Maintain all line items from original invoice
+    
+    **Implementation Details:**
+    - Added "Use as a template" menu item in invoice action menus in both CustomerInvoicesView.vue and InvoicesView.vue
+    - Implemented template handling in InvoiceNewView.vue using URL query parameters
+    - Created logic to copy all relevant invoice data while generating new IDs for invoice items
+    - Added success/error feedback for template loading
+    - Works for both admin and user roles with appropriate permissions
   
 - **User Information Display** [COMPLETED]
   - User avatars displayed instead of email addresses

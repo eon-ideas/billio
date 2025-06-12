@@ -12,7 +12,8 @@ import {
   EllipsisVerticalIcon, 
   EyeIcon, 
   PencilSquareIcon, 
-  TrashIcon 
+  TrashIcon,
+  DocumentDuplicateIcon
 } from '@heroicons/vue/20/solid'
 import type { Customer } from '@/types/customer'
 
@@ -109,6 +110,21 @@ const handlePreview = (id: string) => {
 
 const handleTogglePaid = (id: string) => {
   invoicesStore.toggleInvoicePaid(id)
+}
+
+const handleUseAsTemplate = async (id: string) => {
+  // Get the invoice to duplicate
+  const invoice = await invoicesStore.getInvoiceById(id)
+  if (!invoice) return
+  
+  // Navigate to the new invoice form with template data
+  router.push({
+    path: `/customers/${customerId.value}/invoices/new`,
+    query: {
+      template: id,
+      number: `${invoice.number} (Copy)`
+    }
+  })
 }
 
 const handleDelete = (id: string, invoiceNumber: string) => {
@@ -328,6 +344,16 @@ const formatCurrency = (amount: number, currency: string) => {
                             aria-hidden="true" 
                           />
                           Edit
+                        </button>
+                      </MenuItem>
+                      <MenuItem v-slot="{ active }">
+                        <button
+                          @click.stop="handleUseAsTemplate(invoice.id)"
+                          class="w-full flex items-center px-4 py-2 text-sm"
+                          :class="[active ? 'bg-gray-100 text-gray-900' : 'text-gray-700']"
+                        >
+                          <DocumentDuplicateIcon class="mr-3 h-5 w-5 text-gray-400" aria-hidden="true" />
+                          Use as a template
                         </button>
                       </MenuItem>
                       <MenuItem v-if="auth.isAdmin() || invoice.user_id === auth.user?.id" v-slot="{ active }">

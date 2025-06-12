@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {computed, onMounted, ref} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useCustomersStore } from '@/stores/customers'
 import { useInvoicesStore } from '@/stores/invoices'
@@ -18,6 +18,49 @@ const customer = ref<Customer | null>(null)
 const customerId = route.params.customerId as string
 const loading = ref(true)
 const error = ref<string | null>(null)
+const success = ref<string | null>(null)
+const templateData = ref<InvoiceFormData | undefined>(undefined)
+const templateId = route.query.template as string | undefined
+
+const loadTemplateInvoice = async (id: string) => {
+  try {
+    const invoice = await invoicesStore.getInvoiceById(id)
+    if (!invoice) {
+      console.error('Template invoice not found')
+      error.value = 'Template invoice not found. Creating a new invoice instead.'
+      return
+    }
+    
+    // Use the invoice as a template, but generate a new number if not provided in query
+    const newNumber = route.query.number as string || `${invoice.number} (Copy)`
+    
+    // Create template data without the unique fields
+    templateData.value = {
+      customer_id: invoice.customer_id,
+      number: newNumber,
+      date: new Date().toISOString().split('T')[0], // Use current date for the new invoice
+      delivery_date: invoice.delivery_date,
+      due_date: invoice.due_date,
+      invoice_items: invoice.invoice_items?.map(item => ({
+        // Generate a temporary ID for each item
+        id: crypto.randomUUID(),
+        invoice_id: '',
+        description: item.description,
+        quantity: item.quantity,
+        price: item.price
+      })) || [],
+      subtotal: invoice.subtotal,
+      vat: invoice.vat,
+      currency_exchange_rate: invoice.currency_exchange_rate
+    }
+    
+    console.log('Template data loaded:', templateData.value)
+    success.value = `Invoice ${invoice.number} loaded as template. Make any necessary changes before saving.`
+  } catch (err: any) {
+    console.error('Error loading template invoice:', err)
+    error.value = 'Failed to load template invoice. Creating a new invoice instead.'
+  }
+}
 
 onMounted(async () => {
   try {
@@ -32,6 +75,11 @@ onMounted(async () => {
     }
     customer.value = {
       ...fetchedCustomer,
+    }
+    
+    // If template ID is provided, load the template invoice
+    if (templateId) {
+      await loadTemplateInvoice(templateId)
     }
   } catch (err: any) {
     console.error('Error loading customer:', err)
@@ -85,6 +133,13 @@ const handleCancel = () => {
         </div>
       </div>
 
+      <!-- Success Message -->
+      <div v-if="success" class="mb-6">
+        <div class="p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p class="text-sm text-green-600">{{ success }}</p>
+        </div>
+      </div>
+
       <!-- Loading State -->
       <div v-if="loading" class="flex justify-center py-8">
         <div class="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-primary"></div>
@@ -94,6 +149,7 @@ const handleCancel = () => {
       <div v-else>
         <InvoiceForm
           :customer-id="customerId"
+          :initial-data="templateData"
           @submit="handleSubmit"
           @cancel="handleCancel"
         />
