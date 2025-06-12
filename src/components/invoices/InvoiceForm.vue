@@ -3,6 +3,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import type { InvoiceFormData, InvoiceItemFormData } from '@/types/invoice'
 import type { Customer } from '@/types/customer'
 import { useCustomersStore } from '@/stores/customers'
+import { useInvoicesStore } from '@/stores/invoices'
 import { useExchangeRate } from '@/composables/useExchangeRate'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
@@ -19,8 +20,11 @@ const emit = defineEmits<{
 }>()
 
 const customersStore = useCustomersStore()
+const invoicesStore = useInvoicesStore()
 const customer = ref<Customer | null>(null)
 const { fetchExchangeRate, isLoading: fetchingExchangeRate, error: exchangeRateError } = useExchangeRate()
+const loadingLatestNumber = ref(false)
+const latestNumberNotification = ref<string | null>(null)
 
 onMounted(async () => {
   customer.value = await customersStore.getCustomerById(props.customerId)
@@ -147,6 +151,27 @@ const exchangeRateLabel = computed(() => {
   return `Exchange Rate (1${customer.value.currency} = X EUR)`
 })
 
+const loadLatestInvoiceNumber = async () => {
+  loadingLatestNumber.value = true
+  latestNumberNotification.value = null
+  
+  try {
+    const latestNumber = await invoicesStore.getLatestInvoiceNumber()
+    
+    if (latestNumber) {
+      formData.value.number = latestNumber
+      latestNumberNotification.value = `Latest invoice number "${latestNumber}" loaded. Please modify it (e.g., increment) before saving.`
+    } else {
+      latestNumberNotification.value = 'No previous invoices found. Please enter a new invoice number.'
+    }
+  } catch (error) {
+    console.error('Error loading latest invoice number:', error)
+    latestNumberNotification.value = 'Failed to load latest invoice number.'
+  } finally {
+    loadingLatestNumber.value = false
+  }
+}
+
 const handleSubmit = () => {
   emit('submit', { 
     ...formData.value,
@@ -160,11 +185,29 @@ const handleSubmit = () => {
   <form @submit.prevent="handleSubmit" class="space-y-8">
     <!-- Basic Information -->
     <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-      <BaseInput
-        v-model="formData.number"
-        label="Invoice Number"
-        required
-      />
+      <div class="space-y-2">
+        <BaseInput
+          v-model="formData.number"
+          label="Invoice Number"
+          required
+        />
+        <div class="flex items-center">
+          <BaseButton 
+            type="button" 
+            variant="secondary" 
+            size="sm" 
+            @click="loadLatestInvoiceNumber"
+            :disabled="loadingLatestNumber"
+            class="text-xs"
+          >
+            <span v-if="loadingLatestNumber">Loading...</span>
+            <span v-else>Load Latest Invoice Number</span>
+          </BaseButton>
+        </div>
+        <div v-if="latestNumberNotification" class="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+          {{ latestNumberNotification }}
+        </div>
+      </div>
       <BaseInput
         v-model="formData.date"
         type="date"

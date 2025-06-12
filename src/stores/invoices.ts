@@ -335,6 +335,29 @@ export const useInvoicesStore = defineStore('invoices', () => {
     return items.reduce((sum, item) => sum + (item.quantity * item.price), 0)
   }
 
+  const getLatestInvoiceNumber = async (): Promise<string | null> => {
+    try {
+      loading.value = true
+      error.value = null
+      
+      const { data, error: err } = await supabase
+        .from('invoices')
+        .select('number')
+        .order('created_at', { ascending: false })
+        .limit(1)
+
+      if (err) throw err
+      
+      return data && data.length > 0 ? data[0].number : null
+    } catch (err: any) {
+      error.value = err.message
+      console.error('Error fetching latest invoice number:', err)
+      return null
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     invoices,
     loading,
@@ -342,9 +365,11 @@ export const useInvoicesStore = defineStore('invoices', () => {
     fetchInvoices,
     addInvoice,
     updateInvoice,
+    toggleInvoicePaid,
     deleteInvoice,
     getInvoiceById,
     getInvoicesByCustomerId,
-    toggleInvoicePaid
+    calculateTotal,
+    getLatestInvoiceNumber
   }
 })

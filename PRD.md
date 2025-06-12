@@ -125,6 +125,18 @@ To provide businesses with an intuitive, secure, and efficient platform for mana
     - Added success/error feedback for template loading
     - Works for both admin and user roles with appropriate permissions
   
+  - Load latest invoice number [COMPLETED]
+    - Provide option to load the latest invoice number when creating a new invoice
+    - Notify user that the latest invoice number is loaded and should be modified
+    - Allow user to edit/increment the invoice number before saving
+    
+    **Implementation Details:**
+    - Added "Load Latest Invoice Number" button below the invoice number field in InvoiceForm.vue
+    - Created getLatestInvoiceNumber method in invoices store to fetch the most recent invoice by creation date
+    - Added notification to inform user that the latest number is loaded and should be changed
+    - Implemented loading state for better user experience
+    - Works for both admin and user roles with appropriate permissions
+  
 - **User Information Display** [COMPLETED]
   - User avatars displayed instead of email addresses
   - Tooltip showing user nickname on hover
