@@ -16,6 +16,21 @@ const company = computed(() => companyStore.companyInfo)
 const customer = ref<Customer | null>(null)
 const barcodeUrl = ref<string | null>(null)
 const isLoadingBarcode = ref(false)
+const logoLoadFailed = ref(false)
+
+// Handle logo image loading error
+const handleLogoError = async () => {
+  try {
+    console.log('Logo failed to load in invoice preview, attempting to refresh URL')
+    await companyStore.refreshLogoUrl()
+    
+    // Reset the failed flag to try again with the new URL
+    logoLoadFailed.value = false
+  } catch (error) {
+    console.error('Logo loading error in invoice preview:', error)
+    logoLoadFailed.value = true
+  }
+}
 
 const items = computed(() => {
   return props.invoice.invoice_items || []
@@ -149,7 +164,13 @@ onMounted(async () => {
             </div>
           </div>
           <div class="text-right ml-4">
-            <img v-if="company.logoUrl" :src="company.logoUrl" alt="Company logo" class="h-10 ml-auto" />
+            <img 
+              v-if="company.logoUrl && !logoLoadFailed" 
+              :src="company.logoUrl" 
+              alt="Company logo" 
+              class="h-10 ml-auto" 
+              @error="handleLogoError" 
+            />
             <p v-if="company.web" class="text-gray-600 text-xs mt-1">web: <a class="hover:underline" :href="`https://${company.web}`" target="_blank">{{ company.web }}</a></p>
             <p v-if="company.email" class="text-gray-600 text-xs">email: <a class="hover:underline" :href="`mailto:${company.email}`">{{ company.email }}</a></p>
           </div>

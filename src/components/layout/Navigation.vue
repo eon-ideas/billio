@@ -230,19 +230,26 @@ const avatarLoadFailed = ref(false)
 // Handle avatar image loading error
 const handleAvatarError = async () => {
   try {
-    // Try to refresh the avatar URL with a signed URL
-    await auth.refreshAvatarUrl()
-    
-    // Reset the failed flag to try again with the new URL
-    avatarLoadFailed.value = false
+    // Check if we're authenticated before trying to refresh
+    if (auth.isAuthenticated && auth.user) {
+      // Try to refresh the avatar URL with a signed URL
+      await auth.refreshAvatarUrl()
+      
+      // Reset the failed flag to try again with the new URL
+      avatarLoadFailed.value = false
+    } else {
+      // If not authenticated, mark as failed
+      avatarLoadFailed.value = true
+    }
   } catch (error) {
+    console.error('Avatar loading error:', error)
     avatarLoadFailed.value = true
   }
 }
 
 const userPhotoUrl = computed(() => {
   // If avatar loading previously failed or no avatar URL, use default
-  if (avatarLoadFailed.value || !auth.userProfile?.avatar_url) {
+  if (avatarLoadFailed.value || !auth.userProfile?.avatar_url || !auth.isAuthenticated) {
     return '/img/user-avatar.jpg'
   }
   

@@ -3,6 +3,7 @@ import { ref, watch } from 'vue'
 import BaseInput from '@/components/ui/BaseInput.vue'
 import BaseButton from '@/components/ui/BaseButton.vue'
 import type { CompanyInfo } from '@/types/company'
+import { useCompanyStore } from '@/stores/company'
 
 const props = defineProps<{
   initialData?: CompanyInfo
@@ -17,6 +18,22 @@ const emit = defineEmits<{
 
 const logoInput = ref<HTMLInputElement | null>(null)
 const error = ref<string | null>(null)
+const logoLoadFailed = ref(false)
+
+// Handle logo image loading error
+const handleLogoError = async () => {
+  try {
+    // Get the company store to refresh the logo URL
+    const companyStore = useCompanyStore()
+    await companyStore.refreshLogoUrl()
+    
+    // Reset the failed flag to try again with the new URL
+    logoLoadFailed.value = false
+  } catch (err) {
+    console.error('Logo loading error:', err)
+    logoLoadFailed.value = true
+  }
+}
 
 const formData = ref<CompanyInfo>(props.initialData || {
   name: '',
@@ -90,10 +107,11 @@ const handleLogoUpload = (event: Event) => {
                   :class="{ 'border-dashed border-gray-300': !formData.logoUrl, 'border-transparent': formData.logoUrl }"
                 >
                   <img
-                    v-if="formData.logoUrl"
+                    v-if="formData.logoUrl && !logoLoadFailed"
                     :src="formData.logoUrl"
                     alt="Company logo"
                     class="w-full h-full object-contain"
+                    @error="handleLogoError"
                   />
                   <div v-else class="text-center px-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">

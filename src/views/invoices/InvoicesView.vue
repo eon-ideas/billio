@@ -28,6 +28,7 @@ const invoiceToDelete = ref<string | null>(null)
 const invoiceToDeleteNumber = ref('')
 const customerMap = ref<Record<string, any>>({})  
 const usersMap = ref<Record<string, any>>({})
+const avatarLoadErrors = ref<Record<string, boolean>>({})
 
 const loadData = async () => {
   loading.value = true
@@ -151,6 +152,69 @@ const getCustomerName = (customerId: string) => {
 
 const getCustomerCurrency = (customerId: string) => {
   return customerMap.value[customerId]?.currency || 'USD'
+}
+
+// Handle avatar image loading error
+const handleAvatarError = async (userId: string) => {
+  try {
+    console.log('Avatar failed to load in invoice list, attempting to refresh URL for user:', userId)
+    avatarLoadErrors.value[userId] = true
+    
+    // Get a fresh session
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    
+    if (sessionError || !session) {
+      console.error('No valid session for refreshing avatar URL')
+      return
+    }
+    
+    // Get the user's avatar URL path
+    if (usersMap.value[userId]?.avatar_url) {
+      const avatarUrl = usersMap.value[userId].avatar_url
+      const urlParts = avatarUrl.split('/')
+      
+      // Extract the file path without the bucket prefix
+      let filePath = ''
+      const objectIndex = urlParts.findIndex((part: string) => part === 'object')
+      if (objectIndex !== -1 && urlParts.length > objectIndex + 2) {
+        // Skip 'object' and bucket name to get the actual file path
+        filePath = urlParts.slice(objectIndex + 2).join('/')
+      }
+      
+      if (!filePath) {
+        console.error('Could not extract file path from avatar URL:', avatarUrl)
+        return
+      }
+      
+      // Get available buckets
+      const { data: buckets } = await supabase.storage.listBuckets()
+      console.log('Available buckets for avatar refresh:', buckets?.map(b => b.name))
+      
+      // Use the first available bucket or default to 'public'
+      const bucketName = buckets && buckets.length > 0 ? buckets[0].name : 'public'
+      console.log('Using bucket for avatar refresh:', bucketName)
+      
+      // Create a new signed URL with 30-day expiry
+      const { data, error: signedUrlError } = await supabase
+        .storage
+        .from(bucketName)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 30) // 30 days expiry
+      
+      if (signedUrlError || !data) {
+        console.error('Error creating signed URL for avatar refresh:', signedUrlError)
+        return
+      }
+      
+      // Update the avatar URL in the users map
+      usersMap.value[userId].avatar_url = data.signedUrl
+      console.log('Avatar URL refreshed for user:', userId)
+      
+      // Reset the error flag to try again with the new URL
+      avatarLoadErrors.value[userId] = false
+    }
+  } catch (error) {
+    console.error('Avatar loading error in invoice list:', error)
+  }
 }
 </script>
 
@@ -297,11 +361,12 @@ const getCustomerCurrency = (customerId: string) => {
             <td class="hidden px-3 py-4 text-xs text-gray-500 sm:table-cell">
               <div class="flex items-start">
                 <div class="relative group">
-                  <div v-if="usersMap[invoice.user_id]?.avatar_url" class="h-8 w-8 rounded-full overflow-hidden mr-2">
+                  <div v-if="usersMap[invoice.user_id]?.avatar_url && !avatarLoadErrors[invoice.user_id]" class="h-8 w-8 rounded-full overflow-hidden mr-2">
                     <img 
                       :src="usersMap[invoice.user_id].avatar_url" 
                       :alt="usersMap[invoice.user_id].nickname" 
                       class="h-full w-full object-cover"
+                      @error="handleAvatarError(invoice.user_id)"
                     />
                   </div>
                   <div v-else class="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center mr-2">

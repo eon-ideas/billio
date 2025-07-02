@@ -300,25 +300,46 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Function to refresh the signed URL for an avatar
   const refreshAvatarUrl = async () => {
-    if (!userProfile.value?.avatar_url) return
+    if (!userProfile.value?.avatar_url || !isAuthenticated.value || !user.value) return
 
     try {
-      // Extract the file path from the avatar URL
-      const url = userProfile.value.avatar_url
-      const pathMatch = url.match(/\/storage\/v1\/object\/.*?\/(.*?)(?:\?|$)/)
+      // Check if we have a valid session first
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
       
-      if (!pathMatch || !pathMatch[1]) {
-        console.error('Could not extract file path from avatar URL')
+      if (sessionError || !session) {
+        console.error('No valid session for refreshing avatar URL')
         return
       }
       
-      const filePath = pathMatch[1]
-      console.log('Refreshing signed URL for:', filePath)
+      // Extract the file path from the avatar URL
+      const url = userProfile.value.avatar_url
+      const pathMatch = url.match(/\/storage\/v1\/object\/sign\/([^\/]+)\/(.*)(?:\?|$)/)
+      
+      if (!pathMatch || !pathMatch[1] || !pathMatch[2]) {
+        console.error('Could not extract file path from avatar URL:', url)
+        return
+      }
+      
+      // Extract bucket and file path separately to avoid double bucket prefix
+      const bucket = pathMatch[1] // This should be 'public'
+      const filePath = pathMatch[2] // This should be the actual file path
+      
+      // Remove any duplicate bucket prefix if present
+      const cleanFilePath = filePath.startsWith(bucket + '/') 
+        ? filePath.substring(bucket.length + 1) 
+        : filePath
+        
+      console.log('Refreshing signed URL for:', cleanFilePath)
       
       // Create a new signed URL
-      const { data } = await supabase.storage
+      const { data, error } = await supabase.storage
         .from(STORAGE_BUCKET)
-        .createSignedUrl(filePath, 60 * 60 * 24 * 7) // 7 days expiry
+        .createSignedUrl(cleanFilePath, 60 * 60 * 24 * 30) // 30 days expiry
+      
+      if (error) {
+        console.error('Error creating signed URL:', error)
+        return
+      }
       
       if (data?.signedUrl && userProfile.value) {
         userProfile.value.avatar_url = data.signedUrl

@@ -282,6 +282,14 @@ export const useCompanyStore = defineStore('company', () => {
     try {
       isLoading.value = true
 
+      // Check if we have a valid session first
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session) {
+        console.error('No valid session for uploading logo')
+        throw new Error('Authentication session expired. Please log in again.')
+      }
+
       // Ensure we have a company record
       await ensureCompanyRecord()
 
@@ -289,19 +297,35 @@ export const useCompanyStore = defineStore('company', () => {
       const fileName = `${Date.now()}.${fileExt}`
       const filePath = `company-logos/${fileName}`
 
+      // Check available buckets to ensure we're using the correct one
+      const { data: buckets } = await supabase.storage.listBuckets()
+      console.log('Available buckets:', buckets?.map(b => b.name))
+      
+      // Use the first available bucket or default to 'public'
+      const bucketName = buckets && buckets.length > 0 ? buckets[0].name : 'public'
+      console.log('Using bucket:', bucketName)
+      
       // Upload file to Supabase Storage
       const { error: uploadError } = await supabase
         .storage
-        .from('public')
+        .from(bucketName)
         .upload(filePath, file)
 
       if (uploadError) throw uploadError
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase
+      // Get signed URL with 30-day expiry instead of public URL
+      const { data, error: signedUrlError } = await supabase
         .storage
-        .from('public')
-        .getPublicUrl(filePath)
+        .from(bucketName)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 30) // 30 days expiry
+      
+      if (signedUrlError || !data) {
+        console.error('Error creating signed URL:', signedUrlError)
+        throw signedUrlError || new Error('Failed to create signed URL')
+      }
+      
+      // Use signed URL instead of public URL
+      const publicUrl = data.signedUrl
 
       // Update company info with new logo URL
       const { error } = await supabase
@@ -352,11 +376,78 @@ export const useCompanyStore = defineStore('company', () => {
     { immediate: true }
   )
 
+  // Function to refresh the signed URL for a company logo
+  const refreshLogoUrl = async () => {
+    if (!companyInfo.value?.logoUrl || !authStore.isAuthenticated) return
+
+    try {
+      // Check if we have a valid session first
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError || !session) {
+        console.error('No valid session for refreshing logo URL')
+        return
+      }
+      
+      // Extract the file path from the logo URL
+      const url = companyInfo.value.logoUrl
+      const pathMatch = url.match(/\/storage\/v1\/object\/public\/([^\/]+)\/(.*)(?:\?|$)/)
+      
+      if (!pathMatch || !pathMatch[1] || !pathMatch[2]) {
+        console.error('Could not extract file path from logo URL:', url)
+        return
+      }
+      
+      // Extract bucket and file path separately
+      const bucket = pathMatch[1] // This should be 'public'
+      let filePath = pathMatch[2] // This should be the actual file path
+      
+      // Fix for duplicate public/public prefix
+      if (filePath.startsWith('public/')) {
+        filePath = filePath.substring('public/'.length)
+      }
+      
+      // Also handle any other duplicate bucket prefix
+      if (filePath.startsWith(bucket + '/')) {
+        filePath = filePath.substring(bucket.length + 1)
+      }
+        
+      console.log('Refreshing logo signed URL for:', filePath)
+      
+      // Check available buckets to ensure we're using the correct one
+      const { data: buckets } = await supabase.storage.listBuckets()
+      console.log('Available buckets for refresh:', buckets?.map(b => b.name))
+      
+      // Use the first available bucket or default to 'public'
+      const bucketName = buckets && buckets.length > 0 ? buckets[0].name : 'public'
+      console.log('Using bucket for refresh:', bucketName)
+      
+      // Get a new signed URL with 30-day expiry
+      const { data, error: signedUrlError } = await supabase
+        .storage
+        .from(bucketName)
+        .createSignedUrl(filePath, 60 * 60 * 24 * 30) // 30 days expiry
+      
+      if (signedUrlError || !data) {
+        console.error('Error creating signed URL for logo refresh:', signedUrlError)
+        return
+      }
+      
+      if (data.signedUrl && companyInfo.value) {
+        companyInfo.value.logoUrl = data.signedUrl
+        console.log('Logo URL refreshed:', data.signedUrl)
+      }
+    } catch (error) {
+      console.error('Error refreshing logo URL:', error)
+    }
+  }
+
   return {
     companyInfo,
     isLoading,
     updateCompanyInfo,
     updateLogo,
-    loadCompanyInfo
+    loadCompanyInfo,
+    refreshLogoUrl
   }
 })

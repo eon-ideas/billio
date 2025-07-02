@@ -1,9 +1,28 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import type { CompanyInfo } from '@/types/company'
+import { useCompanyStore } from '@/stores/company'
 
 defineProps<{
   companyInfo: CompanyInfo
 }>()
+
+const companyStore = useCompanyStore()
+const logoLoadFailed = ref(false)
+
+// Handle logo image loading error
+const handleLogoError = async () => {
+  try {
+    // Try to refresh the logo URL
+    await companyStore.refreshLogoUrl()
+    
+    // Reset the failed flag to try again with the new URL
+    logoLoadFailed.value = false
+  } catch (error) {
+    console.error('Logo loading error:', error)
+    logoLoadFailed.value = true
+  }
+}
 </script>
 
 <template>
@@ -25,10 +44,11 @@ defineProps<{
                 :class="{ 'border-dashed border-gray-300': !companyInfo.logoUrl, 'border-transparent': companyInfo.logoUrl }"
               >
                 <img
-                  v-if="companyInfo.logoUrl"
+                  v-if="companyInfo.logoUrl && !logoLoadFailed"
                   :src="companyInfo.logoUrl"
                   alt="Company logo"
                   class="w-full h-full object-contain"
+                  @error="handleLogoError"
                 />
                 <div v-else class="text-center px-2">
                   <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
