@@ -2,6 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import BaseInput from '@/components/ui/BaseInput.vue'
+import ChangePasswordForm from '@/components/auth/ChangePasswordForm.vue'
 
 const authStore = useAuthStore()
 const nickname = ref('')
@@ -245,6 +246,11 @@ const handleSubmit = async () => {
                       </div>
                     </form>
                   </div>
+                </div>
+
+                <!-- Password Change Section -->
+                <div class="mt-6">
+                  <ChangePasswordForm />
                 </div>
               </div>
             </div>
