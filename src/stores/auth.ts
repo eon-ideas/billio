@@ -305,48 +305,77 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Check if we have a valid session first
       const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
+
       if (sessionError || !session) {
         console.error('No valid session for refreshing avatar URL')
         return
       }
-      
+
       // Extract the file path from the avatar URL
       const url = userProfile.value.avatar_url
       const pathMatch = url.match(/\/storage\/v1\/object\/sign\/([^\/]+)\/(.*)(?:\?|$)/)
-      
+
       if (!pathMatch || !pathMatch[1] || !pathMatch[2]) {
         console.error('Could not extract file path from avatar URL:', url)
         return
       }
-      
+
       // Extract bucket and file path separately to avoid double bucket prefix
       const bucket = pathMatch[1] // This should be 'public'
       const filePath = pathMatch[2] // This should be the actual file path
-      
+
       // Remove any duplicate bucket prefix if present
-      const cleanFilePath = filePath.startsWith(bucket + '/') 
-        ? filePath.substring(bucket.length + 1) 
+      const cleanFilePath = filePath.startsWith(bucket + '/')
+        ? filePath.substring(bucket.length + 1)
         : filePath
-        
+
       console.log('Refreshing signed URL for:', cleanFilePath)
-      
+
       // Create a new signed URL
       const { data, error } = await supabase.storage
         .from(STORAGE_BUCKET)
         .createSignedUrl(cleanFilePath, 60 * 60 * 24 * 30) // 30 days expiry
-      
+
       if (error) {
         console.error('Error creating signed URL:', error)
         return
       }
-      
+
       if (data?.signedUrl && userProfile.value) {
         userProfile.value.avatar_url = data.signedUrl
         console.log('Avatar URL refreshed:', data.signedUrl)
       }
     } catch (error) {
       console.error('Error refreshing avatar URL:', error)
+    }
+  }
+
+  // Function to change the user's password
+  const changePassword = async (currentPassword: string, newPassword: string) => {
+    if (!user.value || !user.value.email) throw new Error('Not authenticated')
+
+    try {
+      // First, verify the current password by attempting to sign in
+      const { error: verifyError } = await supabase.auth.signInWithPassword({
+        email: user.value.email,
+        password: currentPassword
+      })
+
+      if (verifyError) {
+        throw new Error('Current password is incorrect')
+      }
+
+      // If verification succeeds, update to the new password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: newPassword
+      })
+
+      if (updateError) throw updateError
+
+      return { success: true }
+    } catch (error) {
+      console.error('Error changing password:', error)
+      throw error
     }
   }
 
@@ -364,6 +393,7 @@ export const useAuthStore = defineStore('auth', () => {
     fetchUserProfile,
     updateUserProfile,
     uploadAvatar,
-    refreshAvatarUrl
+    refreshAvatarUrl,
+    changePassword
   }
 })
