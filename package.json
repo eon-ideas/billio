@@ -1,0 +1,36 @@
+{
+  "name": "vite-vue-typescript-starter",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "type-check": "vue-tsc --noEmit",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@headlessui/vue": "^1.7.23",
+    "@heroicons/vue": "^2.2.0",
+    "@supabase/supabase-js": "^2.47.2",
+    "@vueuse/core": "^10.7.2",
+    "pinia": "^2.1.7",
+    "tailgrids": "^2.3.0",
+    "vue": "^3.5.10",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.3",
+    "vite": "^6.4.3",
+    "vue-tsc": "^2.1.6"
+  },
+  "overrides": {
+    "glob": "^10.5.0",
+    "minimatch": "^9.0.7"
+  }
+}
